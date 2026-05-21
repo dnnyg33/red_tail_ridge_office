@@ -1,0 +1,292 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../bloc/prepare_payroll_bloc.dart';
+
+class PreparePayrollPage extends StatelessWidget {
+  const PreparePayrollPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => PreparePayrollBloc()..add(const PreparePayrollStarted()),
+      child: const PreparePayrollView(),
+    );
+  }
+}
+
+class PreparePayrollView extends StatelessWidget {
+  const PreparePayrollView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Prepare Payroll'),
+      ),
+      body: BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
+        builder: (context, state) {
+          return switch (state.status) {
+            PreparePayrollStatus.initial ||
+            PreparePayrollStatus.loading =>
+              const Center(child: CircularProgressIndicator()),
+            PreparePayrollStatus.failure => Center(
+                child: Text(state.errorMessage ?? 'Unable to load payroll.'),
+              ),
+            PreparePayrollStatus.ready ||
+            PreparePayrollStatus.generating =>
+              _PreparePayrollBody(state: state),
+          };
+        },
+      ),
+    );
+  }
+}
+
+class _PreparePayrollBody extends StatelessWidget {
+  const _PreparePayrollBody({required this.state});
+
+  final PreparePayrollState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _TimeTrackingFileField(),
+          SizedBox(height: 24),
+          _MileageConstantField(),
+          SizedBox(height: 24),
+          _GenerateReportButton(),
+          SizedBox(height: 24),
+          Expanded(child: _WorkerRowsTable()),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimeTrackingFileField extends StatelessWidget {
+  const _TimeTrackingFileField();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
+      buildWhen: (prev, curr) =>
+          prev.timeTrackingFileName != curr.timeTrackingFileName,
+      builder: (context, state) {
+        return Row(
+          children: [
+            OutlinedButton.icon(
+              onPressed: () => _pickFile(context),
+              icon: const Icon(Icons.upload_file),
+              label: const Text("Add 'Time Tracking Days' csv"),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                state.timeTrackingFileName ?? 'No file selected',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: state.timeTrackingFileName == null
+                      ? theme.colorScheme.outline
+                      : theme.colorScheme.onSurface,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _pickFile(BuildContext context) async {
+    final bloc = context.read<PreparePayrollBloc>();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['csv'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final picked = result.files.single;
+    bloc.add(
+      PreparePayrollTimeTrackingFileSelected(
+        fileName: picked.name,
+        filePath: picked.path,
+        bytes: picked.bytes,
+      ),
+    );
+  }
+}
+
+class _MileageConstantField extends StatelessWidget {
+  const _MileageConstantField();
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<PreparePayrollBloc>();
+    return SizedBox(
+      width: 240,
+      child: TextFormField(
+        initialValue: bloc.state.mileageConstant?.toString(),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+        ],
+        decoration: const InputDecoration(
+          labelText: 'Mileage constant',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (raw) {
+          final trimmed = raw.trim();
+          final value = trimmed.isEmpty ? null : double.tryParse(trimmed);
+          bloc.add(PreparePayrollMileageConstantChanged(value));
+        },
+      ),
+    );
+  }
+}
+
+class _GenerateReportButton extends StatelessWidget {
+  const _GenerateReportButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
+      buildWhen: (prev, curr) =>
+          prev.canGenerateReport != curr.canGenerateReport ||
+          prev.status != curr.status,
+      builder: (context, state) {
+        return Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            onPressed: state.canGenerateReport
+                ? () => context
+                    .read<PreparePayrollBloc>()
+                    .add(const PreparePayrollReportRequested())
+                : null,
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('Generate report'),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _WorkerRowsTable extends StatelessWidget {
+  const _WorkerRowsTable();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
+      buildWhen: (prev, curr) =>
+          prev.workerRows != curr.workerRows ||
+          prev.payPeriodStart != curr.payPeriodStart ||
+          prev.payPeriodEnd != curr.payPeriodEnd,
+      builder: (context, state) {
+        if (state.workerRows.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        final title = _titleRange(state.payPeriodStart, state.payPeriodEnd);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: const [
+                      DataColumn(label: Text('Worker')),
+                      DataColumn(label: Text('Dates')),
+                      DataColumn(label: Text('Hours'), numeric: true),
+                      DataColumn(label: Text('Breaks'), numeric: true),
+                      DataColumn(label: Text('Mileage'), numeric: true),
+                      DataColumn(label: Text('Pay rate'), numeric: true),
+                      DataColumn(label: Text('Hourly pay'), numeric: true),
+                      DataColumn(label: Text('Mileage pay'), numeric: true),
+                      DataColumn(label: Text('Total pay'), numeric: true),
+                    ],
+                    rows: [
+                      for (final r in state.workerRows)
+                        DataRow(cells: [
+                          DataCell(Text(r.worker)),
+                          DataCell(Text(_rowRange(r.periodStart, r.periodEnd))),
+                          DataCell(Text(r.periodHours.toStringAsFixed(2))),
+                          DataCell(Text(r.periodBreaks.toStringAsFixed(2))),
+                          DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
+                          DataCell(Text(_money(r.payRate))),
+                          DataCell(Text(_money(r.periodHourlyPay))),
+                          DataCell(Text(_money(r.mileagePay))),
+                          DataCell(Text(_money(r.totalPeriodPay))),
+                        ]),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _money(double value) => '\$${value.toStringAsFixed(2)}';
+
+  String _rowRange(DateTime? start, DateTime? end) {
+    if (start == null && end == null) return '—';
+    if (start == null) return _shortDate(end!);
+    if (end == null) return _shortDate(start);
+    if (_sameDay(start, end)) return _shortDate(start);
+    return '${_shortDate(start)} – ${_shortDate(end)}';
+  }
+
+  String _titleRange(DateTime? start, DateTime? end) {
+    if (start == null || end == null) return 'Worker pay';
+    if (_sameDay(start, end)) return 'Pay period: ${_longDate(start)}';
+    if (start.year == end.year) {
+      return 'Pay period: ${_monthDay(start)} – ${_monthDay(end)}, ${end.year}';
+    }
+    return 'Pay period: ${_longDate(start)} – ${_longDate(end)}';
+  }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  String _shortDate(DateTime d) => '${d.month}/${d.day}';
+
+  String _monthDay(DateTime d) => '${_monthName(d.month)} ${d.day}';
+
+  String _longDate(DateTime d) =>
+      '${_monthName(d.month)} ${d.day}, ${d.year}';
+
+  String _monthName(int month) => const [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ][month - 1];
+}
