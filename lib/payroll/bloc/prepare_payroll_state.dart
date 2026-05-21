@@ -2,73 +2,28 @@ part of 'prepare_payroll_bloc.dart';
 
 enum PreparePayrollStatus { initial, loading, ready, generating, failure }
 
-final class PreparePayrollState extends Equatable {
-  const PreparePayrollState({
-    this.status = PreparePayrollStatus.initial,
-    this.payPeriodStart,
-    this.payPeriodEnd,
-    this.employeeCount = 0,
-    this.timeTrackingFileName,
-    this.timeTrackingFilePath,
-    this.timeTrackingBytes,
-    this.mileageConstant = .725,
-    this.workerRows = const [],
-    this.errorMessage,
-  });
+@freezed
+abstract class PreparePayrollState with _$PreparePayrollState {
+  const PreparePayrollState._();
 
-  final PreparePayrollStatus status;
-  final DateTime? payPeriodStart;
-  final DateTime? payPeriodEnd;
-  final int employeeCount;
-  final String? timeTrackingFileName;
-  final String? timeTrackingFilePath;
-  final Uint8List? timeTrackingBytes;
-  final double? mileageConstant;
-  final List<WorkerRow> workerRows;
-  final String? errorMessage;
+  const factory PreparePayrollState({
+    @Default(PreparePayrollStatus.initial) PreparePayrollStatus status,
+    DateTime? payPeriodStart,
+    DateTime? payPeriodEnd,
+    @Default(0) int employeeCount,
+    String? timeTrackingFileName,
+    String? timeTrackingFilePath,
+    Uint8List? timeTrackingBytes,
+    String? nttFileName,
+    String? nttFilePath,
+    Uint8List? nttBytes,
+    @Default(0.725) double? mileageConstant,
+    @Default(<WorkerRow>[]) List<WorkerRow> workerRows,
+    String? errorMessage,
+  }) = _PreparePayrollState;
 
   bool get hasTimeTrackingFile => timeTrackingFileName != null;
 
   bool get canGenerateReport =>
       hasTimeTrackingFile && status != PreparePayrollStatus.generating;
-
-  PreparePayrollState copyWith({
-    PreparePayrollStatus? status,
-    DateTime? payPeriodStart,
-    DateTime? payPeriodEnd,
-    int? employeeCount,
-    String? timeTrackingFileName,
-    String? timeTrackingFilePath,
-    Uint8List? timeTrackingBytes,
-    double? mileageConstant,
-    List<WorkerRow>? workerRows,
-    String? errorMessage,
-  }) {
-    return PreparePayrollState(
-      status: status ?? this.status,
-      payPeriodStart: payPeriodStart ?? this.payPeriodStart,
-      payPeriodEnd: payPeriodEnd ?? this.payPeriodEnd,
-      employeeCount: employeeCount ?? this.employeeCount,
-      timeTrackingFileName: timeTrackingFileName ?? this.timeTrackingFileName,
-      timeTrackingFilePath: timeTrackingFilePath ?? this.timeTrackingFilePath,
-      timeTrackingBytes: timeTrackingBytes ?? this.timeTrackingBytes,
-      mileageConstant: mileageConstant ?? this.mileageConstant,
-      workerRows: workerRows ?? this.workerRows,
-      errorMessage: errorMessage,
-    );
-  }
-
-  @override
-  List<Object?> get props => [
-        status,
-        payPeriodStart,
-        payPeriodEnd,
-        employeeCount,
-        timeTrackingFileName,
-        timeTrackingFilePath,
-        timeTrackingBytes,
-        mileageConstant,
-        workerRows,
-        errorMessage,
-      ];
 }

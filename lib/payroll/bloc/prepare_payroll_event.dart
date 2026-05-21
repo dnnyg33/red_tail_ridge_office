@@ -1,40 +1,25 @@
 part of 'prepare_payroll_bloc.dart';
 
-sealed class PreparePayrollEvent extends Equatable {
-  const PreparePayrollEvent();
 
-  @override
-  List<Object?> get props => [];
-}
+@freezed
+sealed class PreparePayrollEvent with _$PreparePayrollEvent {
+  const factory PreparePayrollEvent.started() = PreparePayrollStarted;
 
-final class PreparePayrollStarted extends PreparePayrollEvent {
-  const PreparePayrollStarted();
-}
+  const factory PreparePayrollEvent.timeTrackingFileSelected({
+    required String fileName,
+    String? filePath,
+    Uint8List? bytes,
+  }) = PreparePayrollTimeTrackingFileSelected;
 
-final class PreparePayrollTimeTrackingFileSelected extends PreparePayrollEvent {
-  const PreparePayrollTimeTrackingFileSelected({
-    required this.fileName,
-    required this.filePath,
-    this.bytes,
-  });
+  const factory PreparePayrollEvent.nttFileSelected({
+    required String fileName,
+    String? filePath,
+    Uint8List? bytes,
+  }) = PreparePayrollNttFileSelected;
 
-  final String fileName;
-  final String? filePath;
-  final Uint8List? bytes;
+  const factory PreparePayrollEvent.mileageConstantChanged(double? value) =
+      PreparePayrollMileageConstantChanged;
 
-  @override
-  List<Object?> get props => [fileName, filePath, bytes];
-}
-
-final class PreparePayrollMileageConstantChanged extends PreparePayrollEvent {
-  const PreparePayrollMileageConstantChanged(this.value);
-
-  final double? value;
-
-  @override
-  List<Object?> get props => [value];
-}
-
-final class PreparePayrollReportRequested extends PreparePayrollEvent {
-  const PreparePayrollReportRequested();
+  const factory PreparePayrollEvent.reportRequested() =
+      PreparePayrollReportRequested;
 }

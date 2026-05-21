@@ -1,18 +1,22 @@
+
 import 'dart:typed_data';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../models/worker_row.dart';
 import '../parsers/time_tracking_csv_parser.dart';
 
 part 'prepare_payroll_event.dart';
 part 'prepare_payroll_state.dart';
+part 'prepare_payroll_bloc.freezed.dart';
+
 
 class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> {
   PreparePayrollBloc() : super(const PreparePayrollState()) {
     on<PreparePayrollStarted>(_onStarted);
     on<PreparePayrollTimeTrackingFileSelected>(_onTimeTrackingFileSelected);
+    on<PreparePayrollNttFileSelected>(_onNttFileSelected);
     on<PreparePayrollMileageConstantChanged>(_onMileageConstantChanged);
     on<PreparePayrollReportRequested>(_onReportRequested);
   }
@@ -22,13 +26,11 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     Emitter<PreparePayrollState> emit,
   ) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, 1);
-    final end = DateTime(now.year, now.month + 1, 0);
     emit(
       state.copyWith(
         status: PreparePayrollStatus.ready,
-        payPeriodStart: start,
-        payPeriodEnd: end,
+        payPeriodStart: DateTime(now.year, now.month, 1),
+        payPeriodEnd: DateTime(now.year, now.month + 1, 0),
         employeeCount: 0,
       ),
     );
@@ -48,26 +50,25 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     );
   }
 
+  void _onNttFileSelected(
+    PreparePayrollNttFileSelected event,
+    Emitter<PreparePayrollState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        nttFileName: event.fileName,
+        nttFilePath: event.filePath,
+        nttBytes: event.bytes,
+        errorMessage: null,
+      ),
+    );
+  }
+
   void _onMileageConstantChanged(
     PreparePayrollMileageConstantChanged event,
     Emitter<PreparePayrollState> emit,
   ) {
-    // Construct directly so a null value really clears the field — copyWith's
-    // `?? this.mileageConstant` would otherwise preserve the old value.
-    emit(
-      PreparePayrollState(
-        status: state.status,
-        payPeriodStart: state.payPeriodStart,
-        payPeriodEnd: state.payPeriodEnd,
-        employeeCount: state.employeeCount,
-        timeTrackingFileName: state.timeTrackingFileName,
-        timeTrackingFilePath: state.timeTrackingFilePath,
-        timeTrackingBytes: state.timeTrackingBytes,
-        mileageConstant: event.value,
-        workerRows: state.workerRows,
-        errorMessage: state.errorMessage,
-      ),
-    );
+    emit(state.copyWith(mileageConstant: event.value));
   }
 
   void _onReportRequested(

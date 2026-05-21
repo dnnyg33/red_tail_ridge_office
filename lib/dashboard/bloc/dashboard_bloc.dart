@@ -1,14 +1,16 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../models/mini_app.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';
+part 'dashboard_bloc.freezed.dart';
+
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  DashboardBloc() : super(const DashboardState.initial()) {
+  DashboardBloc() : super(const DashboardState()) {
     on<DashboardStarted>(_onStarted);
   }
 

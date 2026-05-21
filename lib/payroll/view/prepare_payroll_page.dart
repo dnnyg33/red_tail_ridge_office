@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/prepare_payroll_bloc.dart';
+import 'create_ntt_page.dart';
 
 class PreparePayrollPage extends StatelessWidget {
   const PreparePayrollPage({super.key});
@@ -59,6 +60,9 @@ class _PreparePayrollBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _TimeTrackingFileField(),
+          SizedBox(height: 12),
+          _NttFileField(),
+
           SizedBox(height: 24),
           _MileageConstantField(),
           SizedBox(height: 24),
@@ -117,6 +121,76 @@ class _TimeTrackingFileField extends StatelessWidget {
     final picked = result.files.single;
     bloc.add(
       PreparePayrollTimeTrackingFileSelected(
+        fileName: picked.name,
+        filePath: picked.path,
+        bytes: picked.bytes,
+      ),
+    );
+  }
+}
+
+class _NttFileField extends StatelessWidget {
+  const _NttFileField();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
+      buildWhen: (prev, curr) => prev.nttFileName != curr.nttFileName,
+      builder: (context, state) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: [
+              OutlinedButton.icon(
+                onPressed: () => _pickFile(context),
+                icon: const Icon(Icons.upload_file),
+                label: const Text('Add NTT csv'),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                state.nttFileName ?? 'No file selected',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: state.nttFileName == null
+                      ? theme.colorScheme.outline
+                      : theme.colorScheme.onSurface,
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Row(children: [
+              const SizedBox(width: 24),
+              const Text("Or"),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: state.nttFileName != null
+                    ? null
+                    : () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const CreateNttPage(),
+                          ),
+                        ),
+                icon: const Icon(Icons.chevron_right),
+                label: const Text('Create NTT csv'),
+              ),
+            ]),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _pickFile(BuildContext context) async {
+    final bloc = context.read<PreparePayrollBloc>();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['csv'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final picked = result.files.single;
+    bloc.add(
+      PreparePayrollNttFileSelected(
         fileName: picked.name,
         filePath: picked.path,
         bytes: picked.bytes,
