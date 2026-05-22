@@ -1,64 +1,22 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class WorkerRow extends Equatable {
-  const WorkerRow({
-    required this.worker,
-    required this.periodHours,
-    this.periodBreaks = 0.0,
-    required this.mileageForPeriod,
-    required this.payRate,
-    required this.periodHourlyPay,
-    required this.mileagePay,
-    this.periodStart,
-    this.periodEnd,
-  });
+part 'worker_row.freezed.dart';
 
-  final String worker;
-  final double periodHours;
-  final double periodBreaks;
-  final double mileageForPeriod;
-  final double payRate;
-  final double periodHourlyPay;
-  final double mileagePay;
-  final DateTime? periodStart;
-  final DateTime? periodEnd;
+@freezed
+abstract class WorkerRow with _$WorkerRow {
+  const WorkerRow._();
 
-  double get totalPeriodPay => periodHourlyPay + mileagePay;
-
-  WorkerRow copyWith({
-    String? worker,
-    double? periodHours,
-    double? periodBreaks,
-    double? mileageForPeriod,
-    double? payRate,
-    double? periodHourlyPay,
-    double? mileagePay,
+  const factory WorkerRow({
+    required String worker,
+    required double periodHours,
+    @Default(0.0) double periodBreaks,
+    required double mileageForPeriod,
+    required double payRate,
+    required double periodHourlyPay,
+    required double mileagePay,
     DateTime? periodStart,
     DateTime? periodEnd,
-  }) {
-    return WorkerRow(
-      worker: worker ?? this.worker,
-      periodHours: periodHours ?? this.periodHours,
-      periodBreaks: periodBreaks ?? this.periodBreaks,
-      mileageForPeriod: mileageForPeriod ?? this.mileageForPeriod,
-      payRate: payRate ?? this.payRate,
-      periodHourlyPay: periodHourlyPay ?? this.periodHourlyPay,
-      mileagePay: mileagePay ?? this.mileagePay,
-      periodStart: periodStart ?? this.periodStart,
-      periodEnd: periodEnd ?? this.periodEnd,
-    );
-  }
+  }) = _WorkerRow;
 
-  @override
-  List<Object?> get props => [
-        worker,
-        periodHours,
-        periodBreaks,
-        mileageForPeriod,
-        payRate,
-        periodHourlyPay,
-        mileagePay,
-        periodStart,
-        periodEnd,
-      ];
+  double get totalPeriodPay => periodHourlyPay + mileagePay;
 }

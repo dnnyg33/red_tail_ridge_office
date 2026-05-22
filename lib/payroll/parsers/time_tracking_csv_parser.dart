@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:csv/csv.dart';
 
+import '../models/worker_ntt.dart';
 import '../models/worker_row.dart';
 
 /// Parses an Operto Teams "Time Track Days" CSV export.
@@ -25,6 +26,7 @@ class TimeTrackingCsvParser {
   List<WorkerRow> parse({
     required Uint8List bytes,
     required double mileageConstant,
+    required List<WorkerNtt> workerNtts,
   }) {
     final raw = utf8.decode(bytes, allowMalformed: true);
     final normalized = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
@@ -56,6 +58,7 @@ class TimeTrackingCsvParser {
           totalTimeHours: _asDouble(_safeGet(row, _colTotalTimeHours)),
           payRate: _asDouble(_safeGet(row, _colPayRate)),
           pay: _asDouble(_safeGet(row, _colPay)),
+          workerNtts: workerNtts,
         );
       } else if (pending != null) {
         final date = _parseDate(_asString(_safeGet(row, _colDateOrDays)));
@@ -98,6 +101,7 @@ class _PendingWorker {
     required this.totalTimeHours,
     required this.payRate,
     required this.pay,
+    required this.workerNtts,
   });
 
   final String name;
@@ -105,6 +109,7 @@ class _PendingWorker {
   final double totalTimeHours;
   final double payRate;
   final double pay;
+  final List<WorkerNtt> workerNtts;
 
   DateTime? earliest;
   DateTime? latest;
@@ -115,15 +120,18 @@ class _PendingWorker {
   }
 
   WorkerRow build(double mileageConstant) {
+    var periodBreaks = workerNtts
+        .firstWhere((w) => w.workerName == name).totalNtt;
     return WorkerRow(
       worker: name,
       periodHours: totalTimeHours,
       mileageForPeriod: mileageTotal,
       payRate: payRate,
-      periodHourlyPay: pay,
+    periodHourlyPay: pay - periodBreaks * payRate,
       mileagePay: mileageTotal * mileageConstant,
       periodStart: earliest,
       periodEnd: latest,
+      periodBreaks: periodBreaks
     );
   }
 }

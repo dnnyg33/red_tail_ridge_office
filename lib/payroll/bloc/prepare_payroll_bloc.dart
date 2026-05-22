@@ -5,6 +5,7 @@ import 'package:flutter_utils/networking/async_operation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../models/worker_row.dart';
+import '../parsers/ntt_tracking_csv_parser.dart';
 import '../parsers/time_tracking_csv_parser.dart';
 
 part 'prepare_payroll_bloc.freezed.dart';
@@ -67,20 +68,34 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     PreparePayrollReportRequested event,
     Emitter<PreparePayrollState> emit,
   ) {
-    final bytes = state.timeTrackingFile?.bytes;
-    if (bytes == null) {
+    final timeTrackingBytes = state.timeTrackingFile?.bytes;
+    final nttBytes = state.nttFile?.bytes;
+    if (timeTrackingBytes == null) {
       emit(state.copyWith(
         workerRows: AsyncOperation.error(
             error: 'No time tracking file is loaded.'),
       ));
       return;
     }
+    if (nttBytes == null) {
+      emit(state.copyWith(
+        workerRows: AsyncOperation.error(
+            error: 'No time tracking tasks file is loaded. Breaks will not be included'),
+      ));
+      return;
+    }
     emit(state.copyWith(workerRows: AsyncOperation.processing()));
     try {
-      final rows = const TimeTrackingCsvParser().parse(
-        bytes: bytes,
-        mileageConstant: state.mileageConstant ?? 0,
+      final workerNtts = const NttTrackingCsvParser().parse(
+        nttBytes: nttBytes,
+        timeTrackingBytes: timeTrackingBytes,
       );
+      final rows = const TimeTrackingCsvParser().parse(
+        bytes: timeTrackingBytes,
+        mileageConstant: state.mileageConstant ?? 0,
+        workerNtts: workerNtts,
+      );
+
       final (overallStart, overallEnd) = _overallRange(rows);
       emit(state.copyWith(
         workerRows: AsyncOperation.success(data: rows),

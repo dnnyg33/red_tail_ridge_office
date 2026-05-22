@@ -261,7 +261,7 @@ class _WorkerRowsTable extends StatelessWidget {
                       DataColumn(label: Text('Breaks'), numeric: true),
                       DataColumn(label: Text('Mileage'), numeric: true),
                       DataColumn(label: Text('Pay rate'), numeric: true),
-                      DataColumn(label: Text('Hourly pay'), numeric: true),
+                      DataColumn(label: Text('Hourly pay minus breaks'), numeric: true),
                       DataColumn(label: Text('Mileage pay'), numeric: true),
                       DataColumn(label: Text('Total pay'), numeric: true),
                     ],
