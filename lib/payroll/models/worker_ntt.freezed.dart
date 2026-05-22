@@ -537,4 +537,258 @@ as int,
 
 }
 
+/// @nodoc
+mixin _$TimePair {
+
+ int get first; int get last;
+/// Create a copy of TimePair
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TimePairCopyWith<TimePair> get copyWith => _$TimePairCopyWithImpl<TimePair>(this as TimePair, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimePair&&(identical(other.first, first) || other.first == first)&&(identical(other.last, last) || other.last == last));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,first,last);
+
+@override
+String toString() {
+  return 'TimePair(first: $first, last: $last)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TimePairCopyWith<$Res>  {
+  factory $TimePairCopyWith(TimePair value, $Res Function(TimePair) _then) = _$TimePairCopyWithImpl;
+@useResult
+$Res call({
+ int first, int last
+});
+
+
+
+
+}
+/// @nodoc
+class _$TimePairCopyWithImpl<$Res>
+    implements $TimePairCopyWith<$Res> {
+  _$TimePairCopyWithImpl(this._self, this._then);
+
+  final TimePair _self;
+  final $Res Function(TimePair) _then;
+
+/// Create a copy of TimePair
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? first = null,Object? last = null,}) {
+  return _then(_self.copyWith(
+first: null == first ? _self.first : first // ignore: cast_nullable_to_non_nullable
+as int,last: null == last ? _self.last : last // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [TimePair].
+extension TimePairPatterns on TimePair {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TimePair value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TimePair() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TimePair value)  $default,){
+final _that = this;
+switch (_that) {
+case _TimePair():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TimePair value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TimePair() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int first,  int last)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TimePair() when $default != null:
+return $default(_that.first,_that.last);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int first,  int last)  $default,) {final _that = this;
+switch (_that) {
+case _TimePair():
+return $default(_that.first,_that.last);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int first,  int last)?  $default,) {final _that = this;
+switch (_that) {
+case _TimePair() when $default != null:
+return $default(_that.first,_that.last);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _TimePair implements TimePair {
+  const _TimePair({required this.first, required this.last});
+  
+
+@override final  int first;
+@override final  int last;
+
+/// Create a copy of TimePair
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TimePairCopyWith<_TimePair> get copyWith => __$TimePairCopyWithImpl<_TimePair>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TimePair&&(identical(other.first, first) || other.first == first)&&(identical(other.last, last) || other.last == last));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,first,last);
+
+@override
+String toString() {
+  return 'TimePair(first: $first, last: $last)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TimePairCopyWith<$Res> implements $TimePairCopyWith<$Res> {
+  factory _$TimePairCopyWith(_TimePair value, $Res Function(_TimePair) _then) = __$TimePairCopyWithImpl;
+@override @useResult
+$Res call({
+ int first, int last
+});
+
+
+
+
+}
+/// @nodoc
+class __$TimePairCopyWithImpl<$Res>
+    implements _$TimePairCopyWith<$Res> {
+  __$TimePairCopyWithImpl(this._self, this._then);
+
+  final _TimePair _self;
+  final $Res Function(_TimePair) _then;
+
+/// Create a copy of TimePair
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? first = null,Object? last = null,}) {
+  return _then(_TimePair(
+first: null == first ? _self.first : first // ignore: cast_nullable_to_non_nullable
+as int,last: null == last ? _self.last : last // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
 // dart format on

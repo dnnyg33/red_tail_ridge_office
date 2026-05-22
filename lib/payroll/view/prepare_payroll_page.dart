@@ -161,6 +161,7 @@ Future<void> _pickFile(BuildContext context,
     type: FileType.custom,
     allowedExtensions: const ['csv'],
     withData: true,
+    initialDirectory: 'Downloads'
   );
   if (result == null || result.files.isEmpty) return;
   final picked = result.files.single;
@@ -268,10 +269,17 @@ class _WorkerRowsTable extends StatelessWidget {
                     rows: [
                       for (final r in workerRows!)
                         DataRow(cells: [
-                          DataCell(Text(r.worker)),
+                          DataCell(
+                            TextButton(
+                              onPressed: r.nttRows.isEmpty
+                                  ? null
+                                  : () => _showNttRowsDialog(context, r),
+                              child: Text(r.worker),
+                            ),
+                          ),
                           DataCell(Text(_rowRange(r.periodStart, r.periodEnd))),
                           DataCell(Text(r.periodHours.toStringAsFixed(2))),
-                          DataCell(Text(r.periodBreaks.toStringAsFixed(2))),
+                          DataCell(Text(r.periodBreaks)),
                           DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
                           DataCell(Text(_money(r.payRate))),
                           DataCell(Text(_money(r.periodHourlyPay))),
@@ -286,6 +294,50 @@ class _WorkerRowsTable extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  void _showNttRowsDialog(BuildContext context, WorkerRow row) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('${row.worker} – Proposed NTT'),
+        content: SizedBox(
+          width: 720,
+          height: 480,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+              columns: const [
+                DataColumn(label: Text('Date')),
+                DataColumn(label: Text('Shift total')),
+                DataColumn(label: Text('Tasks total')),
+                DataColumn(label: Text('Properties'), numeric: true),
+                DataColumn(label: Text('Proposed NTT (min)'), numeric: true),
+              ],
+              rows: [
+                for (final n in row.nttRows)
+                  DataRow(cells: [
+                    DataCell(Text(n.date)),
+                    DataCell(Text(n.shiftTotalTime)),
+                    DataCell(Text(n.tasksTotalTime)),
+                    DataCell(Text(n.properties.toString())),
+                    DataCell(Text(n.proposedNTT.toString())),
+                  ]),
+              ],
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 

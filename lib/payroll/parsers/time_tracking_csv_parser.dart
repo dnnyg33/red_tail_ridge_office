@@ -120,8 +120,8 @@ class _PendingWorker {
   }
 
   WorkerRow build(double mileageConstant) {
-    var periodBreaks = workerNtts
-        .firstWhere((w) => w.workerName == name).totalNtt;
+    final workerNtt = workerNtts.firstWhere((w) => w.workerName == name);
+    final periodBreaks = workerNtt.totalNtt;
     return WorkerRow(
       worker: name,
       periodHours: totalTimeHours,
@@ -131,7 +131,8 @@ class _PendingWorker {
       mileagePay: mileageTotal * mileageConstant,
       periodStart: earliest,
       periodEnd: latest,
-      periodBreaks: periodBreaks
+      periodBreaks: periodBreaks.toStringAsFixed(2),
+      nttRows: workerNtt.nttRows,
     );
   }
 }
