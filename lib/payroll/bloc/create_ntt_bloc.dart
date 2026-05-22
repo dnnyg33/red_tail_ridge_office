@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -8,9 +10,23 @@ part 'create_ntt_bloc.freezed.dart';
 class CreateNttBloc extends Bloc<CreateNttEvent, CreateNttState> {
   CreateNttBloc() : super(const CreateNttState()) {
     on<CreateNttStarted>(_onStarted);
+    on<CreateNttTimeTrackingTaskFileSelected>(_onTimeTrackingTaskFileSelected);
   }
 
   void _onStarted(CreateNttStarted event, Emitter<CreateNttState> emit) {
     emit(state.copyWith(status: CreateNttStatus.ready));
+  }
+
+  void _onTimeTrackingTaskFileSelected(
+    CreateNttTimeTrackingTaskFileSelected event,
+    Emitter<CreateNttState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        timeTrackingTaskFileName: event.fileName,
+        timeTrackingTaskFilePath: event.filePath,
+        timeTrackingTaskBytes: event.bytes,
+      ),
+    );
   }
 }

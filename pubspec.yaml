@@ -39,6 +39,10 @@ dependencies:
   freezed_annotation: ^3.0.0
   file_picker: ^8.1.4
   csv: ^6.0.0
+  flutter_utils:
+    git:
+      url: git@github.com:dnnyg33/flutter_utils.git
+      ref: main
 
 dev_dependencies:
   flutter_test:
