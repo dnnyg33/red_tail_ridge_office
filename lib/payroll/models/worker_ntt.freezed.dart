@@ -277,7 +277,7 @@ as double,
 /// @nodoc
 mixin _$ProposedNttRow {
 
- String get date; String get shiftTotalTime; String get tasksTotalTime; int get properties; int get proposedNTT;
+ String get date; String get shiftTotalTime; String get tasksTotalTime; int get properties; int get proposedNTT; TimePair get shift; TimePair get tasks;
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -288,16 +288,16 @@ $ProposedNttRowCopyWith<ProposedNttRow> get copyWith => _$ProposedNttRowCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT)&&(identical(other.shift, shift) || other.shift == shift)&&(identical(other.tasks, tasks) || other.tasks == tasks));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT);
+int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT,shift,tasks);
 
 @override
 String toString() {
-  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT)';
+  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT, shift: $shift, tasks: $tasks)';
 }
 
 
@@ -308,11 +308,11 @@ abstract mixin class $ProposedNttRowCopyWith<$Res>  {
   factory $ProposedNttRowCopyWith(ProposedNttRow value, $Res Function(ProposedNttRow) _then) = _$ProposedNttRowCopyWithImpl;
 @useResult
 $Res call({
- String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT
+ String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT, TimePair shift, TimePair tasks
 });
 
 
-
+$TimePairCopyWith<$Res> get shift;$TimePairCopyWith<$Res> get tasks;
 
 }
 /// @nodoc
@@ -325,17 +325,37 @@ class _$ProposedNttRowCopyWithImpl<$Res>
 
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,Object? shift = null,Object? tasks = null,}) {
   return _then(_self.copyWith(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as String,shiftTotalTime: null == shiftTotalTime ? _self.shiftTotalTime : shiftTotalTime // ignore: cast_nullable_to_non_nullable
 as String,tasksTotalTime: null == tasksTotalTime ? _self.tasksTotalTime : tasksTotalTime // ignore: cast_nullable_to_non_nullable
 as String,properties: null == properties ? _self.properties : properties // ignore: cast_nullable_to_non_nullable
 as int,proposedNTT: null == proposedNTT ? _self.proposedNTT : proposedNTT // ignore: cast_nullable_to_non_nullable
-as int,
+as int,shift: null == shift ? _self.shift : shift // ignore: cast_nullable_to_non_nullable
+as TimePair,tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as TimePair,
   ));
 }
-
+/// Create a copy of ProposedNttRow
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TimePairCopyWith<$Res> get shift {
+  
+  return $TimePairCopyWith<$Res>(_self.shift, (value) {
+    return _then(_self.copyWith(shift: value));
+  });
+}/// Create a copy of ProposedNttRow
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TimePairCopyWith<$Res> get tasks {
+  
+  return $TimePairCopyWith<$Res>(_self.tasks, (value) {
+    return _then(_self.copyWith(tasks: value));
+  });
+}
 }
 
 
@@ -414,10 +434,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProposedNttRow() when $default != null:
-return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT);case _:
+return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks);case _:
   return orElse();
 
 }
@@ -435,10 +455,10 @@ return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.prope
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks)  $default,) {final _that = this;
 switch (_that) {
 case _ProposedNttRow():
-return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT);}
+return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -452,10 +472,10 @@ return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.prope
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks)?  $default,) {final _that = this;
 switch (_that) {
 case _ProposedNttRow() when $default != null:
-return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT);case _:
+return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks);case _:
   return null;
 
 }
@@ -467,7 +487,7 @@ return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.prope
 
 
 class _ProposedNttRow implements ProposedNttRow {
-  const _ProposedNttRow({required this.date, required this.shiftTotalTime, required this.tasksTotalTime, required this.properties, required this.proposedNTT});
+  const _ProposedNttRow({required this.date, required this.shiftTotalTime, required this.tasksTotalTime, required this.properties, required this.proposedNTT, required this.shift, required this.tasks});
   
 
 @override final  String date;
@@ -475,6 +495,8 @@ class _ProposedNttRow implements ProposedNttRow {
 @override final  String tasksTotalTime;
 @override final  int properties;
 @override final  int proposedNTT;
+@override final  TimePair shift;
+@override final  TimePair tasks;
 
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
@@ -486,16 +508,16 @@ _$ProposedNttRowCopyWith<_ProposedNttRow> get copyWith => __$ProposedNttRowCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT)&&(identical(other.shift, shift) || other.shift == shift)&&(identical(other.tasks, tasks) || other.tasks == tasks));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT);
+int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT,shift,tasks);
 
 @override
 String toString() {
-  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT)';
+  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT, shift: $shift, tasks: $tasks)';
 }
 
 
@@ -506,11 +528,11 @@ abstract mixin class _$ProposedNttRowCopyWith<$Res> implements $ProposedNttRowCo
   factory _$ProposedNttRowCopyWith(_ProposedNttRow value, $Res Function(_ProposedNttRow) _then) = __$ProposedNttRowCopyWithImpl;
 @override @useResult
 $Res call({
- String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT
+ String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT, TimePair shift, TimePair tasks
 });
 
 
-
+@override $TimePairCopyWith<$Res> get shift;@override $TimePairCopyWith<$Res> get tasks;
 
 }
 /// @nodoc
@@ -523,24 +545,44 @@ class __$ProposedNttRowCopyWithImpl<$Res>
 
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,Object? shift = null,Object? tasks = null,}) {
   return _then(_ProposedNttRow(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as String,shiftTotalTime: null == shiftTotalTime ? _self.shiftTotalTime : shiftTotalTime // ignore: cast_nullable_to_non_nullable
 as String,tasksTotalTime: null == tasksTotalTime ? _self.tasksTotalTime : tasksTotalTime // ignore: cast_nullable_to_non_nullable
 as String,properties: null == properties ? _self.properties : properties // ignore: cast_nullable_to_non_nullable
 as int,proposedNTT: null == proposedNTT ? _self.proposedNTT : proposedNTT // ignore: cast_nullable_to_non_nullable
-as int,
+as int,shift: null == shift ? _self.shift : shift // ignore: cast_nullable_to_non_nullable
+as TimePair,tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
+as TimePair,
   ));
 }
 
-
+/// Create a copy of ProposedNttRow
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TimePairCopyWith<$Res> get shift {
+  
+  return $TimePairCopyWith<$Res>(_self.shift, (value) {
+    return _then(_self.copyWith(shift: value));
+  });
+}/// Create a copy of ProposedNttRow
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TimePairCopyWith<$Res> get tasks {
+  
+  return $TimePairCopyWith<$Res>(_self.tasks, (value) {
+    return _then(_self.copyWith(tasks: value));
+  });
+}
 }
 
 /// @nodoc
 mixin _$TimePair {
 
- int get first; int get last;
+ String get first; String get last;
 /// Create a copy of TimePair
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -571,7 +613,7 @@ abstract mixin class $TimePairCopyWith<$Res>  {
   factory $TimePairCopyWith(TimePair value, $Res Function(TimePair) _then) = _$TimePairCopyWithImpl;
 @useResult
 $Res call({
- int first, int last
+ String first, String last
 });
 
 
@@ -591,8 +633,8 @@ class _$TimePairCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? first = null,Object? last = null,}) {
   return _then(_self.copyWith(
 first: null == first ? _self.first : first // ignore: cast_nullable_to_non_nullable
-as int,last: null == last ? _self.last : last // ignore: cast_nullable_to_non_nullable
-as int,
+as String,last: null == last ? _self.last : last // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -674,7 +716,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int first,  int last)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String first,  String last)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TimePair() when $default != null:
 return $default(_that.first,_that.last);case _:
@@ -695,7 +737,7 @@ return $default(_that.first,_that.last);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int first,  int last)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String first,  String last)  $default,) {final _that = this;
 switch (_that) {
 case _TimePair():
 return $default(_that.first,_that.last);}
@@ -712,7 +754,7 @@ return $default(_that.first,_that.last);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int first,  int last)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String first,  String last)?  $default,) {final _that = this;
 switch (_that) {
 case _TimePair() when $default != null:
 return $default(_that.first,_that.last);case _:
@@ -730,8 +772,8 @@ class _TimePair implements TimePair {
   const _TimePair({required this.first, required this.last});
   
 
-@override final  int first;
-@override final  int last;
+@override final  String first;
+@override final  String last;
 
 /// Create a copy of TimePair
 /// with the given fields replaced by the non-null parameter values.
@@ -763,7 +805,7 @@ abstract mixin class _$TimePairCopyWith<$Res> implements $TimePairCopyWith<$Res>
   factory _$TimePairCopyWith(_TimePair value, $Res Function(_TimePair) _then) = __$TimePairCopyWithImpl;
 @override @useResult
 $Res call({
- int first, int last
+ String first, String last
 });
 
 
@@ -783,8 +825,8 @@ class __$TimePairCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? first = null,Object? last = null,}) {
   return _then(_TimePair(
 first: null == first ? _self.first : first // ignore: cast_nullable_to_non_nullable
-as int,last: null == last ? _self.last : last // ignore: cast_nullable_to_non_nullable
-as int,
+as String,last: null == last ? _self.last : last // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

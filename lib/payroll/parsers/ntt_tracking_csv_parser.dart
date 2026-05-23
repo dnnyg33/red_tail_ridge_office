@@ -10,11 +10,15 @@ class NttTrackingCsvParser {
 
   static const int _ttName = 0;
   static const int _ttDate = 1;
+  static const int _ttClockIn = 5;
+  static const int _ttClockOut = 6;
   static const int _ttTotalTime = 8;
 
   static const int _nttDate = 0;
   static const int _nttProperty = 2;
   static const int _nttEmployee = 8;
+  static const int _nttStart = 9;
+  static const int _nttEnd = 10;
   static const int _nttTime = 11;
 
   List<WorkerNtt> parse({
@@ -33,19 +37,23 @@ class NttTrackingCsvParser {
       final nttRows = <ProposedNttRow>[];
       var totalNttMinutes = 0;
       for (final date in dates) {
-        final shiftMinutes = shiftsByDate[date]!;
+        final shift = shiftsByDate[date]!;
         final taskAggregate = tasksByWorker[workerName]?[date];
         final taskMinutes = taskAggregate?.minutes ?? 0;
         final propertyCount = taskAggregate?.properties.length ?? 0;
-        final proposedNtt = shiftMinutes - (taskMinutes + ((propertyCount - 1) * 10));
+        final proposedNtt = shift.minutes - (taskMinutes + ((propertyCount - 1) * 10));
         totalNttMinutes += proposedNtt;
         nttRows.add(ProposedNttRow(
           date: date,
-          shiftTotalTime: _formatMinutes(shiftMinutes),
+          shiftTotalTime: _formatMinutes(shift.minutes),
           tasksTotalTime: _formatMinutes(taskMinutes),
           properties: propertyCount,
           proposedNTT: proposedNtt,
-          shift: shi
+          shift: TimePair(first: shift.clockIn, last: shift.clockOut),
+          tasks: TimePair(
+            first: taskAggregate?.firstStart ?? '',
+            last: taskAggregate?.lastEnd ?? '',
+          ),
         ));
       }
       workers.add(WorkerNtt(
@@ -57,11 +65,12 @@ class NttTrackingCsvParser {
     return workers;
   }
 
-  Map<String, Map<String, int>> _parseShifts(Uint8List bytes) {
+  Map<String, Map<String, _ShiftAggregate>> _parseShifts(Uint8List bytes) {
     final rows = _decode(bytes);
-    final result = <String, Map<String, int>>{};
+    final result = <String, Map<String, _ShiftAggregate>>{};
     String? currentWorker;
-    for (final row in rows) {
+    for (var i = 0; i < rows.length; i++) {
+      final row = rows[i];
       if (row.isEmpty) continue;
       final name = _asString(_safeGet(row, _ttName)).trim();
       if (name.isNotEmpty) {
@@ -70,14 +79,19 @@ class NttTrackingCsvParser {
           continue;
         }
         currentWorker = name;
-        result.putIfAbsent(currentWorker, () => <String, int>{});
+        result.putIfAbsent(currentWorker, () => <String, _ShiftAggregate>{});
       } else if (currentWorker != null) {
         final date = _asString(_safeGet(row, _ttDate)).trim();
         if (!_isDate(date)) continue;
         final minutes = _parseHhMm(_asString(_safeGet(row, _ttTotalTime)));
         if (minutes == null) continue;
+        final clockIn = _asString(_safeGet(row, _ttClockIn)).trim();
+        final clockOut = _asString(_safeGet(row, _ttClockOut)).trim();
         final byDate = result[currentWorker]!;
-        byDate[date] = (byDate[date] ?? 0) + minutes;
+        final agg = byDate.putIfAbsent(date, _ShiftAggregate.new);
+        agg.minutes += minutes;
+        agg.clockIn = clockIn;
+        agg.clockOut = clockOut;
       }
     }
     return result;
@@ -95,11 +109,24 @@ class NttTrackingCsvParser {
       final taskMinutes =
           _parseHhMm(_asString(_safeGet(row, _nttTime))) ?? 0;
       final property = _asString(_safeGet(row, _nttProperty)).trim();
+      final start = _asString(_safeGet(row, _nttStart)).trim();
+      final end = _asString(_safeGet(row, _nttEnd)).trim();
       final byDate =
           result.putIfAbsent(employee, () => <String, _TaskAggregate>{});
       final agg = byDate.putIfAbsent(date, _TaskAggregate.new);
       agg.minutes += taskMinutes;
       if (property.isNotEmpty) agg.properties.add(property);
+      final startMinutes = _parseHhMm(start);
+      if (startMinutes != null &&
+          (agg.firstStart.isEmpty ||
+              startMinutes < _parseHhMm(agg.firstStart)!)) {
+        agg.firstStart = start;
+      }
+      final endMinutes = _parseHhMm(end);
+      if (endMinutes != null &&
+          (agg.lastEnd.isEmpty || endMinutes > _parseHhMm(agg.lastEnd)!)) {
+        agg.lastEnd = end;
+      }
     }
     return result;
   }
@@ -124,13 +151,25 @@ class NttTrackingCsvParser {
   }
 
   int? _parseHhMm(String value) {
-    final s = value.trim();
+    var s = value.trim().toUpperCase();
     if (s.isEmpty) return null;
+    int? meridiemOffset;
+    if (s.endsWith('AM')) {
+      meridiemOffset = 0;
+      s = s.substring(0, s.length - 2).trim();
+    } else if (s.endsWith('PM')) {
+      meridiemOffset = 12;
+      s = s.substring(0, s.length - 2).trim();
+    }
     final parts = s.split(':');
     if (parts.length != 2) return null;
-    final h = int.tryParse(parts[0].trim());
+    var h = int.tryParse(parts[0].trim());
     final m = int.tryParse(parts[1].trim());
     if (h == null || m == null) return null;
+    if (meridiemOffset != null) {
+      if (h < 1 || h > 12) return null;
+      h = (h % 12) + meridiemOffset;
+    }
     return h * 60 + m;
   }
 
@@ -146,4 +185,12 @@ class NttTrackingCsvParser {
 class _TaskAggregate {
   int minutes = 0;
   final Set<String> properties = <String>{};
+  String firstStart = '';
+  String lastEnd = '';
+}
+
+class _ShiftAggregate {
+  int minutes = 0;
+  String clockIn = '';
+  String clockOut = '';
 }

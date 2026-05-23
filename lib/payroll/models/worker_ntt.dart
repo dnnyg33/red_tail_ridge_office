@@ -19,8 +19,8 @@ sealed class ProposedNttRow with _$ProposedNttRow {
     required String tasksTotalTime,
     required int properties,
     required int proposedNTT,
-    // required TimePair shift,
-    // required TimePair tasks,
+    required TimePair shift,
+    required TimePair tasks,
   }) = _ProposedNttRow;
 }
 
@@ -28,9 +28,7 @@ sealed class ProposedNttRow with _$ProposedNttRow {
 @freezed
 sealed class TimePair with _$TimePair {
   const factory TimePair({
-    required int first,
-    required int last,
+    required String first,
+    required String last,
   }) = _TimePair;
-
-
 }

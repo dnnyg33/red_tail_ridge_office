@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utils/networking/async_operation.dart';
+import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_row.dart';
 
 import '../bloc/prepare_payroll_bloc.dart';
@@ -35,8 +36,13 @@ class PreparePayrollView extends StatelessWidget {
             AsyncOperationStatus.processing =>
               const Center(child: CircularProgressIndicator()),
             AsyncOperationStatus.error => Center(
-                child: Text(state.workerRows.error ?? 'Unable to load payroll.'),
+              child: Column(
+                children: [
+                  Text(state.workerRows.error ?? 'Unable to load payroll.'),
+                  _GenerateReportButton(),
+                ],
               ),
+            ),
           AsyncOperationStatus.idle ||
             AsyncOperationStatus.success =>
               _PreparePayrollBody(state: state),
@@ -300,11 +306,12 @@ class _WorkerRowsTable extends StatelessWidget {
   void _showNttRowsDialog(BuildContext context, WorkerRow row) {
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
+        insetPadding: const EdgeInsets.all(24),
         title: Text('${row.worker} – Proposed NTT'),
         content: SizedBox(
-          width: 720,
-          height: 480,
+          width: MediaQuery.of(dialogContext).size.width,
+          height: MediaQuery.of(dialogContext).size.height,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
@@ -312,7 +319,9 @@ class _WorkerRowsTable extends StatelessWidget {
               child: DataTable(
               columns: const [
                 DataColumn(label: Text('Date')),
+                DataColumn(label: Text('Shift')),
                 DataColumn(label: Text('Shift total')),
+                DataColumn(label: Text('Tasks')),
                 DataColumn(label: Text('Tasks total')),
                 DataColumn(label: Text('Properties'), numeric: true),
                 DataColumn(label: Text('Proposed NTT (min)'), numeric: true),
@@ -321,7 +330,9 @@ class _WorkerRowsTable extends StatelessWidget {
                 for (final n in row.nttRows)
                   DataRow(cells: [
                     DataCell(Text(n.date)),
+                    DataCell(Text(_timePair(n.shift))),
                     DataCell(Text(n.shiftTotalTime)),
+                    DataCell(Text(_timePair(n.tasks))),
                     DataCell(Text(n.tasksTotalTime)),
                     DataCell(Text(n.properties.toString())),
                     DataCell(Text(n.proposedNTT.toString())),
@@ -339,6 +350,11 @@ class _WorkerRowsTable extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _timePair(TimePair p) {
+    if (p.first.isEmpty && p.last.isEmpty) return '—';
+    return '${p.first.isEmpty ? '?' : p.first} – ${p.last.isEmpty ? '?' : p.last}';
   }
 
   String _money(double value) => '\$${value.toStringAsFixed(2)}';
