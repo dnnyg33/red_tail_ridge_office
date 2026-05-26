@@ -22,6 +22,7 @@ sealed class  ProposedNttRow with _$ProposedNttRow {
     required TimePair shift,
     required TimePair tasks,
     @Default(<String>[]) List<String> inadvertentProperties,
+    @Default('') String math,
   }) = _ProposedNttRow;
 }
 

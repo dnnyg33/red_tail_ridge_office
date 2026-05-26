@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:csv/csv.dart';
 
+import 'package:red_tail_ridge_office/payroll/models/schedule_assignments.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
 
 class NttTrackingCsvParser {
@@ -25,7 +26,7 @@ class NttTrackingCsvParser {
   List<WorkerNtt> parse({
     required Uint8List nttBytes,
     required Uint8List timeTrackingBytes,
-    Map<String, Map<String, Set<String>>>? assignments,
+    ScheduleAssignments? assignments,
   }) {
     final shiftsByWorker = _parseShifts(timeTrackingBytes);
     final tasksByWorker = _parseTasks(nttBytes);
@@ -40,19 +41,28 @@ class NttTrackingCsvParser {
             .compareTo(_parseHhMm(b.clockIn) ?? 0);
       });
       final tasks = tasksByWorker[workerName] ?? const <_Task>[];
-      final workerAssignments = assignments?[workerName];
 
       final nttRows = <ProposedNttRow>[];
       var totalNttMinutes = 0;
       for (final shift in shifts) {
-        final assignedProperties = assignments == null
-            ? null
-            : (workerAssignments?[shift.date] ?? const <String>{});
-        final attribution =
-            _attributeTasks(shift, tasks, assignedProperties);
+        final attribution = _attributeTasks(
+          shift,
+          tasks,
+          worker: workerName,
+          assignments: assignments,
+        );
         final propertyCount = attribution.properties.length;
+        var driveTime = max(0, propertyCount - 1) * 10;
+        final assignedTaskCount = assignments?.taskCountFor(
+              worker: workerName,
+              date: shift.date,
+            ) ??
+            0;
+        final taskSwitchingTime = max(0, assignedTaskCount - 1);
         final proposedNtt = shift.minutes -
-            (attribution.taskMinutes + (max(0, propertyCount - 1) * 10));
+            (attribution.taskMinutes + driveTime + taskSwitchingTime);
+        final math = '${shift.minutes} st - (${attribution.taskMinutes} tt'
+            ' + $driveTime dt + $taskSwitchingTime ts) = $proposedNtt';
         totalNttMinutes += proposedNtt;
         nttRows.add(ProposedNttRow(
           date: shift.date,
@@ -68,6 +78,7 @@ class NttTrackingCsvParser {
           inadvertentProperties: List.unmodifiable(
             attribution.inadvertentProperties,
           ),
+          math: math,
         ));
       }
       workers.add(WorkerNtt(
@@ -81,9 +92,10 @@ class NttTrackingCsvParser {
 
   _ShiftAttribution _attributeTasks(
     _Shift shift,
-    List<_Task> tasks,
-    Set<String>? assignedProperties,
-  ) {
+    List<_Task> tasks, {
+    required String worker,
+    ScheduleAssignments? assignments,
+  }) {
     final inMin = _parseHhMm(shift.clockIn);
     final outMin = _parseHhMm(shift.clockOut);
     final attribution = _ShiftAttribution();
@@ -97,8 +109,13 @@ class NttTrackingCsvParser {
       if (startMin < inMin || startMin >= outMin) continue;
       attribution.taskMinutes += task.minutes;
       if (task.property.isNotEmpty) {
-        if (assignedProperties == null ||
-            assignedProperties.contains(task.property)) {
+        final propertyAssigned = assignments == null ||
+            assignments.isPropertyAssigned(
+              worker: worker,
+              date: shift.date,
+              property: task.property,
+            );
+        if (propertyAssigned) {
           attribution.properties.add(task.property);
         } else if (!attribution.inadvertentProperties.contains(task.property)) {
           attribution.inadvertentProperties.add(task.property);

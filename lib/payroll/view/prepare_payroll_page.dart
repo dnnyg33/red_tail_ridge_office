@@ -385,7 +385,12 @@ class _WorkerRowsTable extends StatelessWidget {
                       DataCell(Text(_timePair(n.tasks))),
                       DataCell(Text(n.tasksTotalTime)),
                       DataCell(_PropertiesCell(row: n)),
-                      DataCell(Text(n.proposedNTT.toString())),
+                      DataCell(
+                        Tooltip(
+                          message: n.math,
+                          child: Text(n.proposedNTT.toString()),
+                        ),
+                      ),
                     ],
                   ),
               ],

@@ -277,7 +277,7 @@ as double,
 /// @nodoc
 mixin _$ProposedNttRow {
 
- String get date; String get shiftTotalTime; String get tasksTotalTime; int get properties; int get proposedNTT; TimePair get shift; TimePair get tasks; List<String> get inadvertentProperties;
+ String get date; String get shiftTotalTime; String get tasksTotalTime; int get properties; int get proposedNTT; TimePair get shift; TimePair get tasks; List<String> get inadvertentProperties; String get math;
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -288,16 +288,16 @@ $ProposedNttRowCopyWith<ProposedNttRow> get copyWith => _$ProposedNttRowCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT)&&(identical(other.shift, shift) || other.shift == shift)&&(identical(other.tasks, tasks) || other.tasks == tasks)&&const DeepCollectionEquality().equals(other.inadvertentProperties, inadvertentProperties));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT)&&(identical(other.shift, shift) || other.shift == shift)&&(identical(other.tasks, tasks) || other.tasks == tasks)&&const DeepCollectionEquality().equals(other.inadvertentProperties, inadvertentProperties)&&(identical(other.math, math) || other.math == math));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT,shift,tasks,const DeepCollectionEquality().hash(inadvertentProperties));
+int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT,shift,tasks,const DeepCollectionEquality().hash(inadvertentProperties),math);
 
 @override
 String toString() {
-  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT, shift: $shift, tasks: $tasks, inadvertentProperties: $inadvertentProperties)';
+  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT, shift: $shift, tasks: $tasks, inadvertentProperties: $inadvertentProperties, math: $math)';
 }
 
 
@@ -308,7 +308,7 @@ abstract mixin class $ProposedNttRowCopyWith<$Res>  {
   factory $ProposedNttRowCopyWith(ProposedNttRow value, $Res Function(ProposedNttRow) _then) = _$ProposedNttRowCopyWithImpl;
 @useResult
 $Res call({
- String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT, TimePair shift, TimePair tasks, List<String> inadvertentProperties
+ String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT, TimePair shift, TimePair tasks, List<String> inadvertentProperties, String math
 });
 
 
@@ -325,7 +325,7 @@ class _$ProposedNttRowCopyWithImpl<$Res>
 
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,Object? shift = null,Object? tasks = null,Object? inadvertentProperties = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,Object? shift = null,Object? tasks = null,Object? inadvertentProperties = null,Object? math = null,}) {
   return _then(_self.copyWith(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as String,shiftTotalTime: null == shiftTotalTime ? _self.shiftTotalTime : shiftTotalTime // ignore: cast_nullable_to_non_nullable
@@ -335,7 +335,8 @@ as int,proposedNTT: null == proposedNTT ? _self.proposedNTT : proposedNTT // ign
 as int,shift: null == shift ? _self.shift : shift // ignore: cast_nullable_to_non_nullable
 as TimePair,tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
 as TimePair,inadvertentProperties: null == inadvertentProperties ? _self.inadvertentProperties : inadvertentProperties // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,math: null == math ? _self.math : math // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 /// Create a copy of ProposedNttRow
@@ -435,10 +436,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks,  List<String> inadvertentProperties)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks,  List<String> inadvertentProperties,  String math)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProposedNttRow() when $default != null:
-return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks,_that.inadvertentProperties);case _:
+return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks,_that.inadvertentProperties,_that.math);case _:
   return orElse();
 
 }
@@ -456,10 +457,10 @@ return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.prope
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks,  List<String> inadvertentProperties)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks,  List<String> inadvertentProperties,  String math)  $default,) {final _that = this;
 switch (_that) {
 case _ProposedNttRow():
-return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks,_that.inadvertentProperties);}
+return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks,_that.inadvertentProperties,_that.math);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -473,10 +474,10 @@ return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.prope
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks,  List<String> inadvertentProperties)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String date,  String shiftTotalTime,  String tasksTotalTime,  int properties,  int proposedNTT,  TimePair shift,  TimePair tasks,  List<String> inadvertentProperties,  String math)?  $default,) {final _that = this;
 switch (_that) {
 case _ProposedNttRow() when $default != null:
-return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks,_that.inadvertentProperties);case _:
+return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.properties,_that.proposedNTT,_that.shift,_that.tasks,_that.inadvertentProperties,_that.math);case _:
   return null;
 
 }
@@ -488,7 +489,7 @@ return $default(_that.date,_that.shiftTotalTime,_that.tasksTotalTime,_that.prope
 
 
 class _ProposedNttRow implements ProposedNttRow {
-  const _ProposedNttRow({required this.date, required this.shiftTotalTime, required this.tasksTotalTime, required this.properties, required this.proposedNTT, required this.shift, required this.tasks, final  List<String> inadvertentProperties = const <String>[]}): _inadvertentProperties = inadvertentProperties;
+  const _ProposedNttRow({required this.date, required this.shiftTotalTime, required this.tasksTotalTime, required this.properties, required this.proposedNTT, required this.shift, required this.tasks, final  List<String> inadvertentProperties = const <String>[], this.math = ''}): _inadvertentProperties = inadvertentProperties;
   
 
 @override final  String date;
@@ -505,6 +506,7 @@ class _ProposedNttRow implements ProposedNttRow {
   return EqualUnmodifiableListView(_inadvertentProperties);
 }
 
+@override@JsonKey() final  String math;
 
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
@@ -516,16 +518,16 @@ _$ProposedNttRowCopyWith<_ProposedNttRow> get copyWith => __$ProposedNttRowCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT)&&(identical(other.shift, shift) || other.shift == shift)&&(identical(other.tasks, tasks) || other.tasks == tasks)&&const DeepCollectionEquality().equals(other._inadvertentProperties, _inadvertentProperties));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProposedNttRow&&(identical(other.date, date) || other.date == date)&&(identical(other.shiftTotalTime, shiftTotalTime) || other.shiftTotalTime == shiftTotalTime)&&(identical(other.tasksTotalTime, tasksTotalTime) || other.tasksTotalTime == tasksTotalTime)&&(identical(other.properties, properties) || other.properties == properties)&&(identical(other.proposedNTT, proposedNTT) || other.proposedNTT == proposedNTT)&&(identical(other.shift, shift) || other.shift == shift)&&(identical(other.tasks, tasks) || other.tasks == tasks)&&const DeepCollectionEquality().equals(other._inadvertentProperties, _inadvertentProperties)&&(identical(other.math, math) || other.math == math));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT,shift,tasks,const DeepCollectionEquality().hash(_inadvertentProperties));
+int get hashCode => Object.hash(runtimeType,date,shiftTotalTime,tasksTotalTime,properties,proposedNTT,shift,tasks,const DeepCollectionEquality().hash(_inadvertentProperties),math);
 
 @override
 String toString() {
-  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT, shift: $shift, tasks: $tasks, inadvertentProperties: $inadvertentProperties)';
+  return 'ProposedNttRow(date: $date, shiftTotalTime: $shiftTotalTime, tasksTotalTime: $tasksTotalTime, properties: $properties, proposedNTT: $proposedNTT, shift: $shift, tasks: $tasks, inadvertentProperties: $inadvertentProperties, math: $math)';
 }
 
 
@@ -536,7 +538,7 @@ abstract mixin class _$ProposedNttRowCopyWith<$Res> implements $ProposedNttRowCo
   factory _$ProposedNttRowCopyWith(_ProposedNttRow value, $Res Function(_ProposedNttRow) _then) = __$ProposedNttRowCopyWithImpl;
 @override @useResult
 $Res call({
- String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT, TimePair shift, TimePair tasks, List<String> inadvertentProperties
+ String date, String shiftTotalTime, String tasksTotalTime, int properties, int proposedNTT, TimePair shift, TimePair tasks, List<String> inadvertentProperties, String math
 });
 
 
@@ -553,7 +555,7 @@ class __$ProposedNttRowCopyWithImpl<$Res>
 
 /// Create a copy of ProposedNttRow
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,Object? shift = null,Object? tasks = null,Object? inadvertentProperties = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? shiftTotalTime = null,Object? tasksTotalTime = null,Object? properties = null,Object? proposedNTT = null,Object? shift = null,Object? tasks = null,Object? inadvertentProperties = null,Object? math = null,}) {
   return _then(_ProposedNttRow(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as String,shiftTotalTime: null == shiftTotalTime ? _self.shiftTotalTime : shiftTotalTime // ignore: cast_nullable_to_non_nullable
@@ -563,7 +565,8 @@ as int,proposedNTT: null == proposedNTT ? _self.proposedNTT : proposedNTT // ign
 as int,shift: null == shift ? _self.shift : shift // ignore: cast_nullable_to_non_nullable
 as TimePair,tasks: null == tasks ? _self.tasks : tasks // ignore: cast_nullable_to_non_nullable
 as TimePair,inadvertentProperties: null == inadvertentProperties ? _self._inadvertentProperties : inadvertentProperties // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,math: null == math ? _self.math : math // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

@@ -3,32 +3,42 @@ import 'dart:typed_data';
 
 import 'package:csv/csv.dart';
 
+import '../models/schedule_assignments.dart';
+
 class AssignmentsCsvParser {
   const AssignmentsCsvParser();
 
   static const int _date = 0;
   static const int _property = 3;
+  static const int _task = 5;
   static const int _worker = 6;
 
-  /// Returns assigned properties keyed by worker name, then by date string
-  /// (matching the date format used elsewhere in the payroll parsers).
-  Map<String, Map<String, Set<String>>> parse(Uint8List bytes) {
+  ScheduleAssignments parse(Uint8List bytes) {
     final rows = _decode(bytes);
-    final result = <String, Map<String, Set<String>>>{};
+    final assignments = <Assignment>[];
     for (final row in rows) {
       if (row.isEmpty) continue;
       final date = _asString(_safeGet(row, _date)).trim();
       if (!_isDate(date)) continue;
-      final worker = _asString(_safeGet(row, _worker)).trim();
-      if (worker.isEmpty) continue;
+      final workerCell = _asString(_safeGet(row, _worker));
+      final workers = workerCell
+          .split(',')
+          .map((w) => w.trim())
+          .where((w) => w.isNotEmpty);
+      if (workers.isEmpty) continue;
       final property = _asString(_safeGet(row, _property)).trim();
       if (property.isEmpty) continue;
-      result
-          .putIfAbsent(worker, () => <String, Set<String>>{})
-          .putIfAbsent(date, () => <String>{})
-          .add(property);
+      final task = _asString(_safeGet(row, _task)).trim();
+      for (final worker in workers) {
+        assignments.add(Assignment(
+          worker: worker,
+          date: date,
+          property: property,
+          task: task,
+        ));
+      }
     }
-    return result;
+    return ScheduleAssignments(assignments);
   }
 
   List<List<dynamic>> _decode(Uint8List bytes) {
