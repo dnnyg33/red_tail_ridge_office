@@ -25,6 +25,7 @@ class NttTrackingCsvParser {
   List<WorkerNtt> parse({
     required Uint8List nttBytes,
     required Uint8List timeTrackingBytes,
+    Map<String, Map<String, Set<String>>>? assignments,
   }) {
     final shiftsByWorker = _parseShifts(timeTrackingBytes);
     final tasksByWorker = _parseTasks(nttBytes);
@@ -39,11 +40,16 @@ class NttTrackingCsvParser {
             .compareTo(_parseHhMm(b.clockIn) ?? 0);
       });
       final tasks = tasksByWorker[workerName] ?? const <_Task>[];
+      final workerAssignments = assignments?[workerName];
 
       final nttRows = <ProposedNttRow>[];
       var totalNttMinutes = 0;
       for (final shift in shifts) {
-        final attribution = _attributeTasks(shift, tasks);
+        final assignedProperties = assignments == null
+            ? null
+            : (workerAssignments?[shift.date] ?? const <String>{});
+        final attribution =
+            _attributeTasks(shift, tasks, assignedProperties);
         final propertyCount = attribution.properties.length;
         final proposedNtt = shift.minutes -
             (attribution.taskMinutes + (max(0, propertyCount - 1) * 10));
@@ -59,6 +65,9 @@ class NttTrackingCsvParser {
             first: attribution.firstStart,
             last: attribution.lastEnd,
           ),
+          inadvertentProperties: List.unmodifiable(
+            attribution.inadvertentProperties,
+          ),
         ));
       }
       workers.add(WorkerNtt(
@@ -70,7 +79,11 @@ class NttTrackingCsvParser {
     return workers;
   }
 
-  _ShiftAttribution _attributeTasks(_Shift shift, List<_Task> tasks) {
+  _ShiftAttribution _attributeTasks(
+    _Shift shift,
+    List<_Task> tasks,
+    Set<String>? assignedProperties,
+  ) {
     final inMin = _parseHhMm(shift.clockIn);
     final outMin = _parseHhMm(shift.clockOut);
     final attribution = _ShiftAttribution();
@@ -83,7 +96,14 @@ class NttTrackingCsvParser {
       if (startMin == null) continue;
       if (startMin < inMin || startMin >= outMin) continue;
       attribution.taskMinutes += task.minutes;
-      if (task.property.isNotEmpty) attribution.properties.add(task.property);
+      if (task.property.isNotEmpty) {
+        if (assignedProperties == null ||
+            assignedProperties.contains(task.property)) {
+          attribution.properties.add(task.property);
+        } else if (!attribution.inadvertentProperties.contains(task.property)) {
+          attribution.inadvertentProperties.add(task.property);
+        }
+      }
       if (firstStartMin == null || startMin < firstStartMin) {
         firstStartMin = startMin;
         attribution.firstStart = task.start;
@@ -238,6 +258,7 @@ class _Task {
 class _ShiftAttribution {
   int taskMinutes = 0;
   final Set<String> properties = <String>{};
+  final List<String> inadvertentProperties = <String>[];
   String firstStart = '';
   String lastEnd = '';
 }
