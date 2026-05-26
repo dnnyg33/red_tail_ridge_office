@@ -55,13 +55,14 @@ extension PreparePayrollEventPatterns on PreparePayrollEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( PreparePayrollStarted value)?  started,TResult Function( PreparePayrollTimeTrackingFileSelected value)?  timeTrackingFileSelected,TResult Function( PreparePayrollNttFileSelected value)?  nttFileSelected,TResult Function( PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult Function( PreparePayrollReportRequested value)?  reportRequested,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( PreparePayrollStarted value)?  started,TResult Function( PreparePayrollTimeTrackingFileSelected value)?  timeTrackingFileSelected,TResult Function( PreparePayrollNttFileSelected value)?  nttFileSelected,TResult Function( PreparePayrollScheduleFileSelected value)?  scheduleFileSelected,TResult Function( PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult Function( PreparePayrollReportRequested value)?  reportRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case PreparePayrollStarted() when started != null:
 return started(_that);case PreparePayrollTimeTrackingFileSelected() when timeTrackingFileSelected != null:
 return timeTrackingFileSelected(_that);case PreparePayrollNttFileSelected() when nttFileSelected != null:
-return nttFileSelected(_that);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return nttFileSelected(_that);case PreparePayrollScheduleFileSelected() when scheduleFileSelected != null:
+return scheduleFileSelected(_that);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that);case PreparePayrollReportRequested() when reportRequested != null:
 return reportRequested(_that);case _:
   return orElse();
@@ -81,13 +82,14 @@ return reportRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( PreparePayrollStarted value)  started,required TResult Function( PreparePayrollTimeTrackingFileSelected value)  timeTrackingFileSelected,required TResult Function( PreparePayrollNttFileSelected value)  nttFileSelected,required TResult Function( PreparePayrollMileageConstantChanged value)  mileageConstantChanged,required TResult Function( PreparePayrollReportRequested value)  reportRequested,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( PreparePayrollStarted value)  started,required TResult Function( PreparePayrollTimeTrackingFileSelected value)  timeTrackingFileSelected,required TResult Function( PreparePayrollNttFileSelected value)  nttFileSelected,required TResult Function( PreparePayrollScheduleFileSelected value)  scheduleFileSelected,required TResult Function( PreparePayrollMileageConstantChanged value)  mileageConstantChanged,required TResult Function( PreparePayrollReportRequested value)  reportRequested,}){
 final _that = this;
 switch (_that) {
 case PreparePayrollStarted():
 return started(_that);case PreparePayrollTimeTrackingFileSelected():
 return timeTrackingFileSelected(_that);case PreparePayrollNttFileSelected():
-return nttFileSelected(_that);case PreparePayrollMileageConstantChanged():
+return nttFileSelected(_that);case PreparePayrollScheduleFileSelected():
+return scheduleFileSelected(_that);case PreparePayrollMileageConstantChanged():
 return mileageConstantChanged(_that);case PreparePayrollReportRequested():
 return reportRequested(_that);}
 }
@@ -103,13 +105,14 @@ return reportRequested(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( PreparePayrollStarted value)?  started,TResult? Function( PreparePayrollTimeTrackingFileSelected value)?  timeTrackingFileSelected,TResult? Function( PreparePayrollNttFileSelected value)?  nttFileSelected,TResult? Function( PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult? Function( PreparePayrollReportRequested value)?  reportRequested,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( PreparePayrollStarted value)?  started,TResult? Function( PreparePayrollTimeTrackingFileSelected value)?  timeTrackingFileSelected,TResult? Function( PreparePayrollNttFileSelected value)?  nttFileSelected,TResult? Function( PreparePayrollScheduleFileSelected value)?  scheduleFileSelected,TResult? Function( PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult? Function( PreparePayrollReportRequested value)?  reportRequested,}){
 final _that = this;
 switch (_that) {
 case PreparePayrollStarted() when started != null:
 return started(_that);case PreparePayrollTimeTrackingFileSelected() when timeTrackingFileSelected != null:
 return timeTrackingFileSelected(_that);case PreparePayrollNttFileSelected() when nttFileSelected != null:
-return nttFileSelected(_that);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return nttFileSelected(_that);case PreparePayrollScheduleFileSelected() when scheduleFileSelected != null:
+return scheduleFileSelected(_that);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that);case PreparePayrollReportRequested() when reportRequested != null:
 return reportRequested(_that);case _:
   return null;
@@ -128,12 +131,13 @@ return reportRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( PlatformFile file)?  timeTrackingFileSelected,TResult Function( PlatformFile file)?  nttFileSelected,TResult Function( double? value)?  mileageConstantChanged,TResult Function()?  reportRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( PlatformFile file)?  timeTrackingFileSelected,TResult Function( PlatformFile file)?  nttFileSelected,TResult Function( PlatformFile file)?  scheduleFileSelected,TResult Function( double? value)?  mileageConstantChanged,TResult Function()?  reportRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case PreparePayrollStarted() when started != null:
 return started();case PreparePayrollTimeTrackingFileSelected() when timeTrackingFileSelected != null:
 return timeTrackingFileSelected(_that.file);case PreparePayrollNttFileSelected() when nttFileSelected != null:
-return nttFileSelected(_that.file);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return nttFileSelected(_that.file);case PreparePayrollScheduleFileSelected() when scheduleFileSelected != null:
+return scheduleFileSelected(_that.file);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that.value);case PreparePayrollReportRequested() when reportRequested != null:
 return reportRequested();case _:
   return orElse();
@@ -153,12 +157,13 @@ return reportRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( PlatformFile file)  timeTrackingFileSelected,required TResult Function( PlatformFile file)  nttFileSelected,required TResult Function( double? value)  mileageConstantChanged,required TResult Function()  reportRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( PlatformFile file)  timeTrackingFileSelected,required TResult Function( PlatformFile file)  nttFileSelected,required TResult Function( PlatformFile file)  scheduleFileSelected,required TResult Function( double? value)  mileageConstantChanged,required TResult Function()  reportRequested,}) {final _that = this;
 switch (_that) {
 case PreparePayrollStarted():
 return started();case PreparePayrollTimeTrackingFileSelected():
 return timeTrackingFileSelected(_that.file);case PreparePayrollNttFileSelected():
-return nttFileSelected(_that.file);case PreparePayrollMileageConstantChanged():
+return nttFileSelected(_that.file);case PreparePayrollScheduleFileSelected():
+return scheduleFileSelected(_that.file);case PreparePayrollMileageConstantChanged():
 return mileageConstantChanged(_that.value);case PreparePayrollReportRequested():
 return reportRequested();}
 }
@@ -174,12 +179,13 @@ return reportRequested();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( PlatformFile file)?  timeTrackingFileSelected,TResult? Function( PlatformFile file)?  nttFileSelected,TResult? Function( double? value)?  mileageConstantChanged,TResult? Function()?  reportRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( PlatformFile file)?  timeTrackingFileSelected,TResult? Function( PlatformFile file)?  nttFileSelected,TResult? Function( PlatformFile file)?  scheduleFileSelected,TResult? Function( double? value)?  mileageConstantChanged,TResult? Function()?  reportRequested,}) {final _that = this;
 switch (_that) {
 case PreparePayrollStarted() when started != null:
 return started();case PreparePayrollTimeTrackingFileSelected() when timeTrackingFileSelected != null:
 return timeTrackingFileSelected(_that.file);case PreparePayrollNttFileSelected() when nttFileSelected != null:
-return nttFileSelected(_that.file);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return nttFileSelected(_that.file);case PreparePayrollScheduleFileSelected() when scheduleFileSelected != null:
+return scheduleFileSelected(_that.file);case PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that.value);case PreparePayrollReportRequested() when reportRequested != null:
 return reportRequested();case _:
   return null;
@@ -356,6 +362,72 @@ as PlatformFile,
 /// @nodoc
 
 
+class PreparePayrollScheduleFileSelected implements PreparePayrollEvent {
+  const PreparePayrollScheduleFileSelected(this.file);
+  
+
+ final  PlatformFile file;
+
+/// Create a copy of PreparePayrollEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PreparePayrollScheduleFileSelectedCopyWith<PreparePayrollScheduleFileSelected> get copyWith => _$PreparePayrollScheduleFileSelectedCopyWithImpl<PreparePayrollScheduleFileSelected>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreparePayrollScheduleFileSelected&&(identical(other.file, file) || other.file == file));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,file);
+
+@override
+String toString() {
+  return 'PreparePayrollEvent.scheduleFileSelected(file: $file)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PreparePayrollScheduleFileSelectedCopyWith<$Res> implements $PreparePayrollEventCopyWith<$Res> {
+  factory $PreparePayrollScheduleFileSelectedCopyWith(PreparePayrollScheduleFileSelected value, $Res Function(PreparePayrollScheduleFileSelected) _then) = _$PreparePayrollScheduleFileSelectedCopyWithImpl;
+@useResult
+$Res call({
+ PlatformFile file
+});
+
+
+
+
+}
+/// @nodoc
+class _$PreparePayrollScheduleFileSelectedCopyWithImpl<$Res>
+    implements $PreparePayrollScheduleFileSelectedCopyWith<$Res> {
+  _$PreparePayrollScheduleFileSelectedCopyWithImpl(this._self, this._then);
+
+  final PreparePayrollScheduleFileSelected _self;
+  final $Res Function(PreparePayrollScheduleFileSelected) _then;
+
+/// Create a copy of PreparePayrollEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? file = null,}) {
+  return _then(PreparePayrollScheduleFileSelected(
+null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
+as PlatformFile,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class PreparePayrollMileageConstantChanged implements PreparePayrollEvent {
   const PreparePayrollMileageConstantChanged(this.value);
   
@@ -460,7 +532,7 @@ mixin _$PreparePayrollState {
 // String? nttFileName,
 // String? nttFilePath,
 // Uint8List? nttBytes,
- PlatformFile? get nttFile; double? get mileageConstant;
+ PlatformFile? get nttFile; PlatformFile? get scheduleFile; double? get mileageConstant;
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -471,16 +543,16 @@ $PreparePayrollStateCopyWith<PreparePayrollState> get copyWith => _$PreparePayro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.timeTrackingFile, timeTrackingFile) || other.timeTrackingFile == timeTrackingFile)&&(identical(other.nttFile, nttFile) || other.nttFile == nttFile)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.timeTrackingFile, timeTrackingFile) || other.timeTrackingFile == timeTrackingFile)&&(identical(other.nttFile, nttFile) || other.nttFile == nttFile)&&(identical(other.scheduleFile, scheduleFile) || other.scheduleFile == scheduleFile)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,timeTrackingFile,nttFile,mileageConstant);
+int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,timeTrackingFile,nttFile,scheduleFile,mileageConstant);
 
 @override
 String toString() {
-  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, timeTrackingFile: $timeTrackingFile, nttFile: $nttFile, mileageConstant: $mileageConstant)';
+  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, timeTrackingFile: $timeTrackingFile, nttFile: $nttFile, scheduleFile: $scheduleFile, mileageConstant: $mileageConstant)';
 }
 
 
@@ -491,7 +563,7 @@ abstract mixin class $PreparePayrollStateCopyWith<$Res>  {
   factory $PreparePayrollStateCopyWith(PreparePayrollState value, $Res Function(PreparePayrollState) _then) = _$PreparePayrollStateCopyWithImpl;
 @useResult
 $Res call({
- AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, PlatformFile? timeTrackingFile, PlatformFile? nttFile, double? mileageConstant
+ AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, PlatformFile? timeTrackingFile, PlatformFile? nttFile, PlatformFile? scheduleFile, double? mileageConstant
 });
 
 
@@ -508,13 +580,14 @@ class _$PreparePayrollStateCopyWithImpl<$Res>
 
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? timeTrackingFile = freezed,Object? nttFile = freezed,Object? mileageConstant = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? timeTrackingFile = freezed,Object? nttFile = freezed,Object? scheduleFile = freezed,Object? mileageConstant = freezed,}) {
   return _then(_self.copyWith(
 workerRows: null == workerRows ? _self.workerRows : workerRows // ignore: cast_nullable_to_non_nullable
 as AsyncOperation<List<WorkerRow>>,payPeriodStart: freezed == payPeriodStart ? _self.payPeriodStart : payPeriodStart // ignore: cast_nullable_to_non_nullable
 as DateTime?,payPeriodEnd: freezed == payPeriodEnd ? _self.payPeriodEnd : payPeriodEnd // ignore: cast_nullable_to_non_nullable
 as DateTime?,timeTrackingFile: freezed == timeTrackingFile ? _self.timeTrackingFile : timeTrackingFile // ignore: cast_nullable_to_non_nullable
 as PlatformFile?,nttFile: freezed == nttFile ? _self.nttFile : nttFile // ignore: cast_nullable_to_non_nullable
+as PlatformFile?,scheduleFile: freezed == scheduleFile ? _self.scheduleFile : scheduleFile // ignore: cast_nullable_to_non_nullable
 as PlatformFile?,mileageConstant: freezed == mileageConstant ? _self.mileageConstant : mileageConstant // ignore: cast_nullable_to_non_nullable
 as double?,
   ));
@@ -610,10 +683,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? timeTrackingFile,  PlatformFile? nttFile,  double? mileageConstant)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? timeTrackingFile,  PlatformFile? nttFile,  PlatformFile? scheduleFile,  double? mileageConstant)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreparePayrollState() when $default != null:
-return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.timeTrackingFile,_that.nttFile,_that.mileageConstant);case _:
+return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.timeTrackingFile,_that.nttFile,_that.scheduleFile,_that.mileageConstant);case _:
   return orElse();
 
 }
@@ -631,10 +704,10 @@ return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? timeTrackingFile,  PlatformFile? nttFile,  double? mileageConstant)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? timeTrackingFile,  PlatformFile? nttFile,  PlatformFile? scheduleFile,  double? mileageConstant)  $default,) {final _that = this;
 switch (_that) {
 case _PreparePayrollState():
-return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.timeTrackingFile,_that.nttFile,_that.mileageConstant);case _:
+return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.timeTrackingFile,_that.nttFile,_that.scheduleFile,_that.mileageConstant);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -651,10 +724,10 @@ return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? timeTrackingFile,  PlatformFile? nttFile,  double? mileageConstant)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? timeTrackingFile,  PlatformFile? nttFile,  PlatformFile? scheduleFile,  double? mileageConstant)?  $default,) {final _that = this;
 switch (_that) {
 case _PreparePayrollState() when $default != null:
-return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.timeTrackingFile,_that.nttFile,_that.mileageConstant);case _:
+return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.timeTrackingFile,_that.nttFile,_that.scheduleFile,_that.mileageConstant);case _:
   return null;
 
 }
@@ -666,7 +739,7 @@ return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.t
 
 
 class _PreparePayrollState extends PreparePayrollState {
-  const _PreparePayrollState({this.workerRows = const AsyncOperation.idle(), this.payPeriodStart, this.payPeriodEnd, this.timeTrackingFile, this.nttFile, this.mileageConstant = 0.725}): super._();
+  const _PreparePayrollState({this.workerRows = const AsyncOperation.idle(), this.payPeriodStart, this.payPeriodEnd, this.timeTrackingFile, this.nttFile, this.scheduleFile, this.mileageConstant = 0.725}): super._();
   
 
 @override@JsonKey() final  AsyncOperation<List<WorkerRow>> workerRows;
@@ -680,6 +753,7 @@ class _PreparePayrollState extends PreparePayrollState {
 // String? nttFilePath,
 // Uint8List? nttBytes,
 @override final  PlatformFile? nttFile;
+@override final  PlatformFile? scheduleFile;
 @override@JsonKey() final  double? mileageConstant;
 
 /// Create a copy of PreparePayrollState
@@ -692,16 +766,16 @@ _$PreparePayrollStateCopyWith<_PreparePayrollState> get copyWith => __$PreparePa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.timeTrackingFile, timeTrackingFile) || other.timeTrackingFile == timeTrackingFile)&&(identical(other.nttFile, nttFile) || other.nttFile == nttFile)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.timeTrackingFile, timeTrackingFile) || other.timeTrackingFile == timeTrackingFile)&&(identical(other.nttFile, nttFile) || other.nttFile == nttFile)&&(identical(other.scheduleFile, scheduleFile) || other.scheduleFile == scheduleFile)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,timeTrackingFile,nttFile,mileageConstant);
+int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,timeTrackingFile,nttFile,scheduleFile,mileageConstant);
 
 @override
 String toString() {
-  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, timeTrackingFile: $timeTrackingFile, nttFile: $nttFile, mileageConstant: $mileageConstant)';
+  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, timeTrackingFile: $timeTrackingFile, nttFile: $nttFile, scheduleFile: $scheduleFile, mileageConstant: $mileageConstant)';
 }
 
 
@@ -712,7 +786,7 @@ abstract mixin class _$PreparePayrollStateCopyWith<$Res> implements $PreparePayr
   factory _$PreparePayrollStateCopyWith(_PreparePayrollState value, $Res Function(_PreparePayrollState) _then) = __$PreparePayrollStateCopyWithImpl;
 @override @useResult
 $Res call({
- AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, PlatformFile? timeTrackingFile, PlatformFile? nttFile, double? mileageConstant
+ AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, PlatformFile? timeTrackingFile, PlatformFile? nttFile, PlatformFile? scheduleFile, double? mileageConstant
 });
 
 
@@ -729,13 +803,14 @@ class __$PreparePayrollStateCopyWithImpl<$Res>
 
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? timeTrackingFile = freezed,Object? nttFile = freezed,Object? mileageConstant = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? timeTrackingFile = freezed,Object? nttFile = freezed,Object? scheduleFile = freezed,Object? mileageConstant = freezed,}) {
   return _then(_PreparePayrollState(
 workerRows: null == workerRows ? _self.workerRows : workerRows // ignore: cast_nullable_to_non_nullable
 as AsyncOperation<List<WorkerRow>>,payPeriodStart: freezed == payPeriodStart ? _self.payPeriodStart : payPeriodStart // ignore: cast_nullable_to_non_nullable
 as DateTime?,payPeriodEnd: freezed == payPeriodEnd ? _self.payPeriodEnd : payPeriodEnd // ignore: cast_nullable_to_non_nullable
 as DateTime?,timeTrackingFile: freezed == timeTrackingFile ? _self.timeTrackingFile : timeTrackingFile // ignore: cast_nullable_to_non_nullable
 as PlatformFile?,nttFile: freezed == nttFile ? _self.nttFile : nttFile // ignore: cast_nullable_to_non_nullable
+as PlatformFile?,scheduleFile: freezed == scheduleFile ? _self.scheduleFile : scheduleFile // ignore: cast_nullable_to_non_nullable
 as PlatformFile?,mileageConstant: freezed == mileageConstant ? _self.mileageConstant : mileageConstant // ignore: cast_nullable_to_non_nullable
 as double?,
   ));

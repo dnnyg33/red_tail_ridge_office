@@ -13,6 +13,10 @@ sealed class PreparePayrollEvent with _$PreparePayrollEvent {
     PlatformFile file,
   ) = PreparePayrollNttFileSelected;
 
+  const factory PreparePayrollEvent.scheduleFileSelected(
+    PlatformFile file,
+  ) = PreparePayrollScheduleFileSelected;
+
   const factory PreparePayrollEvent.mileageConstantChanged(double? value) =
       PreparePayrollMileageConstantChanged;
 

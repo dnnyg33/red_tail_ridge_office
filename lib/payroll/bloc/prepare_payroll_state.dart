@@ -16,6 +16,7 @@ abstract class PreparePayrollState with _$PreparePayrollState {
     // String? nttFilePath,
     // Uint8List? nttBytes,
     PlatformFile? nttFile,
+    PlatformFile? scheduleFile,
     @Default(0.725) double? mileageConstant,
   }) = _PreparePayrollState;
 

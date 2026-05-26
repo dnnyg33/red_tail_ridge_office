@@ -5,6 +5,7 @@ import 'package:flutter_utils/networking/async_operation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../models/worker_row.dart';
+import '../parsers/assignments_csv_parser.dart';
 import '../parsers/ntt_tracking_csv_parser.dart';
 import '../parsers/time_tracking_csv_parser.dart';
 
@@ -18,6 +19,7 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     on<PreparePayrollStarted>(_onStarted);
     on<PreparePayrollTimeTrackingFileSelected>(_onTimeTrackingFileSelected);
     on<PreparePayrollNttFileSelected>(_onNttFileSelected);
+    on<PreparePayrollScheduleFileSelected>(_onScheduleFileSelected);
     on<PreparePayrollMileageConstantChanged>(_onMileageConstantChanged);
     on<PreparePayrollReportRequested>(_onReportRequested);
   }
@@ -57,6 +59,17 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     );
   }
 
+  void _onScheduleFileSelected(
+    PreparePayrollScheduleFileSelected event,
+    Emitter<PreparePayrollState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        scheduleFile: event.file,
+      ),
+    );
+  }
+
   void _onMileageConstantChanged(
     PreparePayrollMileageConstantChanged event,
     Emitter<PreparePayrollState> emit,
@@ -86,9 +99,14 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     }
     emit(state.copyWith(workerRows: AsyncOperation.processing()));
     try {
+      final scheduleBytes = state.scheduleFile?.bytes;
+      final assignments = scheduleBytes == null
+          ? null
+          : const AssignmentsCsvParser().parse(scheduleBytes);
       final workerNtts = const NttTrackingCsvParser().parse(
         nttBytes: nttBytes,
         timeTrackingBytes: timeTrackingBytes,
+        assignments: assignments,
       );
       final rows = const TimeTrackingCsvParser().parse(
         bytes: timeTrackingBytes,

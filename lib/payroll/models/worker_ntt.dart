@@ -12,7 +12,7 @@ sealed class WorkerNtt with _$WorkerNtt {
 }
 
 @freezed
-sealed class ProposedNttRow with _$ProposedNttRow {
+sealed class  ProposedNttRow with _$ProposedNttRow {
   const factory ProposedNttRow({
     required String date,
     required String shiftTotalTime,
@@ -21,6 +21,7 @@ sealed class ProposedNttRow with _$ProposedNttRow {
     required int proposedNTT,
     required TimePair shift,
     required TimePair tasks,
+    @Default(<String>[]) List<String> inadvertentProperties,
   }) = _ProposedNttRow;
 }
 

@@ -68,6 +68,8 @@ class _PreparePayrollBody extends StatelessWidget {
           _TimeTrackingFileField(),
           SizedBox(height: 12),
           _NttFileField(),
+          SizedBox(height: 12),
+          _ScheduleFileField(),
           SizedBox(height: 24),
           _MileageConstantField(),
           SizedBox(height: 24),
@@ -154,6 +156,45 @@ class _NttFileField extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: 8),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ScheduleFileField extends StatelessWidget {
+  const _ScheduleFileField();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
+      buildWhen: (prev, curr) => prev.scheduleFile != curr.scheduleFile,
+      builder: (context, state) {
+        return Row(
+          children: [
+            OutlinedButton.icon(
+              onPressed: () =>
+                  _pickFile(context, onSelected: (picked) {
+                    final bloc = context.read<PreparePayrollBloc>();
+                    bloc.add(PreparePayrollScheduleFileSelected(picked));
+                  }),
+              icon: const Icon(Icons.upload_file),
+              label: const Text("Add 'Schedule' csv"),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                state.scheduleFile?.name ?? 'No file selected',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: state.scheduleFile == null
+                      ? theme.colorScheme.outline
+                      : theme.colorScheme.onSurface,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         );
       },
@@ -328,15 +369,25 @@ class _WorkerRowsTable extends StatelessWidget {
               ],
               rows: [
                 for (final n in row.nttRows)
-                  DataRow(cells: [
-                    DataCell(Text(n.date)),
-                    DataCell(Text(_timePair(n.shift))),
-                    DataCell(Text(n.shiftTotalTime)),
-                    DataCell(Text(_timePair(n.tasks))),
-                    DataCell(Text(n.tasksTotalTime)),
-                    DataCell(Text(n.properties.toString())),
-                    DataCell(Text(n.proposedNTT.toString())),
-                  ]),
+                  DataRow(
+                    color: n.inadvertentProperties.isNotEmpty
+                        ? WidgetStateProperty.all(
+                            Theme.of(context)
+                                .colorScheme
+                                .errorContainer
+                                .withValues(alpha: 0.4),
+                          )
+                        : null,
+                    cells: [
+                      DataCell(Text(n.date)),
+                      DataCell(Text(_timePair(n.shift))),
+                      DataCell(Text(n.shiftTotalTime)),
+                      DataCell(Text(_timePair(n.tasks))),
+                      DataCell(Text(n.tasksTotalTime)),
+                      DataCell(_PropertiesCell(row: n)),
+                      DataCell(Text(n.proposedNTT.toString())),
+                    ],
+                  ),
               ],
               ),
             ),
@@ -400,4 +451,39 @@ class _WorkerRowsTable extends StatelessWidget {
         'Nov',
         'Dec',
       ][month - 1];
+}
+
+class _PropertiesCell extends StatelessWidget {
+  const _PropertiesCell({required this.row});
+
+  final ProposedNttRow row;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hasInadvertent = row.inadvertentProperties.isNotEmpty;
+    if (!hasInadvertent) return Text(row.properties.toString());
+    return Tooltip(
+      message:
+          'Not in schedule: ${row.inadvertentProperties.join(', ')}',
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            row.properties.toString(),
+            style: TextStyle(
+              color: theme.colorScheme.error,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(
+            Icons.warning_amber_rounded,
+            size: 16,
+            color: theme.colorScheme.error,
+          ),
+        ],
+      ),
+    );
+  }
 }
