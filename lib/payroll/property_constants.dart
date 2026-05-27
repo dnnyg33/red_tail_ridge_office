@@ -11,128 +11,188 @@ const ridge = 'Ridge';
 
 //properties (but really these are units)
 // Albany
-const A_118 = Property(name: '118', location: albany118_120, region: Albany);
-const A_118Basement = Property(
-  name: 'BSMT- 118-B',
-  location: albany118_120,
+const A_118 = Unit(name: '118', property: albany118_120, region: Albany);
+const A_118Basement = Unit(
+  name: 'BSMT- 118- B',
+  property: albany118_120,
   region: Albany,
 );
-const A_120 = Property(name: '120', location: albany118_120, region: Albany);
-const A_120Basement = Property(
+const A_120 = Unit(name: '120', property: albany118_120, region: Albany);
+const A_120Basement = Unit(
   name: 'BSMT-120B',
-  location: albany118_120,
+  property: albany118_120,
   region: Albany,
 );
-const A_FerryAdu = Property(
+const A_FerryAdu = Unit(
   name: 'Ferry Little House',
-  location: ferry,
+  property: ferry,
   region: Albany,
 );
-const A_FerryBasement = Property(
+const A_FerryBasement = Unit(
   name: 'Ferry Basement',
-  location: ferry,
+  property: ferry,
   region: Albany,
 );
-const A_FerryUpstairs = Property(
+const A_FerryUpstairs = Unit(
   name: 'Ferry Upstairs',
-  location: ferry,
+  property: ferry,
   region: Albany,
 );
 
 // Corvallis
-const C_13thStreet = Property(
+const C_13thStreet = Unit(
   name: '13th Urban Rustic',
-  location: 'Corvallis 13th Street',
+  property: 'Corvallis 13th Street',
   region: Corvallis,
 );
-const C_19thStreet = Property(
+const C_19thStreet = Unit(
   name: '19th St',
-  location: 'Corvallis 19th Street',
+  property: 'Corvallis 19th Street',
   region: Corvallis,
 );
-const C_3rd = Property(name: '3rd St', location: third, region: Corvallis);
-const C_Minnesota = Property(
+const C_3rd = Unit(name: '3rd St', property: third, region: Corvallis);
+const C_3rdBasement = Unit(
+    name: 'BSMT-3rd Basement', property: third, region: Corvallis);
+const C_Minnesota = Unit(
   name: 'Minnesota',
-  location: 'Corvallis Minnesota',
+  property: 'Corvallis Minnesota',
   region: Corvallis,
 );
-const C_Taylor = Property(
+const C_Taylor = Unit(
   name: 'Taylor Ave',
-  location: 'Corvallis Taylor',
+  property: 'Corvallis Taylor',
   region: Corvallis,
 );
-const C_Western = Property(
+const C_Western = Unit(
   name: 'Western',
-  location: 'Corvallis Western',
+  property: 'Corvallis Western',
   region: Corvallis,
 );
 
 // Philomath
-const P_Basement = Property(
+const P_Basement = Unit(
   name: 'Philomath Basement',
-  location: ridge,
+  property: ridge,
   region: Philomath,
 );
-const P_Loft = Property(
+const P_Loft = Unit(
   name: 'Philomath Loft',
-  location: ridge,
+  property: ridge,
   region: Philomath,
 );
-const P_Ridge = Property(
+const P_Ridge = Unit(
   name: 'Philomath The Ridge',
-  location: ridge,
+  property: ridge,
   region: Philomath,
 );
-const P_Adams = Property(
+const P_Adams = Unit(
   name: 'Adams',
-  location: 'Philomath Adams',
+  property: 'Philomath Adams',
   region: Philomath,
 );
-const P_MainSt = Property(
+const P_MainSt = Unit(
   name: 'Main St',
-  location: 'Philomath Main St',
+  property: 'Philomath Main St',
   region: Philomath,
 );
-const P_Brian132 = Property(
+const P_Brian132 = Unit(
   name: 'Brian 132',
-  location: 'Philomath Adams',
-  region: Philomath,
+  property: albany118_120,
+  region: Albany,
 );
-const GH_Holly3rd = Property(
+const GH_Holly3rd = Unit(
   name: 'GH- Holly 3rd',
-  location: 'Holly 3rd',
+  property: 'Holly 3rd',
   region: Corvallis,
 ); //TODO is this info correct
-const GH_Kendall4550 = Property(
+const GH_Kendall4550 = Unit(
   name: 'GH- Kendall 4550',
-  location: 'Kendall 4550',
-  region: Corvallis,
+  property: 'Kendall 4550',
+  region: Philomath,
 );
-const GH_OTHER = Property(
+const GH_OTHER = Unit(
   name: 'Ghost Host',
-  location: 'Unknown',
+  property: 'Unknown',
   region: Corvallis,
 );
 // Skipped (region unclear): Brian 121/123/132, Ghost Host,
 // GH- Holly 3rd, GH- Kendall 4550, GH- Dustin 4th.
 
-class Property {
-  const Property({
+const _allUnits = <Unit>[
+  A_118,
+  A_118Basement,
+  A_120,
+  A_120Basement,
+  A_FerryAdu,
+  A_FerryBasement,
+  A_FerryUpstairs,
+  C_13thStreet,
+  C_19thStreet,
+  C_3rd,
+  C_3rdBasement,
+  C_Minnesota,
+  C_Taylor,
+  C_Western,
+  P_Basement,
+  P_Loft,
+  P_Ridge,
+  P_Adams,
+  P_MainSt,
+  P_Brian132,
+  GH_Holly3rd,
+  GH_Kendall4550,
+  GH_OTHER,
+];
+
+final propertyByName = <String, Unit>{
+  for (final u in _allUnits) u.name: u,
+};
+
+/// Drive-time minutes for moving from one property to the next:
+///   - same property name → 0 minutes
+///   - same location (different unit) → 1 minute
+///   - Albany ↔ Philomath → 20 minutes
+///   - any other different-region switch → 15 minutes
+///   - both in Albany → 6 minutes
+///   - otherwise (or unknown property) → 10 minutes
+int driveTimeBetween(String fromName, String toName) {
+  if (fromName == toName) return 0;
+  final from = propertyByName[fromName];
+  final to = propertyByName[toName];
+  if (from == null) {
+    throw ArgumentError.value('invalid property name $fromName');
+  }
+  if (to == null) {
+    throw ArgumentError.value(
+        'invalid property name $toName');
+  }
+  if (from.property == to.property) return 1;
+  if (from.region != to.region) {
+    final regions = {from.region, to.region};
+    if (regions.containsAll({Albany, Philomath})) return 20;
+    return 15;
+  }
+  if (from.region == Albany) return 6;
+  return 10;
+}
+
+class Unit {
+  const Unit({
     required this.name,
-    required this.location,
+    required this.property,
     required this.region,
   });
 
   final String name;
-  final String location;
+  final String property;
   final String region;
 
   //
-  bool isSameLocation(Property propertyB) {
-    return location == propertyB.location;
+  bool isSameProperty(Unit propertyB) {
+    return property == propertyB.property;
   }
 
-  bool isSameRegion(Property propertyB) {
+  bool isSameRegion(Unit propertyB) {
     return region == propertyB.region;
   }
 }

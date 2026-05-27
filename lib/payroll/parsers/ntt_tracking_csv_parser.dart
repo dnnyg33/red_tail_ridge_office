@@ -44,6 +44,7 @@ class NttTrackingCsvParser {
 
       final nttRows = <ProposedNttRow>[];
       var totalNttMinutes = 0;
+      final datesWithDailyCharge = <String>{};
       for (final shift in shifts) {
         final attribution = _attributeTasks(
           shift,
@@ -52,12 +53,23 @@ class NttTrackingCsvParser {
           assignments: assignments,
         );
         final propertyCount = attribution.properties.length;
-        var driveTime = max(0, propertyCount - 1) * 10;
-        final assignedTaskCount = assignments?.taskCountFor(
-              worker: workerName,
-              date: shift.date,
-            ) ??
-            0;
+        // Drive time and task-switching leeway are daily totals from the
+        // schedule, so only attribute them to the first shift of the day.
+        final isFirstShiftOfDay = datesWithDailyCharge.add(shift.date);
+        final driveTime = !isFirstShiftOfDay
+            ? 0
+            : assignments?.driveTimeFor(
+                  worker: workerName,
+                  date: shift.date,
+                ) ??
+                max(0, propertyCount - 1) * 10;
+        final assignedTaskCount = !isFirstShiftOfDay
+            ? 0
+            : assignments?.taskCountFor(
+                  worker: workerName,
+                  date: shift.date,
+                ) ??
+                0;
         final taskSwitchingTime = max(0, assignedTaskCount - 1);
         final proposedNtt = shift.minutes -
             (attribution.taskMinutes + driveTime + taskSwitchingTime);
