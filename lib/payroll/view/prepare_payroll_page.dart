@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utils/networking/async_operation.dart';
+import 'package:flutter_utils/widgets/alerts/show_alert.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_row.dart';
 
@@ -94,6 +95,9 @@ class _TimeTrackingFileField extends StatelessWidget {
       builder: (context, state) {
         return Row(
           children: [
+            IconButton(
+                onPressed: () => showAlert(context, title: "Special Instructions", message: "These are the reported shifts. Include all staff during a given period"),
+                icon: Icon(Icons.help)),
             OutlinedButton.icon(
               onPressed: () =>
                   _pickFile(context, onSelected: (picked) {
@@ -136,6 +140,9 @@ class _NttFileField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(children: [
+              IconButton(
+                  onPressed: () => showAlert(context, title: "Special Instructions", message: "This is the reported task time. Include all staff during a given period and sort by 'Employee'"),
+                  icon: Icon(Icons.help)),
               OutlinedButton.icon(
                 onPressed: () =>
                     _pickFile(context, onSelected: (picked) {
@@ -155,7 +162,6 @@ class _NttFileField extends StatelessWidget {
                 ),
               ),
             ]),
-            const SizedBox(height: 8),
           ],
         );
       },
@@ -174,6 +180,9 @@ class _ScheduleFileField extends StatelessWidget {
       builder: (context, state) {
         return Row(
           children: [
+            IconButton(
+                onPressed: () => showAlert(context, title: "Special Instructions", message: "This is the scheduled tasks/properties list. Select 'In Progress tasks' and 'Completed Tasks Only' for a given period"),
+                icon: Icon(Icons.help)),
             OutlinedButton.icon(
               onPressed: () =>
                   _pickFile(context, onSelected: (picked) {
@@ -181,7 +190,7 @@ class _ScheduleFileField extends StatelessWidget {
                     bloc.add(PreparePayrollScheduleFileSelected(picked));
                   }),
               icon: const Icon(Icons.upload_file),
-              label: const Text("Add 'Schedule' csv"),
+              label: const Text("Add 'Quick reports/Tasks' csv"),
             ),
             const SizedBox(width: 12),
             Expanded(
