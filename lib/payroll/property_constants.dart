@@ -149,7 +149,7 @@ final propertyByName = <String, Unit>{
 };
 
 /// Drive-time minutes for moving from one property to the next:
-///   - same property name → 0 minutes
+///   - same unit name → 0 minutes
 ///   - same location (different unit) → 1 minute
 ///   - Albany ↔ Philomath → 20 minutes
 ///   - any other different-region switch → 15 minutes

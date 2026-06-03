@@ -14,18 +14,6 @@ class PreparePayrollPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PreparePayrollBloc()..add(const PreparePayrollStarted()),
-      child: const PreparePayrollView(),
-    );
-  }
-}
-
-class PreparePayrollView extends StatelessWidget {
-  const PreparePayrollView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -315,16 +303,25 @@ class _WorkerRowsTable extends StatelessWidget {
                       DataColumn(label: Text('Worker')),
                       DataColumn(label: Text('Dates')),
                       DataColumn(label: Text('Hours'), numeric: true),
-                      DataColumn(label: Text('Breaks'), numeric: true),
-                      DataColumn(label: Text('Mileage'), numeric: true),
+                      DataColumn(label: Text('Breaks/NTT'), numeric: true),
                       DataColumn(label: Text('Pay rate'), numeric: true),
-                      DataColumn(label: Text('Hourly pay minus breaks'), numeric: true),
+                      DataColumn(label: Text('Mileage'), numeric: true),
                       DataColumn(label: Text('Mileage pay'), numeric: true),
-                      DataColumn(label: Text('Total pay'), numeric: true),
+                      DataColumn(label: Text('Hourly pay minus breaks/NTT'), numeric: true),
+                      DataColumn(label: Text('Hourly pay & Drive'), numeric: true),
                     ],
                     rows: [
-                      for (final r in workerRows!)
-                        DataRow(cells: [
+                      for (final (i, r) in workerRows!.indexed)
+                        DataRow(
+                          color: i.isOdd
+                              ? WidgetStateProperty.all(
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
+                                      .withValues(alpha: 0.4),
+                                )
+                              : null,
+                          cells: [
                           DataCell(
                             TextButton(
                               onPressed: r.nttRows.isEmpty
@@ -336,10 +333,10 @@ class _WorkerRowsTable extends StatelessWidget {
                           DataCell(Text(_rowRange(r.periodStart, r.periodEnd))),
                           DataCell(Text(r.periodHours.toStringAsFixed(2))),
                           DataCell(Text(r.periodBreaks)),
-                          DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
                           DataCell(Text(_money(r.payRate))),
-                          DataCell(Text(_money(r.periodHourlyPay))),
+                          DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
                           DataCell(Text(_money(r.mileagePay))),
+                          DataCell(Text(_money(r.periodHourlyPay))),
                           DataCell(Text(_money(r.totalPeriodPay))),
                         ]),
                     ],
