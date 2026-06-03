@@ -1,3 +1,4 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -294,54 +295,55 @@ class _WorkerRowsTable extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Worker')),
-                      DataColumn(label: Text('Dates')),
-                      DataColumn(label: Text('Hours'), numeric: true),
-                      DataColumn(label: Text('Breaks/NTT'), numeric: true),
-                      DataColumn(label: Text('Pay rate'), numeric: true),
-                      DataColumn(label: Text('Mileage'), numeric: true),
-                      DataColumn(label: Text('Mileage pay'), numeric: true),
-                      DataColumn(label: Text('Hourly pay minus breaks/NTT'), numeric: true),
-                      DataColumn(label: Text('Hourly pay & Drive'), numeric: true),
-                    ],
-                    rows: [
-                      for (final (i, r) in workerRows!.indexed)
-                        DataRow(
-                          color: i.isOdd
-                              ? WidgetStateProperty.all(
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest
-                                      .withValues(alpha: 0.4),
-                                )
-                              : null,
-                          cells: [
-                          DataCell(
-                            TextButton(
-                              onPressed: r.nttRows.isEmpty
-                                  ? null
-                                  : () => _showNttRowsDialog(context, r),
-                              child: Text(r.worker),
-                            ),
+              child: DataTable2(
+                minWidth: 1100,
+                fixedTopRows: 1,
+                fixedLeftColumns: 1,
+                headingRowHeight: 72,
+                columns: const [
+                  // DataColumn2(label: _HeaderLabel('#'), fixedWidth: 8),
+                  DataColumn2(label: _HeaderLabel('Worker')),
+                  DataColumn2(label: _HeaderLabel('Dates'), size: ColumnSize.L),
+                  DataColumn2(label: _HeaderLabel('Hours'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Breaks/NTT'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Pay rate'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Mileage'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Mileage pay'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Hourly pay minus breaks/NTT'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Hourly pay & Drive'), numeric: true),
+                ],
+                rows: [
+                  for (final (i, r) in workerRows!.indexed)
+                    DataRow2(
+                      color: i.isOdd
+                          ? WidgetStateProperty.all(
+                              Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.4),
+                            )
+                          : null,
+                      cells: [
+                        // DataCell(Text('${i + 1}')),
+                        DataCell(
+                          TextButton(
+                            onPressed: r.nttRows.isEmpty
+                                ? null
+                                : () => _showNttRowsDialog(context, r),
+                            child: Text(r.worker),
                           ),
-                          DataCell(Text(_rowRange(r.periodStart, r.periodEnd))),
-                          DataCell(Text(r.periodHours.toStringAsFixed(2))),
-                          DataCell(Text(r.periodBreaks)),
-                          DataCell(Text(_money(r.payRate))),
-                          DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
-                          DataCell(Text(_money(r.mileagePay))),
-                          DataCell(Text(_money(r.periodHourlyPay))),
-                          DataCell(Text(_money(r.totalPeriodPay))),
-                        ]),
-                    ],
-                  ),
-                ),
+                        ),
+                        DataCell(Text(_rowRange(r.periodStart, r.periodEnd))),
+                        DataCell(Text(r.periodHours.toStringAsFixed(2))),
+                        DataCell(Text(r.periodBreaks)),
+                        DataCell(Text(_money(r.payRate))),
+                        DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
+                        DataCell(Text(_money(r.mileagePay))),
+                        DataCell(Text(_money(r.periodHourlyPay))),
+                        DataCell(Text(_money(r.totalPeriodPay))),
+                      ],
+                    ),
+                ],
               ),
             ),
           ],
@@ -462,6 +464,22 @@ class _WorkerRowsTable extends StatelessWidget {
         'Nov',
         'Dec',
       ][month - 1];
+}
+
+class _HeaderLabel extends StatelessWidget {
+  const _HeaderLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      softWrap: true,
+      maxLines: 3,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
+  }
 }
 
 class _PropertiesCell extends StatelessWidget {

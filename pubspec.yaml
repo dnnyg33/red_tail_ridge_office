@@ -43,6 +43,7 @@ dependencies:
     git:
       url: git@github.com:dnnyg33/flutter_utils.git
       ref: main
+  data_table_2: ^2.7.2
 
 dev_dependencies:
   flutter_test:
