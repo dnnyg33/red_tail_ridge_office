@@ -132,6 +132,7 @@ class _PendingWorker {
       periodStart: earliest,
       periodEnd: latest,
       periodBreaks: periodBreaks.toStringAsFixed(2),
+      periodNtt: periodBreaks,
       nttRows: workerNtt.nttRows,
     );
   }

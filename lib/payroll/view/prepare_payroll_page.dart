@@ -50,22 +50,50 @@ class _PreparePayrollBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16),
+    // The table (DataTable2) needs a bounded height to keep its frozen
+    // header/column, so give it a viewport-relative height inside the
+    // page-level scroll view.
+    final hasRows = state.workerRows.data?.isNotEmpty ?? false;
+    final tableHeight = MediaQuery.sizeOf(context).height * 0.7;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _TimeTrackingFileField(),
-          SizedBox(height: 12),
-          _NttFileField(),
-          SizedBox(height: 12),
-          _ScheduleFileField(),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
+              initiallyExpanded: true,
+              title: const Text('Inputs'),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _TimeTrackingFileField(),
+                SizedBox(height: 12),
+                _NttFileField(),
+                SizedBox(height: 12),
+                _ScheduleFileField(),
+                SizedBox(height: 24),
+                Row(
+                  children: [
+                    _MileageConstantField(),
+                    SizedBox(width: 16),
+                    _HeathDeductionsField(),
+                    SizedBox(width: 16),
+                    _CleaningRevenueField(),
+                  ],
+                ),
+                SizedBox(height: 24),
+                _GenerateReportButton(),
+              ],
+            ),
+          ),
           SizedBox(height: 24),
-          _MileageConstantField(),
-          SizedBox(height: 24),
-          _GenerateReportButton(),
-          SizedBox(height: 24),
-          Expanded(child: _WorkerRowsTable(state.workerRows.data)),
+          SizedBox(
+            height: hasRows ? tableHeight : null,
+            child: _WorkerRowsTable(state.workerRows.data),
+          ),
         ],
       ),
     );
@@ -241,6 +269,62 @@ class _MileageConstantField extends StatelessWidget {
   }
 }
 
+class _HeathDeductionsField extends StatelessWidget {
+  const _HeathDeductionsField();
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<PreparePayrollBloc>();
+    return SizedBox(
+      width: 240,
+      child: TextFormField(
+        initialValue: bloc.state.heathDeductions?.toString(),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+        ],
+        decoration: const InputDecoration(
+          labelText: 'Heath deductions',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (raw) {
+          final trimmed = raw.trim();
+          final value = trimmed.isEmpty ? null : double.tryParse(trimmed);
+          bloc.add(PreparePayrollHeathDeductionsChanged(value));
+        },
+      ),
+    );
+  }
+}
+
+class _CleaningRevenueField extends StatelessWidget {
+  const _CleaningRevenueField();
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<PreparePayrollBloc>();
+    return SizedBox(
+      width: 240,
+      child: TextFormField(
+        initialValue: bloc.state.cleaningRevenue?.toString(),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+        ],
+        decoration: const InputDecoration(
+          labelText: 'Cleaning revenue',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (raw) {
+          final trimmed = raw.trim();
+          final value = trimmed.isEmpty ? null : double.tryParse(trimmed);
+          bloc.add(PreparePayrollCleaningRevenueChanged(value));
+        },
+      ),
+    );
+  }
+}
+
 class _GenerateReportButton extends StatelessWidget {
   const _GenerateReportButton();
 
@@ -278,12 +362,16 @@ class _WorkerRowsTable extends StatelessWidget {
       buildWhen: (prev, curr) =>
           prev.workerRows != curr.workerRows ||
           prev.payPeriodStart != curr.payPeriodStart ||
-          prev.payPeriodEnd != curr.payPeriodEnd,
+          prev.payPeriodEnd != curr.payPeriodEnd ||
+          prev.cleaningRevenue != curr.cleaningRevenue ||
+          prev.heathDeductions != curr.heathDeductions,
       builder: (context, state) {
         if (workerRows == null || workerRows!.isEmpty) {
           return const SizedBox.shrink();
         }
         final title = _titleRange(state.payPeriodStart, state.payPeriodEnd);
+        final bonusPot = state.bonusPot;
+        final totalCleans = state.totalCleans;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -303,14 +391,14 @@ class _WorkerRowsTable extends StatelessWidget {
                 columns: const [
                   // DataColumn2(label: _HeaderLabel('#'), fixedWidth: 8),
                   DataColumn2(label: _HeaderLabel('Worker')),
-                  DataColumn2(label: _HeaderLabel('Dates'), size: ColumnSize.L),
-                  DataColumn2(label: _HeaderLabel('Hours'), numeric: true),
-                  DataColumn2(label: _HeaderLabel('Breaks/NTT'), numeric: true),
+                  // DataColumn2(label: _HeaderLabel('Dates'), size: ColumnSize.L),
+                  DataColumn2(label: _HeaderLabel('Net Hours'), numeric: true, tooltip: 'Clocked in time - NTT'),
                   DataColumn2(label: _HeaderLabel('Pay rate'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Gross'), numeric: true, tooltip: 'Pay rate * net hours'),
                   DataColumn2(label: _HeaderLabel('Mileage'), numeric: true),
                   DataColumn2(label: _HeaderLabel('Mileage pay'), numeric: true),
-                  DataColumn2(label: _HeaderLabel('Hourly pay minus breaks/NTT'), numeric: true),
                   DataColumn2(label: _HeaderLabel('Hourly pay & Drive'), numeric: true),
+                  DataColumn2(label: _HeaderLabel('Bonus pay'), numeric: true),
                 ],
                 rows: [
                   for (final (i, r) in workerRows!.indexed)
@@ -333,14 +421,39 @@ class _WorkerRowsTable extends StatelessWidget {
                             child: Text(r.worker),
                           ),
                         ),
-                        DataCell(Text(_rowRange(r.periodStart, r.periodEnd))),
-                        DataCell(Text(r.periodHours.toStringAsFixed(2))),
-                        DataCell(Text(r.periodBreaks)),
+                        DataCell(
+                          Tooltip(
+                            message:
+                                '${r.periodHours.toStringAsFixed(2)} clocked in − '
+                                '${r.periodNtt.toStringAsFixed(2)} NTT',
+                            child: Text(r.netHours.toStringAsFixed(2)),
+                          ),
+                        ),
                         DataCell(Text(_money(r.payRate))),
+                        DataCell(
+                          Tooltip(
+                            message:
+                                '${_money(r.payRate)} × ${r.netHours.toStringAsFixed(2)} net hrs',
+                            child: Text(_money(r.periodHourlyPay)),
+                          ),
+                        ),
                         DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
                         DataCell(Text(_money(r.mileagePay))),
-                        DataCell(Text(_money(r.periodHourlyPay))),
                         DataCell(Text(_money(r.totalPeriodPay))),
+                        DataCell(
+                          TextButton(
+                            onPressed: () => _showBonusDialog(
+                              context,
+                              row: r,
+                              state: state,
+                              pot: bonusPot,
+                              totalCleans: totalCleans,
+                            ),
+                            child: Text(_money(
+                              r.bonusPay(pot: bonusPot, totalCleans: totalCleans),
+                            )),
+                          ),
+                        ),
                       ],
                     ),
                 ],
@@ -349,6 +462,72 @@ class _WorkerRowsTable extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  void _showBonusDialog(
+    BuildContext context, {
+    required WorkerRow row,
+    required PreparePayrollState state,
+    required double pot,
+    required int totalCleans,
+  }) {
+    final revenue = state.cleaningRevenue ?? 0;
+    final revenueShare = 0.035 * revenue;
+    final heath = state.heathDeductions ?? 0;
+    final share = totalCleans <= 0 ? 0.0 : row.cleans / totalCleans;
+    final grossShare = pot * share;
+    final bonus = row.bonusPay(pot: pot, totalCleans: totalCleans);
+
+    String pct(double v) => '${(v * 100).toStringAsFixed(1)}%';
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('${row.worker} – Bonus pay'),
+        content: SizedBox(
+          width: 420,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _bonusLine('Cleaning revenue', _money(revenue)),
+              _bonusLine('× 3.5%', _money(revenueShare)),
+              _bonusLine('− Heath deductions', '−${_money(heath)}'),
+              const Divider(),
+              _bonusLine('Total pot', _money(pot), bold: true),
+              const SizedBox(height: 12),
+              _bonusLine("This worker's cleans", '${row.cleans}'),
+              _bonusLine('Total cleans', '$totalCleans'),
+              _bonusLine('Share of pot', pct(share)),
+              const Divider(),
+              _bonusLine('Pot × share', _money(grossShare)),
+              _bonusLine('− Callback deductions', '−${_money(0)}'),
+              const Divider(),
+              _bonusLine('Bonus pay', _money(bonus), bold: true),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _bonusLine(String label, String value, {bool bold = false}) {
+    final style = bold ? const TextStyle(fontWeight: FontWeight.bold) : null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: style),
+          Text(value, style: style),
+        ],
+      ),
     );
   }
 

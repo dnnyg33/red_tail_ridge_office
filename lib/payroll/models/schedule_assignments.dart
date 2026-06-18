@@ -45,6 +45,19 @@ class ScheduleAssignments {
     return total;
   }
 
+  /// Number of "Check Out Clean" tasks assigned to [worker] across the
+  /// schedule. Each matching task occurrence counts as one clean.
+  int checkoutCleanCountFor(String worker) {
+    var count = 0;
+    for (final a in assignments) {
+      if (a.worker == worker &&
+          a.task.toLowerCase().contains('check out clean')) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   /// Total drive-time minutes between consecutive property assignments for
   /// [worker] on [date], in CSV order. Returns 0 if fewer than two
   /// assignments exist.

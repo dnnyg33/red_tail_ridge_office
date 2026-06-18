@@ -21,6 +21,8 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     on<PreparePayrollNttFileSelected>(_onNttFileSelected);
     on<PreparePayrollScheduleFileSelected>(_onScheduleFileSelected);
     on<PreparePayrollMileageConstantChanged>(_onMileageConstantChanged);
+    on<PreparePayrollHeathDeductionsChanged>(_onHeathDeductionsChanged);
+    on<PreparePayrollCleaningRevenueChanged>(_onCleaningRevenueChanged);
     on<PreparePayrollReportRequested>(_onReportRequested);
   }
 
@@ -77,6 +79,20 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     emit(state.copyWith(mileageConstant: event.value));
   }
 
+  void _onHeathDeductionsChanged(
+    PreparePayrollHeathDeductionsChanged event,
+    Emitter<PreparePayrollState> emit,
+  ) {
+    emit(state.copyWith(heathDeductions: event.value));
+  }
+
+  void _onCleaningRevenueChanged(
+    PreparePayrollCleaningRevenueChanged event,
+    Emitter<PreparePayrollState> emit,
+  ) {
+    emit(state.copyWith(cleaningRevenue: event.value));
+  }
+
   void _onReportRequested(
     PreparePayrollReportRequested event,
     Emitter<PreparePayrollState> emit,
@@ -108,11 +124,19 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
         timeTrackingBytes: timeTrackingBytes,
         assignments: assignments,
       );
-      final rows = const TimeTrackingCsvParser().parse(
+      final parsedRows = const TimeTrackingCsvParser().parse(
         bytes: timeTrackingBytes,
         mileageConstant: state.mileageConstant ?? 0,
         workerNtts: workerNtts,
       );
+
+      // Attach each worker's "Check Out Clean" count from the schedule.
+      final rows = assignments == null
+          ? parsedRows
+          : [
+              for (final r in parsedRows)
+                r.copyWith(cleans: assignments.checkoutCleanCountFor(r.worker)),
+            ];
 
       final (overallStart, overallEnd) = _overallRange(rows);
       emit(state.copyWith(

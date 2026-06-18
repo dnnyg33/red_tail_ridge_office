@@ -20,6 +20,12 @@ sealed class PreparePayrollEvent with _$PreparePayrollEvent {
   const factory PreparePayrollEvent.mileageConstantChanged(double? value) =
       PreparePayrollMileageConstantChanged;
 
+  const factory PreparePayrollEvent.heathDeductionsChanged(double? value) =
+      PreparePayrollHeathDeductionsChanged;
+
+  const factory PreparePayrollEvent.cleaningRevenueChanged(double? value) =
+      PreparePayrollCleaningRevenueChanged;
+
   const factory PreparePayrollEvent.reportRequested() =
       PreparePayrollReportRequested;
 }
