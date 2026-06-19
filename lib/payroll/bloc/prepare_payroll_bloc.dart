@@ -52,6 +52,7 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
       state.copyWith(
         payPeriodStart: DateTime(now.year, now.month, 1),
         payPeriodEnd: DateTime(now.year, now.month + 1, 0),
+        startDate: DateTime(now.year, now.month, 1),
       ),
     );
   }

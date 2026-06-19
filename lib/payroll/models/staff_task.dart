@@ -1,6 +1,8 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'operto_timestamps.dart';
+
+part 'staff_task.freezed.dart';
 
 /// An Operto Teams "Staff Task" (an assignment), from `GET /api/v1/stafftasks`.
 /// This is the API equivalent of the old schedule CSV: it ties a staff member
@@ -9,32 +11,23 @@ import 'operto_timestamps.dart';
 ///
 /// (Pay fields on this endpoint come back as 0, so pay is taken from an
 /// uploaded CSV instead.)
-class StaffTask extends Equatable {
-  const StaffTask({
-    required this.taskId,
-    required this.staffId,
-    required this.propertyId,
-    this.taskName = '',
-    this.taskDate,
-  });
+@freezed
+abstract class StaffTask with _$StaffTask {
+  const StaffTask._();
 
-  final int taskId;
-  final int staffId;
-  final int propertyId;
-  final String taskName;
-  final DateTime? taskDate;
+  const factory StaffTask({
+    required int taskId,
+    required int staffId,
+    required int propertyId,
+    @Default('') String taskName,
+    DateTime? taskDate,
+  }) = _StaffTask;
 
-  factory StaffTask.fromJson(Map<String, dynamic> json) {
-    return StaffTask(
-      taskId: opertoInt(json['TaskID']) ?? 0,
-      staffId: opertoInt(json['StaffID']) ?? 0,
-      propertyId: opertoInt(json['PropertyID']) ?? 0,
-      taskName: (json['TaskName'] as String?)?.trim() ?? '',
-      taskDate: parseOpertoDate(json['TaskDate']),
-    );
-  }
-
-  @override
-  List<Object?> get props =>
-      [taskId, staffId, propertyId, taskName, taskDate];
+  static StaffTask fromJson(Map<String, dynamic> json) => StaffTask(
+        taskId: opertoInt(json['TaskID']) ?? 0,
+        staffId: opertoInt(json['StaffID']) ?? 0,
+        propertyId: opertoInt(json['PropertyID']) ?? 0,
+        taskName: (json['TaskName'] as String?)?.trim() ?? '',
+        taskDate: parseOpertoDate(json['TaskDate']),
+      );
 }
