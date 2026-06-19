@@ -30,6 +30,17 @@ abstract class PreparePayrollState with _$PreparePayrollState {
   int get totalCleans =>
       workerRows.data?.fold<int>(0, (sum, r) => sum + r.cleans) ?? 0;
 
+  /// True once Operto shifts have been fetched — the pay-rate file can only be
+  /// generated for workers found in that data.
+  bool get hasFetchedStaffDayTimes => staffDayTimes.isSuccess;
+
+  /// Staff IDs with at least one worked shift (clock in *and* out) in the
+  /// fetched Operto data — i.e. the workers who appear in payroll this period.
+  Set<int> get staffIdsWithShifts => {
+        for (final sdt in staffDayTimes.data ?? const <StaffDayTime>[])
+          if (sdt.clockIn != null && sdt.clockOut != null) sdt.staffId,
+      };
+
   bool get canGenerateReport =>
       staffDayTimes.isSuccess && !workerRows.isProcessing;
 

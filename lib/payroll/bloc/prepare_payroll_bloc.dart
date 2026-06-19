@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utils/networking/async_operation.dart';
@@ -10,6 +9,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/models/auth_provider.dart';
+import '../models/pay_rate.dart';
+import '../models/staff.dart';
 import '../models/staff_day_time.dart';
 import '../models/staff_task.dart';
 import '../models/staff_task_time.dart';
@@ -156,6 +157,17 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     }
   }
 
+  /// Fetches every Operto staff member for the pay-rate editor. Throws an
+  /// [OpertoApiException] when Operto isn't connected; otherwise propagates any
+  /// underlying fetch error.
+  Future<List<Staff>> fetchStaffForPayRates() async {
+    final session = await _authBloc.ensureValidSession(AuthProvider.operto);
+    if (session == null) {
+      throw const OpertoApiException('Connect Operto under Connections first.');
+    }
+    return _opertoApi.fetchStaff(authorization: session.authorizationHeader);
+  }
+
   void _onReportRequested(
     _PreparePayrollReportRequested event,
     Emitter<PreparePayrollState> emit,
@@ -195,20 +207,19 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     }
   }
 
-  /// Parses the uploaded pay-rate CSV: rows of `StaffID,HourlyRate`. A header
-  /// row (or any row whose first two cells aren't a number) is skipped.
+  /// Parses the uploaded pay-rate JSON: an array of objects with `name`,
+  /// `payRate`, and `workerId`. Returns a `workerId -> payRate` map; entries
+  /// without a worker id are skipped.
   Map<int, double> _parsePayRates(Uint8List bytes) {
-    final raw = utf8.decode(bytes, allowMalformed: true);
-    final normalized = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-    final rows = const CsvToListConverter(eol: '\n', shouldParseNumbers: false)
-        .convert(normalized);
+    final decoded = jsonDecode(utf8.decode(bytes, allowMalformed: true));
+    if (decoded is! List) return const {};
 
     final rates = <int, double>{};
-    for (final row in rows) {
-      if (row.length < 2) continue;
-      final id = int.tryParse('${row[0]}'.trim());
-      final rate = double.tryParse('${row[1]}'.trim());
-      if (id != null && rate != null) rates[id] = rate;
+    for (final item in decoded) {
+      if (item is Map<String, dynamic>) {
+        final payRate = PayRate.fromJson(item);
+        if (payRate.workerId != 0) rates[payRate.workerId] = payRate.payRate;
+      }
     }
     return rates;
   }

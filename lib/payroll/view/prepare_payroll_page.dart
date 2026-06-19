@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -5,10 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utils/networking/async_operation.dart';
 import 'package:flutter_utils/widgets/alerts/show_alert.dart';
+import 'package:red_tail_ridge_office/payroll/models/staff.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_row.dart';
 
 import '../bloc/prepare_payroll_bloc.dart';
+import '../service/operto_api.dart';
+import '../service/pay_rate_file_saver.dart';
 
 class PreparePayrollPage extends StatelessWidget {
   const PreparePayrollPage({super.key});
@@ -240,22 +245,28 @@ class _PayRateFileField extends StatelessWidget {
                       title: 'Special Instructions',
                       message:
                           'Pay rates are not available from the Operto API, so '
-                          'upload a CSV with two columns — staff ID and hourly '
-                          'rate — one worker per row, e.g.\n\n'
-                          'StaffID,Rate\n132,22.50\n134,20.00',
+                          'upload a JSON array of objects with name, payRate, '
+                          'and workerId — one per worker, e.g.\n\n'
+                          '[\n'
+                          '  {"name": "Alice", "payRate": 22.50, "workerId": 132},\n'
+                          '  {"name": "Bob", "payRate": 20.00, "workerId": 134}\n'
+                          ']',
                     ),
                 icon: const Icon(Icons.help)),
             OutlinedButton.icon(
               onPressed: () => _pickFile(
                 context,
+                extensions: const ['json'],
                 onSelected: (picked) {
                   final bloc = context.read<PreparePayrollBloc>();
                   bloc.add(PreparePayrollEvent.payRateFileSelected(picked));
                 },
               ),
               icon: const Icon(Icons.upload_file),
-              label: const Text('Add pay rates (csv)'),
+              label: const Text('Add pay rates (json)'),
             ),
+            const SizedBox(width: 8),
+            const _GeneratePayRateFileButton(),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -287,6 +298,209 @@ Future<void> _pickFile(BuildContext context,
   if (result == null || result.files.isEmpty) return;
   final picked = result.files.single;
   onSelected(picked);
+}
+
+/// Fetches all Operto staff, then opens the [_PayRateEditorDialog] so the user
+/// can enter each worker's pay rate and export a pay-rate JSON file.
+class _GeneratePayRateFileButton extends StatefulWidget {
+  const _GeneratePayRateFileButton();
+
+  @override
+  State<_GeneratePayRateFileButton> createState() =>
+      _GeneratePayRateFileButtonState();
+}
+
+class _GeneratePayRateFileButtonState
+    extends State<_GeneratePayRateFileButton> {
+  bool _loading = false;
+
+  Future<void> _onPressed() async {
+    final bloc = context.read<PreparePayrollBloc>();
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _loading = true);
+    try {
+      // Only offer workers who actually have shifts in the fetched period.
+      final idsWithShifts = bloc.state.staffIdsWithShifts;
+      final staff = (await bloc.fetchStaffForPayRates())
+          .where((s) => idsWithShifts.contains(s.id))
+          .toList();
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (_) => _PayRateEditorDialog(staff: staff),
+      );
+    } on OpertoApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to load staff: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ready = context.select<PreparePayrollBloc, bool>(
+      (bloc) => bloc.state.hasFetchedStaffDayTimes,
+    );
+    return Tooltip(
+      message: ready
+          ? 'Generate a pay rate file for workers with shifts this period'
+          : 'Fetch Operto data first',
+      child: OutlinedButton.icon(
+        onPressed: (_loading || !ready) ? null : _onPressed,
+        icon: _loading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.request_quote),
+        label: const Text('Generate pay rate file'),
+      ),
+    );
+  }
+}
+
+/// Editable table of staff with a pay-rate field each. On save, writes a JSON
+/// array of `{ name, payRate, workerId }` objects via a native save dialog.
+class _PayRateEditorDialog extends StatefulWidget {
+  const _PayRateEditorDialog({required this.staff});
+
+  final List<Staff> staff;
+
+  @override
+  State<_PayRateEditorDialog> createState() => _PayRateEditorDialogState();
+}
+
+class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
+  late final List<Staff> _staff;
+  late final Map<int, TextEditingController> _controllers;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _staff = [...widget.staff]
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    _controllers = {
+      for (final s in _staff) s.id: TextEditingController(),
+    };
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final entries = [
+      for (final s in _staff)
+        {
+          'name': s.name,
+          'payRate': double.tryParse(_controllers[s.id]!.text.trim()) ?? 0,
+          'workerId': s.id,
+        },
+    ];
+    final bytes = utf8.encode(
+      const JsonEncoder.withIndent('  ').convert(entries),
+    );
+
+    setState(() => _saving = true);
+    try {
+      final path = await savePayRateFile(
+        fileName: 'pay_rates.json',
+        bytes: bytes,
+      );
+      if (!mounted) return;
+      if (path == null) {
+        setState(() => _saving = false);
+        return; // user cancelled the save dialog
+      }
+      navigator.pop();
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Pay rate file saved.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to save file: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Generate Pay Rate File'),
+      content: SizedBox(
+        width: 520,
+        height: MediaQuery.sizeOf(context).height * 0.6,
+        child: _staff.isEmpty
+            ? const Center(child: Text('No workers with shifts this period.'))
+            : SingleChildScrollView(
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Name')),
+                    DataColumn(label: Text('Worker ID')),
+                    DataColumn(label: Text('Pay rate')),
+                  ],
+                  rows: [
+                    for (final s in _staff)
+                      DataRow(cells: [
+                        DataCell(Text(s.name)),
+                        DataCell(Text('${s.id}')),
+                        DataCell(SizedBox(
+                          width: 120,
+                          child: TextField(
+                            controller: _controllers[s.id],
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*'),
+                              ),
+                            ],
+                            decoration: const InputDecoration(
+                              prefixText: '\$ ',
+                              isDense: true,
+                              hintText: '0.00',
+                            ),
+                          ),
+                        )),
+                      ]),
+                  ],
+                ),
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving || _staff.isEmpty ? null : _save,
+          child: _saving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Save'),
+        ),
+      ],
+    );
+  }
 }
 
 class _MileageConstantField extends StatelessWidget {
