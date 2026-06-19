@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -16,9 +17,14 @@ import 'payroll/bloc/prepare_payroll_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final dir = await getApplicationDocumentsDirectory();
+  // path_provider has no web implementation; HydratedBloc ships a dedicated
+  // web (IndexedDB) storage directory for that case.
   HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: HydratedStorageDirectory(dir.path),
+    storageDirectory: kIsWeb
+        ? HydratedStorageDirectory.web
+        : HydratedStorageDirectory(
+            (await getApplicationDocumentsDirectory()).path,
+          ),
   );
   runApp(const RedTailRidgeOfficeApp());
 }
@@ -32,8 +38,9 @@ class RedTailRidgeOfficeApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => AuthBloc()),
         BlocProvider(
-          create: (_) =>
-              PreparePayrollBloc()..add(const PreparePayrollStarted()),
+          create: (context) => PreparePayrollBloc(
+            authBloc: context.read<AuthBloc>(),
+          )..add(const PreparePayrollEvent.started()),
         ),
       ],
       child: MaterialApp(

@@ -69,11 +69,9 @@ class _PreparePayrollBody extends StatelessWidget {
               childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               expandedCrossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _TimeTrackingFileField(),
+                _OpertoShiftsField(),
                 SizedBox(height: 12),
-                _NttFileField(),
-                SizedBox(height: 12),
-                _ScheduleFileField(),
+                _PayRateFileField(),
                 SizedBox(height: 24),
                 Row(
                   children: [
@@ -100,85 +98,89 @@ class _PreparePayrollBody extends StatelessWidget {
   }
 }
 
-class _TimeTrackingFileField extends StatelessWidget {
-  const _TimeTrackingFileField();
+/// Operto-backed replacement for the "Time Tracking Employee/Days" shift CSV:
+/// pick a start/end date and pull StaffDayTimes straight from the API.
+class _OpertoShiftsField extends StatelessWidget {
+  const _OpertoShiftsField();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
       buildWhen: (prev, curr) =>
-          prev.timeTrackingFile != curr.timeTrackingFile,
+          prev.startDate != curr.startDate ||
+          prev.endDate != curr.endDate ||
+          prev.staffDayTimes != curr.staffDayTimes ||
+          prev.canFetchStaffDayTimes != curr.canFetchStaffDayTimes,
       builder: (context, state) {
-        return Row(
-          children: [
-            IconButton(
-                onPressed: () => showAlert(context, title: "Special Instructions", message: "These are the reported shifts. Include all staff during a given period"),
-                icon: Icon(Icons.help)),
-            OutlinedButton.icon(
-              onPressed: () =>
-                  _pickFile(context, onSelected: (picked) {
-                    final bloc = context.read<PreparePayrollBloc>();
-                    bloc.add(PreparePayrollTimeTrackingFileSelected(picked));
-                  }),
-              icon: const Icon(Icons.upload_file),
-              label: const Text("Add 'Time Tracking Employee/Days' csv"),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                state.timeTrackingFile?.name ?? 'No file selected',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: state.timeTrackingFile == null
-                      ? theme.colorScheme.outline
-                      : theme.colorScheme.onSurface,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-}
-
-class _NttFileField extends StatelessWidget {
-  const _NttFileField();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
-      buildWhen: (prev, curr) => prev.nttFile != curr.nttFile,
-      builder: (context, state) {
+        final bloc = context.read<PreparePayrollBloc>();
+        final staffDayTimes = state.staffDayTimes;
         return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              IconButton(
-                  onPressed: () => showAlert(context, title: "Special Instructions", message: "This is the reported task time. Include all staff during a given period and sort by 'Employee'"),
-                  icon: Icon(Icons.help)),
-              OutlinedButton.icon(
-                onPressed: () =>
-                    _pickFile(context, onSelected: (picked) {
-                      final bloc = context.read<PreparePayrollBloc>();
-                      bloc.add(PreparePayrollNttFileSelected(picked));
-                    }),
-                icon: const Icon(Icons.upload_file),
-                label: const Text("Add 'Time Tracking Tasks' csv"),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                state.nttFile?.name ?? 'No file selected',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: state.nttFile == null
-                      ? theme.colorScheme.outline
-                      : theme.colorScheme.onSurface,
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => showAlert(
+                    context,
+                    title: 'Operto data',
+                    message:
+                        'Pull staff clock in/out (StaffDayTimes) and task time '
+                        '(StaffTaskTimes) from Operto for the selected date '
+                        'range, replacing the time-tracking CSV uploads.',
+                  ),
+                  icon: const Icon(Icons.help),
+                ),
+                _DateField(
+                  label: 'Start date',
+                  value: state.startDate,
+                  onChanged: (date) =>
+                      bloc.add(PreparePayrollEvent.startDateChanged(date)),
+                ),
+                const SizedBox(width: 12),
+                _DateField(
+                  label: 'End date',
+                  value: state.endDate,
+                  firstDate: state.startDate,
+                  onChanged: (date) =>
+                      bloc.add(PreparePayrollEvent.endDateChanged(date)),
+                ),
+                const SizedBox(width: 12),
+                FilledButton.tonalIcon(
+                  onPressed: state.canFetchStaffDayTimes
+                      ? () => bloc.add(
+                            const PreparePayrollEvent.staffDayTimesRequested(),
+                          )
+                      : null,
+                  icon: staffDayTimes.isProcessing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.cloud_download_outlined),
+                  label: const Text('Fetch Operto data'),
+                ),
+              ],
+            ),
+            if (staffDayTimes.hasError)
+              Padding(
+                padding: const EdgeInsets.only(left: 48, top: 4),
+                child: Text(
+                  staffDayTimes.error!,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: theme.colorScheme.error),
+                ),
+              )
+            else if (staffDayTimes.isSuccess)
+              Padding(
+                padding: const EdgeInsets.only(left: 48, top: 4),
+                child: Text(
+                  'Fetched ${staffDayTimes.successData.length} shifts and '
+                  '${state.staffTaskTimes.length} task times.',
+                  style: theme.textTheme.bodySmall,
                 ),
               ),
-            ]),
           ],
         );
       },
@@ -186,35 +188,80 @@ class _NttFileField extends StatelessWidget {
   }
 }
 
-class _ScheduleFileField extends StatelessWidget {
-  const _ScheduleFileField();
+class _DateField extends StatelessWidget {
+  const _DateField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.firstDate,
+  });
+
+  final String label;
+  final DateTime? value;
+  final DateTime? firstDate;
+  final ValueChanged<DateTime> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () async {
+        final now = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? firstDate ?? now,
+          firstDate: firstDate ?? DateTime(now.year - 5),
+          lastDate: DateTime(now.year + 1),
+        );
+        if (picked != null) onChanged(picked);
+      },
+      icon: const Icon(Icons.calendar_today, size: 16),
+      label: Text(value == null ? label : '$label: ${_format(value!)}'),
+    );
+  }
+
+  String _format(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+}
+
+class _PayRateFileField extends StatelessWidget {
+  const _PayRateFileField();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
-      buildWhen: (prev, curr) => prev.scheduleFile != curr.scheduleFile,
+      buildWhen: (prev, curr) => prev.payRateFile != curr.payRateFile,
       builder: (context, state) {
         return Row(
           children: [
             IconButton(
-                onPressed: () => showAlert(context, title: "Special Instructions", message: "This is the scheduled tasks/properties list. Select 'In Progress tasks' and 'Completed Tasks Only' for a given period"),
-                icon: Icon(Icons.help)),
+                onPressed: () => showAlert(
+                      context,
+                      title: 'Special Instructions',
+                      message:
+                          'Pay rates are not available from the Operto API, so '
+                          'upload a CSV with two columns — staff ID and hourly '
+                          'rate — one worker per row, e.g.\n\n'
+                          'StaffID,Rate\n132,22.50\n134,20.00',
+                    ),
+                icon: const Icon(Icons.help)),
             OutlinedButton.icon(
-              onPressed: () =>
-                  _pickFile(context, onSelected: (picked) {
-                    final bloc = context.read<PreparePayrollBloc>();
-                    bloc.add(PreparePayrollScheduleFileSelected(picked));
-                  }),
+              onPressed: () => _pickFile(
+                context,
+                onSelected: (picked) {
+                  final bloc = context.read<PreparePayrollBloc>();
+                  bloc.add(PreparePayrollEvent.payRateFileSelected(picked));
+                },
+              ),
               icon: const Icon(Icons.upload_file),
-              label: const Text("Add 'Quick reports/Tasks' csv"),
+              label: const Text('Add pay rates (csv)'),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                state.scheduleFile?.name ?? 'No file selected',
+                state.payRateFile?.name ?? 'No file selected',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: state.scheduleFile == null
+                  color: state.payRateFile == null
                       ? theme.colorScheme.outline
                       : theme.colorScheme.onSurface,
                 ),
@@ -229,10 +276,11 @@ class _ScheduleFileField extends StatelessWidget {
 }
 
 Future<void> _pickFile(BuildContext context,
-    {required Function(PlatformFile file) onSelected,}) async {
+    {required Function(PlatformFile file) onSelected,
+    List<String> extensions = const ['csv'],}) async {
   final result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
-    allowedExtensions: const ['csv'],
+    allowedExtensions: extensions,
     withData: true,
     initialDirectory: 'Downloads'
   );
@@ -262,7 +310,7 @@ class _MileageConstantField extends StatelessWidget {
         onChanged: (raw) {
           final trimmed = raw.trim();
           final value = trimmed.isEmpty ? null : double.tryParse(trimmed);
-          bloc.add(PreparePayrollMileageConstantChanged(value));
+          bloc.add(PreparePayrollEvent.mileageConstantChanged(value));
         },
       ),
     );
@@ -290,7 +338,7 @@ class _HeathDeductionsField extends StatelessWidget {
         onChanged: (raw) {
           final trimmed = raw.trim();
           final value = trimmed.isEmpty ? null : double.tryParse(trimmed);
-          bloc.add(PreparePayrollHeathDeductionsChanged(value));
+          bloc.add(PreparePayrollEvent.heathDeductionsChanged(value));
         },
       ),
     );
@@ -318,7 +366,7 @@ class _CleaningRevenueField extends StatelessWidget {
         onChanged: (raw) {
           final trimmed = raw.trim();
           final value = trimmed.isEmpty ? null : double.tryParse(trimmed);
-          bloc.add(PreparePayrollCleaningRevenueChanged(value));
+          bloc.add(PreparePayrollEvent.cleaningRevenueChanged(value));
         },
       ),
     );
@@ -341,7 +389,7 @@ class _GenerateReportButton extends StatelessWidget {
             onPressed: state.canGenerateReport
                 ? () => context
                     .read<PreparePayrollBloc>()
-                    .add(const PreparePayrollReportRequested())
+                    .add(const PreparePayrollEvent.reportRequested())
                 : null,
             icon: const Icon(Icons.play_arrow),
             label: const Text('Generate report'),

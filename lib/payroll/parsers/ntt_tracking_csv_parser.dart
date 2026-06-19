@@ -6,6 +6,8 @@ import 'package:csv/csv.dart';
 
 import 'package:red_tail_ridge_office/payroll/models/schedule_assignments.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
+import 'package:red_tail_ridge_office/payroll/models/worker_shift.dart';
+import 'package:red_tail_ridge_office/payroll/models/worker_task.dart';
 
 class NttTrackingCsvParser {
   const NttTrackingCsvParser();
@@ -23,13 +25,28 @@ class NttTrackingCsvParser {
   static const int _nttEnd = 10;
   static const int _nttTime = 11;
 
+  /// CSV entry point: parse shifts from the time-tracking CSV, then compute.
   List<WorkerNtt> parse({
     required Uint8List nttBytes,
     required Uint8List timeTrackingBytes,
     ScheduleAssignments? assignments,
   }) {
-    final shiftsByWorker = _parseShifts(timeTrackingBytes);
-    final tasksByWorker = _parseTasks(nttBytes);
+    return computeFromShifts(
+      shiftsByWorker: _parseShifts(timeTrackingBytes),
+      tasksByWorker: _parseTasks(nttBytes),
+      assignments: assignments,
+    );
+  }
+
+  /// Computes proposed NTT for each worker from already-parsed [shiftsByWorker]
+  /// and [tasksByWorker] (both keyed by worker name). Lets the data come from a
+  /// non-CSV source (e.g. the Operto API) while reusing this logic.
+  List<WorkerNtt> computeFromShifts({
+    required Map<String, List<WorkerShift>> shiftsByWorker,
+    required Map<String, List<WorkerTask>> tasksByWorker,
+    ScheduleAssignments? assignments,
+    bool checkAssignedProperties = true,
+  }) {
 
     final workers = <WorkerNtt>[];
     for (final entry in shiftsByWorker.entries) {
@@ -40,7 +57,7 @@ class NttTrackingCsvParser {
         return (_parseHhMm(a.clockIn) ?? 0)
             .compareTo(_parseHhMm(b.clockIn) ?? 0);
       });
-      final tasks = tasksByWorker[workerName] ?? const <_Task>[];
+      final tasks = tasksByWorker[workerName] ?? const <WorkerTask>[];
 
       final nttRows = <ProposedNttRow>[];
       var totalNttMinutes = 0;
@@ -51,6 +68,7 @@ class NttTrackingCsvParser {
           tasks,
           worker: workerName,
           assignments: assignments,
+          checkAssignedProperties: checkAssignedProperties,
         );
         final propertyCount = attribution.properties.length;
         // Drive time and task-switching leeway are daily totals from the
@@ -103,10 +121,11 @@ class NttTrackingCsvParser {
   }
 
   _ShiftAttribution _attributeTasks(
-    _Shift shift,
-    List<_Task> tasks, {
+    WorkerShift shift,
+    List<WorkerTask> tasks, {
     required String worker,
     ScheduleAssignments? assignments,
+    bool checkAssignedProperties = true,
   }) {
     final inMin = _parseHhMm(shift.clockIn);
     final outMin = _parseHhMm(shift.clockOut);
@@ -121,7 +140,8 @@ class NttTrackingCsvParser {
       if (startMin < inMin || startMin >= outMin) continue;
       attribution.taskMinutes += task.minutes;
       if (task.property.isNotEmpty) {
-        final propertyAssigned = assignments == null ||
+        final propertyAssigned = !checkAssignedProperties ||
+            assignments == null ||
             assignments.isPropertyAssigned(
               worker: worker,
               date: shift.date,
@@ -146,9 +166,9 @@ class NttTrackingCsvParser {
     return attribution;
   }
 
-  Map<String, List<_Shift>> _parseShifts(Uint8List bytes) {
+  Map<String, List<WorkerShift>> _parseShifts(Uint8List bytes) {
     final rows = _decode(bytes);
-    final result = <String, List<_Shift>>{};
+    final result = <String, List<WorkerShift>>{};
     String? currentWorker;
     for (final row in rows) {
       if (row.isEmpty) continue;
@@ -159,7 +179,7 @@ class NttTrackingCsvParser {
           continue;
         }
         currentWorker = name;
-        result.putIfAbsent(currentWorker, () => <_Shift>[]);
+        result.putIfAbsent(currentWorker, () => <WorkerShift>[]);
       } else if (currentWorker != null) {
         final date = _asString(_safeGet(row, _ttDate)).trim();
         if (!_isDate(date)) continue;
@@ -167,7 +187,7 @@ class NttTrackingCsvParser {
         if (minutes == null) continue;
         final clockIn = _asString(_safeGet(row, _ttClockIn)).trim();
         final clockOut = _asString(_safeGet(row, _ttClockOut)).trim();
-        result[currentWorker]!.add(_Shift(
+        result[currentWorker]!.add(WorkerShift(
           date: date,
           minutes: minutes,
           clockIn: clockIn,
@@ -178,9 +198,9 @@ class NttTrackingCsvParser {
     return result;
   }
 
-  Map<String, List<_Task>> _parseTasks(Uint8List bytes) {
+  Map<String, List<WorkerTask>> _parseTasks(Uint8List bytes) {
     final rows = _decode(bytes);
-    final result = <String, List<_Task>>{};
+    final result = <String, List<WorkerTask>>{};
     for (final row in rows) {
       if (row.isEmpty) continue;
       final date = _asString(_safeGet(row, _nttDate)).trim();
@@ -192,7 +212,7 @@ class NttTrackingCsvParser {
       final property = _asString(_safeGet(row, _nttProperty)).trim();
       final start = _asString(_safeGet(row, _nttStart)).trim();
       final end = _asString(_safeGet(row, _nttEnd)).trim();
-      result.putIfAbsent(employee, () => <_Task>[]).add(_Task(
+      result.putIfAbsent(employee, () => <WorkerTask>[]).add(WorkerTask(
         date: date,
         start: start,
         end: end,
@@ -252,36 +272,6 @@ class NttTrackingCsvParser {
     final minutes = abs % 60;
     return '${isNegative ? '-' : ''}$hours:${minutes.toString().padLeft(2, '0')}';
   }
-}
-
-class _Shift {
-  _Shift({
-    required this.date,
-    required this.minutes,
-    required this.clockIn,
-    required this.clockOut,
-  });
-
-  final String date;
-  final int minutes;
-  final String clockIn;
-  final String clockOut;
-}
-
-class _Task {
-  _Task({
-    required this.date,
-    required this.start,
-    required this.end,
-    required this.minutes,
-    required this.property,
-  });
-
-  final String date;
-  final String start;
-  final String end;
-  final int minutes;
-  final String property;
 }
 
 class _ShiftAttribution {

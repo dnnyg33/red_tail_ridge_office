@@ -3,29 +3,30 @@ part of 'prepare_payroll_bloc.dart';
 
 @freezed
 sealed class PreparePayrollEvent with _$PreparePayrollEvent {
-  const factory PreparePayrollEvent.started() = PreparePayrollStarted;
+  const factory PreparePayrollEvent.started() = _PreparePayrollStarted;
 
-  const factory PreparePayrollEvent.timeTrackingFileSelected(
+  const factory PreparePayrollEvent.payRateFileSelected(
     PlatformFile file,
-  ) = PreparePayrollTimeTrackingFileSelected;
-
-  const factory PreparePayrollEvent.nttFileSelected(
-    PlatformFile file,
-  ) = PreparePayrollNttFileSelected;
-
-  const factory PreparePayrollEvent.scheduleFileSelected(
-    PlatformFile file,
-  ) = PreparePayrollScheduleFileSelected;
+  ) = _PreparePayrollPayRateFileSelected;
 
   const factory PreparePayrollEvent.mileageConstantChanged(double? value) =
-      PreparePayrollMileageConstantChanged;
+      _PreparePayrollMileageConstantChanged;
 
   const factory PreparePayrollEvent.heathDeductionsChanged(double? value) =
-      PreparePayrollHeathDeductionsChanged;
+      _PreparePayrollHeathDeductionsChanged;
 
   const factory PreparePayrollEvent.cleaningRevenueChanged(double? value) =
-      PreparePayrollCleaningRevenueChanged;
+      _PreparePayrollCleaningRevenueChanged;
+
+  const factory PreparePayrollEvent.startDateChanged(DateTime? date) =
+      _PreparePayrollStartDateChanged;
+
+  const factory PreparePayrollEvent.endDateChanged(DateTime? date) =
+      _PreparePayrollEndDateChanged;
+
+  const factory PreparePayrollEvent.staffDayTimesRequested() =
+      _PreparePayrollStaffDayTimesRequested;
 
   const factory PreparePayrollEvent.reportRequested() =
-      PreparePayrollReportRequested;
+      _PreparePayrollReportRequested;
 }
