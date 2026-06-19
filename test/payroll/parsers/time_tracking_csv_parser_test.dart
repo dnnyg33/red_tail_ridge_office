@@ -2,16 +2,31 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
 import 'package:red_tail_ridge_office/payroll/parsers/time_tracking_csv_parser.dart';
 
 Uint8List _bytes(String s) => Uint8List.fromList(utf8.encode(s));
+
+/// Zero-NTT entries so [TimeTrackingCsvParser.parse] can resolve each worker
+/// without altering the pay math under test.
+List<WorkerNtt> _ntts(List<String> names) => [
+      for (final name in names)
+        WorkerNtt(workerName: name, nttRows: const [], totalNtt: 0),
+    ];
 
 void main() {
   group('TimeTrackingCsvParser', () {
     const parser = TimeTrackingCsvParser();
 
     test('returns an empty list for empty input', () {
-      expect(parser.parse(bytes: _bytes(''), mileageConstant: 1.0), isEmpty);
+      expect(
+        parser.parse(
+          bytes: _bytes(''),
+          mileageConstant: 1.0,
+          workerNtts: const [],
+        ),
+        isEmpty,
+      );
     });
 
     test('parses a worker row, dates, and computes mileage pay', () {
@@ -23,7 +38,11 @@ TOTALS,2 Days,,,10,,,,5:00,5.00,2:30,2.50
 ,2026/05/03,,,5,9:00AM,11:00AM,PDT,2:00,2.00,,,20.00,40.00,""
 ''';
 
-      final rows = parser.parse(bytes: _bytes(csv), mileageConstant: 0.5);
+      final rows = parser.parse(
+        bytes: _bytes(csv),
+        mileageConstant: 0.5,
+        workerNtts: _ntts(['Alice']),
+      );
 
       expect(rows, hasLength(1));
       final alice = rows.single;
@@ -48,7 +67,11 @@ TOTALS,3 Days,,,10,,,,5:00,5.00,2:30,2.50
 ,2026/05/02,,,,10:00AM,11:00AM,PDT,1:00,1.00,,,15.00,15.00,""
 ''';
 
-      final rows = parser.parse(bytes: _bytes(csv), mileageConstant: 1.0);
+      final rows = parser.parse(
+        bytes: _bytes(csv),
+        mileageConstant: 1.0,
+        workerNtts: _ntts(['Alice', 'Bob']),
+      );
 
       expect(rows.map((r) => r.worker).toList(), ['Alice', 'Bob']);
       expect(rows[1].mileageForPeriod, 0.0);
@@ -64,7 +87,11 @@ TOTALS,3 Days,,,10,,,,5:00,5.00,2:30,2.50
           '"Alice",1 Days,,,5,,,,1:00,1.00,1:00,1.00,20.00,20.00,""\r\n'
           ',2026/05/01,,,5,9:00AM,10:00AM,PDT,1:00,1.00,,,20.00,20.00,""\r\n';
 
-      final rows = parser.parse(bytes: _bytes(csv), mileageConstant: 1.0);
+      final rows = parser.parse(
+        bytes: _bytes(csv),
+        mileageConstant: 1.0,
+        workerNtts: _ntts(['Alice']),
+      );
 
       expect(rows, hasLength(1));
       expect(rows.first.worker, 'Alice');
@@ -77,7 +104,11 @@ TOTALS,3 Days,,,10,,,,5:00,5.00,2:30,2.50
 "Charlie",0 Days,,,0,,,,0:00,0.00,0:00,0.00,10.00,0.00,""
 ''';
 
-      final rows = parser.parse(bytes: _bytes(csv), mileageConstant: 1.0);
+      final rows = parser.parse(
+        bytes: _bytes(csv),
+        mileageConstant: 1.0,
+        workerNtts: _ntts(['Charlie']),
+      );
 
       expect(rows, hasLength(1));
       expect(rows.single.periodStart, isNull);

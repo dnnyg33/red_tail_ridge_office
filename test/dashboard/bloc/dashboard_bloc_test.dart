@@ -15,7 +15,14 @@ void main() {
       act: (bloc) => bloc.add(const DashboardStarted()),
       expect: () => [
         isA<DashboardState>()
-            .having((s) => s.miniApps.length, 'miniApps.length', 1)
+            .having(
+              (s) => s.miniApps.map((a) => a.id),
+              'miniApps ids',
+              containsAll(const [
+                MiniAppId.preparePayroll,
+                MiniAppId.connections,
+              ]),
+            )
             .having(
               (s) => s.miniApps.first.id,
               'miniApps.first.id',

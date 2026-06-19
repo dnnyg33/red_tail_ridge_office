@@ -128,12 +128,6 @@ class OpertoApi {
       if (data is! List) {
         throw const OpertoApiException('Unexpected response from Operto.');
       }
-      // TEMP DIAGNOSTIC: dump the first raw record so we can see the real
-      // field names and timestamp format Operto returns.
-      if (page == 1 && data.isNotEmpty) {
-        // ignore: avoid_print
-        print('[OpertoApi] $path first record: ${jsonEncode(data.first)}');
-      }
       for (final item in data) {
         if (item is Map<String, dynamic>) results.add(fromJson(item));
       }
