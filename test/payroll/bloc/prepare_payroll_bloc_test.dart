@@ -29,7 +29,7 @@ void main() {
     blocTest<PreparePayrollBloc, PreparePayrollState>(
       'PreparePayrollStarted -> status ready with a pay period',
       build: PreparePayrollBloc.new,
-      act: (bloc) => bloc.add(const PreparePayrollStarted()),
+      act: (bloc) => bloc.add(const PreparePayrollEvent.started()),
       verify: (bloc) {
         expect(bloc.state.status, PreparePayrollStatus.ready);
         expect(bloc.state.payPeriodStart, isNotNull);
@@ -58,7 +58,7 @@ void main() {
       'MileageConstantChanged with a value sets mileageConstant',
       build: PreparePayrollBloc.new,
       act: (bloc) =>
-          bloc.add(const PreparePayrollMileageConstantChanged(5.0)),
+          bloc.add(const PreparePayrollEvent.mileageConstantChanged(5.0)),
       verify: (bloc) => expect(bloc.state.mileageConstant, 5.0),
     );
 
@@ -67,14 +67,14 @@ void main() {
       build: PreparePayrollBloc.new,
       seed: () => const PreparePayrollState(mileageConstant: 5.0),
       act: (bloc) =>
-          bloc.add(const PreparePayrollMileageConstantChanged(null)),
+          bloc.add(const PreparePayrollEvent.mileageConstantChanged(null)),
       verify: (bloc) => expect(bloc.state.mileageConstant, isNull),
     );
 
     blocTest<PreparePayrollBloc, PreparePayrollState>(
       'ReportRequested without bytes -> failure with error message',
       build: PreparePayrollBloc.new,
-      act: (bloc) => bloc.add(const PreparePayrollReportRequested()),
+      act: (bloc) => bloc.add(const PreparePayrollEvent.reportRequested()),
       verify: (bloc) {
         expect(bloc.state.status, PreparePayrollStatus.failure);
         expect(bloc.state.errorMessage, contains('No time tracking file'));
@@ -90,7 +90,7 @@ void main() {
         timeTrackingBytes: _bytes(_sampleCsv),
         mileageConstant: 0.5,
       ),
-      act: (bloc) => bloc.add(const PreparePayrollReportRequested()),
+      act: (bloc) => bloc.add(const PreparePayrollEvent.reportRequested()),
       verify: (bloc) {
         expect(bloc.state.status, PreparePayrollStatus.ready);
         expect(bloc.state.workerRows, hasLength(1));
