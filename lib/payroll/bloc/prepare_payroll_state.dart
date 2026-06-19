@@ -8,12 +8,17 @@ abstract class PreparePayrollState with _$PreparePayrollState {
     @Default(AsyncOperation.idle()) AsyncOperation<List<WorkerRow>> workerRows,
     DateTime? payPeriodStart,
     DateTime? payPeriodEnd,
-    PlatformFile? timeTrackingFile,
-    PlatformFile? nttFile,
-    PlatformFile? scheduleFile,
+    PlatformFile? payRateFile,
     @Default(0.725) double? mileageConstant,
     double? heathDeductions,
     double? cleaningRevenue,
+    DateTime? startDate,
+    DateTime? endDate,
+    @Default(AsyncOperation.idle())
+    AsyncOperation<List<StaffDayTime>> staffDayTimes,
+    @Default(<StaffTaskTime>[]) List<StaffTaskTime> staffTaskTimes,
+    @Default(<StaffTask>[]) List<StaffTask> staffTasks,
+    @Default(<int, String>{}) Map<int, String> staffNamesById,
   }) = _PreparePayrollState;
 
   /// Bonus pot shared across all workers:
@@ -26,5 +31,8 @@ abstract class PreparePayrollState with _$PreparePayrollState {
       workerRows.data?.fold<int>(0, (sum, r) => sum + r.cleans) ?? 0;
 
   bool get canGenerateReport =>
-      timeTrackingFile != null && nttFile != null && scheduleFile != null && !workerRows.isProcessing;
+      staffDayTimes.isSuccess && !workerRows.isProcessing;
+
+  bool get canFetchStaffDayTimes =>
+      startDate != null && endDate != null && !staffDayTimes.isProcessing;
 }
