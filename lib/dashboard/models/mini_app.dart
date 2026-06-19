@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-enum MiniAppId { preparePayroll }
+enum MiniAppId { preparePayroll, connections }
 
 class MiniApp extends Equatable {
   const MiniApp({

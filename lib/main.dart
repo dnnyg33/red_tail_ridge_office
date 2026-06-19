@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
+import 'auth/bloc/auth_bloc.dart';
 import 'dashboard/view/dashboard_page.dart';
 import 'payroll/bloc/prepare_payroll_bloc.dart';
 //TODO
@@ -11,7 +14,12 @@ import 'payroll/bloc/prepare_payroll_bloc.dart';
 // percent of pot = # of cleans / total # of cleans (contingent on passing performance review)
 // total pot * percent of pot - callback deductions
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dir = await getApplicationDocumentsDirectory();
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: HydratedStorageDirectory(dir.path),
+  );
   runApp(const RedTailRidgeOfficeApp());
 }
 
@@ -20,8 +28,14 @@ class RedTailRidgeOfficeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PreparePayrollBloc()..add(const PreparePayrollStarted()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => AuthBloc()),
+        BlocProvider(
+          create: (_) =>
+              PreparePayrollBloc()..add(const PreparePayrollStarted()),
+        ),
+      ],
       child: MaterialApp(
         title: 'Red Tail Ridge Office',
         theme: ThemeData(

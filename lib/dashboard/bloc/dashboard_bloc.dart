@@ -24,6 +24,12 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
             description: 'Calculate and review payroll for the pay period.',
             icon: Icons.payments_outlined,
           ),
+          MiniApp(
+            id: MiniAppId.connections,
+            name: 'Connections',
+            description: 'Connect Operto, Hostaway, and other data sources.',
+            icon: Icons.cloud_sync_outlined,
+          ),
         ],
       ),
     );

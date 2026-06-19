@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../auth/view/auth_page.dart';
 import '../../payroll/view/prepare_payroll_page.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../models/mini_app.dart';
@@ -63,6 +64,12 @@ class DashboardView extends StatelessWidget {
         Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (_) => const PreparePayrollPage(),
+          ),
+        );
+      case MiniAppId.connections:
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const AuthPage(),
           ),
         );
     }
