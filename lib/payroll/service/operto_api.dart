@@ -32,7 +32,7 @@ class OpertoApi {
     required String authorization,
     required DateTime startDate,
     required DateTime endDate,
-    int perPage = 100,
+    int perPage = 200,
   }) {
     return _fetchAll(
       authorization: authorization,
@@ -53,7 +53,7 @@ class OpertoApi {
     required String authorization,
     required DateTime startDate,
     required DateTime endDate,
-    int perPage = 100,
+    int perPage = 200,
   }) {
     return _fetchAll(
       authorization: authorization,
@@ -74,7 +74,7 @@ class OpertoApi {
     required String authorization,
     required DateTime startDate,
     required DateTime endDate,
-    int perPage = 100,
+    int perPage = 200,
   }) {
     return _fetchAll(
       authorization: authorization,

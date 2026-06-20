@@ -59,6 +59,18 @@ class NttTrackingCsvParser {
       });
       final tasks = tasksByWorker[workerName] ?? const <WorkerTask>[];
 
+      // Properties the worker actually visited each day (from their task
+      // times). Intersecting these with the schedule decides which properties
+      // count toward drive time.
+      final visitedPropertiesByDate = <String, Set<String>>{};
+      for (final task in tasks) {
+        if (task.property.isNotEmpty) {
+          visitedPropertiesByDate
+              .putIfAbsent(task.date, () => <String>{})
+              .add(task.property);
+        }
+      }
+
       final nttRows = <ProposedNttRow>[];
       var totalNttMinutes = 0;
       final datesWithDailyCharge = <String>{};
@@ -79,6 +91,7 @@ class NttTrackingCsvParser {
             : assignments?.driveTimeFor(
                   worker: workerName,
                   date: shift.date,
+                  visitedProperties: visitedPropertiesByDate[shift.date],
                 ) ??
                 max(0, propertyCount - 1) * 10;
         final assignedTaskCount = !isFirstShiftOfDay

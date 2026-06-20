@@ -20,11 +20,11 @@ class ScheduleAssignments {
   ScheduleAssignments(List<Assignment> assignments)
       : assignments = List.unmodifiable(assignments),
         _index = _buildIndex(assignments),
-        _driveTime = _buildDriveTime(assignments);
+        _propertiesByDate = _buildPropertiesByDate(assignments);
 
   final List<Assignment> assignments;
   final Map<String, Map<String, Map<String, Set<String>>>> _index;
-  final Map<String, Map<String, int>> _driveTime;
+  final Map<String, Map<String, Set<String>>> _propertiesByDate;
 
   bool isPropertyAssigned({
     required String worker,
@@ -61,8 +61,28 @@ class ScheduleAssignments {
   /// Total drive-time minutes between consecutive property assignments for
   /// [worker] on [date], in CSV order. Returns 0 if fewer than two
   /// assignments exist.
-  int driveTimeFor({required String worker, required String date}) =>
-      _driveTime[worker]?[date] ?? 0;
+  ///
+  /// When [visitedProperties] is supplied, the assigned properties are first
+  /// filtered to those the worker actually visited that day (per their task
+  /// times), so drive time reflects the unique intersection of scheduled and
+  /// visited properties — properties that were assigned but not visited (and
+  /// inadvertent visits to unassigned properties) are excluded.
+  int driveTimeFor({
+    required String worker,
+    required String date,
+    Set<String>? visitedProperties,
+  }) {
+    var props = _propertiesByDate[worker]?[date]?.toList();
+    if (props == null) return 0;
+    if (visitedProperties != null) {
+      props = [for (final p in props) if (visitedProperties.contains(p)) p];
+    }
+    var total = 0;
+    for (var i = 1; i < props.length; i++) {
+      total += driveTimeBetween(props[i - 1], props[i]);
+    }
+    return total;
+  }
 
   static Map<String, Map<String, Map<String, Set<String>>>> _buildIndex(
     List<Assignment> assignments,
@@ -78,28 +98,16 @@ class ScheduleAssignments {
     return result;
   }
 
-  static Map<String, Map<String, int>> _buildDriveTime(
+  /// Unique assigned property names per worker per date.
+  static Map<String, Map<String, Set<String>>> _buildPropertiesByDate(
     List<Assignment> assignments,
   ) {
-    final ordered = <String, Map<String, List<String>>>{};
+    final result = <String, Map<String, Set<String>>>{};
     for (final a in assignments) {
-      ordered
-          .putIfAbsent(a.worker, () => <String, List<String>>{})
-          .putIfAbsent(a.date, () => <String>[])
+      result
+          .putIfAbsent(a.worker, () => <String, Set<String>>{})
+          .putIfAbsent(a.date, () => <String>{})
           .add(a.property);
-    }
-    final result = <String, Map<String, int>>{};
-    for (final workerEntry in ordered.entries) {
-      final perDate = <String, int>{};
-      for (final dateEntry in workerEntry.value.entries) {
-        final props = dateEntry.value;
-        var total = 0;
-        for (var i = 1; i < props.length; i++) {
-          total += driveTimeBetween(props[i - 1], props[i]);
-        }
-        perDate[dateEntry.key] = total;
-      }
-      result[workerEntry.key] = perDate;
     }
     return result;
   }
