@@ -11,39 +11,51 @@ const ridge = 'Ridge';
 
 //properties (but really these are units)
 // Albany
-const A_118 = Unit(name: '118', propertyId: 127002, property: albany118_120, region: Albany);
+const A_118 = Unit(
+  name: '118',
+  propertyId: 127002,
+  property: albany118_120,
+  region: Albany,
+  maxCleanTime: 120,);
 const A_118Basement = Unit(
   name: 'BSMT- 118- B',
   propertyId: 126992,
   property: albany118_120,
   region: Albany,
+  maxCleanTime: 75,
 );
 const A_120 = Unit(name: '120',
     propertyId: 126998,
-    property: albany118_120, region: Albany);
+  property: albany118_120,
+  region: Albany,
+  maxCleanTime: 120,);
 const A_120Basement = Unit(
   name: 'BSMT-120B',
   propertyId: 126994,
   property: albany118_120,
   region: Albany,
+  maxCleanTime: 75,
 );
 const A_FerryAdu = Unit(
   propertyId: 157752,
   name: 'Ferry Little House',
   property: ferry,
   region: Albany,
+  maxCleanTime: 90,
 );
 const A_FerryBasement = Unit(
   name: 'Ferry Basement',
   propertyId: 127003,
   property: ferry,
   region: Albany,
+  maxCleanTime: 90,
 );
 const A_FerryUpstairs = Unit(
   name: 'Ferry Upstairs',
   propertyId:127004,
   property: ferry,
   region: Albany,
+  maxCleanTime: 180,
 );
 
 // Corvallis
@@ -52,36 +64,50 @@ const C_13thStreet = Unit(
   propertyId: 127001,
   property: 'Corvallis 13th Street',
   region: Corvallis,
+  maxCleanTime: 120,
 );
 const C_19thStreet = Unit(
   name: '19th St',
   propertyId: 127006,
   property: 'Corvallis 19th Street',
   region: Corvallis,
+  maxCleanTime: 120,
 );
 const C_3rd = Unit(name: '3rd St',
     propertyId: 127005,
-    property: third, region: Corvallis);
+  property: third,
+  region: Corvallis,
+  maxCleanTime: 120,
+);
 const C_3rdBasement = Unit(
   propertyId: 127008,
-    name: 'BSMT-3rd Basement', property: third, region: Corvallis);
+  name: 'BSMT-3rd Basement',
+  property: third,
+  region: Corvallis,
+  maxCleanTime: 75,
+);
 const C_Minnesota = Unit(
   propertyId: 126993,
   name: 'Minnesota',
   property: 'Corvallis Minnesota',
   region: Corvallis,
+  maxCleanTime: 120,
 );
 const C_Taylor = Unit(
   name: 'Taylor Ave',
   propertyId: 127011,
   property: 'Corvallis Taylor',
   region: Corvallis,
+  maxCleanTime: 120,
+
 );
 const C_Western = Unit(
   name: 'Western',
   propertyId: 182339,
   property: 'Corvallis Western',
   region: Corvallis,
+  maxCleanTime: 120,
+
 );
 
 // Philomath
@@ -90,12 +116,16 @@ const P_Basement = Unit(
   property: ridge,
   propertyId: 126988,
   region: Philomath,
+  maxCleanTime: 90,
+
 );
 const P_Loft = Unit(
   name: 'Philomath Loft',
   property: ridge,
   propertyId: 126995,
   region: Philomath,
+  maxCleanTime: 60,
+
 );
 // const P_Ridge = Unit(
 //   name: 'Philomath The Ridge',
@@ -108,36 +138,47 @@ const P_Adams = Unit(
   property: 'Philomath Adams',
   propertyId: 126999,
   region: Philomath,
+  maxCleanTime: 120,
+
 );
 const P_MainSt = Unit(
   name: 'Main St',
   property: 'Philomath Main St',
   propertyId: 127010,
   region: Philomath,
+  maxCleanTime: 120,
+
 );
 const P_Brian132 = Unit(
   name: 'Brian 132',
   property: albany118_120,
   propertyId: 127043,
   region: Albany,
+  maxCleanTime: 120,
+
 );
 const GH_Holly3rd = Unit(
   name: 'GH- Holly 3rd',
   property: 'Holly 3rd',
   propertyId: 133510,
   region: Corvallis,
+  maxCleanTime: 120,
+
 ); //TODO is this info correct
 const GH_Kendall4550 = Unit(
   name: 'GH- Kendall 4550',
   property: 'Kendall 4550',
   propertyId: 148159,
   region: Philomath,
+  maxCleanTime: 90,
+
 );
 const GH_OTHER = Unit(
   name: 'Ghost Host',
   property: 'Unknown',
   propertyId: 127045,
   region: Corvallis,
+  maxCleanTime: 120,
 );
 // Skipped (region unclear): Brian 121/123/132, Ghost Host,
 // GH- Holly 3rd, GH- Kendall 4550, GH- Dustin 4th.
@@ -205,12 +246,14 @@ class Unit {
     required this.propertyId,
     required this.property,
     required this.region,
+    required this.maxCleanTime,
   });
 
   final String name;
   final int propertyId;
   final String property;
   final String region;
+  final int maxCleanTime;
 
   //
   bool isSameProperty(Unit propertyB) {
