@@ -28,8 +28,9 @@ class PreparePayrollPage extends StatelessWidget {
       body: BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
         builder: (context, state) {
           return switch (state.workerRows.status) {
-            AsyncOperationStatus.processing =>
-              const Center(child: CircularProgressIndicator()),
+            AsyncOperationStatus.processing => const Center(
+              child: CircularProgressIndicator(),
+            ),
             AsyncOperationStatus.error => Center(
               child: Column(
                 children: [
@@ -38,9 +39,8 @@ class PreparePayrollPage extends StatelessWidget {
                 ],
               ),
             ),
-          AsyncOperationStatus.idle ||
-            AsyncOperationStatus.success =>
-              _PreparePayrollBody(state: state),
+            AsyncOperationStatus.idle ||
+            AsyncOperationStatus.success => _PreparePayrollBody(state: state),
           };
         },
       ),
@@ -154,8 +154,8 @@ class _OpertoShiftsField extends StatelessWidget {
                 FilledButton.tonalIcon(
                   onPressed: state.canFetchStaffDayTimes
                       ? () => bloc.add(
-                            const PreparePayrollEvent.staffDayTimesRequested(),
-                          )
+                          const PreparePayrollEvent.staffDayTimesRequested(),
+                        )
                       : null,
                   icon: staffDayTimes.isProcessing
                       ? const SizedBox(
@@ -173,8 +173,9 @@ class _OpertoShiftsField extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 48, top: 4),
                 child: Text(
                   staffDayTimes.error!,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.error),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
                 ),
               )
             else if (staffDayTimes.isSuccess)
@@ -240,19 +241,20 @@ class _PayRateFileField extends StatelessWidget {
         return Row(
           children: [
             IconButton(
-                onPressed: () => showAlert(
-                      context,
-                      title: 'Special Instructions',
-                      message:
-                          'Pay rates are not available from the Operto API, so '
-                          'upload a JSON array of objects with name, payRate, '
-                          'and workerId — one per worker, e.g.\n\n'
-                          '[\n'
-                          '  {"name": "Alice", "payRate": 22.50, "workerId": 132},\n'
-                          '  {"name": "Bob", "payRate": 20.00, "workerId": 134}\n'
-                          ']',
-                    ),
-                icon: const Icon(Icons.help)),
+              onPressed: () => showAlert(
+                context,
+                title: 'Special Instructions',
+                message:
+                    'Pay rates are not available from the Operto API, so '
+                    'upload a JSON array of objects with name, payRate, '
+                    'and workerId — one per worker, e.g.\n\n'
+                    '[\n'
+                    '  {"name": "Alice", "payRate": 22.50, "workerId": 132},\n'
+                    '  {"name": "Bob", "payRate": 20.00, "workerId": 134}\n'
+                    ']',
+              ),
+              icon: const Icon(Icons.help),
+            ),
             OutlinedButton.icon(
               onPressed: () => _pickFile(
                 context,
@@ -286,14 +288,16 @@ class _PayRateFileField extends StatelessWidget {
   }
 }
 
-Future<void> _pickFile(BuildContext context,
-    {required Function(PlatformFile file) onSelected,
-    List<String> extensions = const ['csv'],}) async {
+Future<void> _pickFile(
+  BuildContext context, {
+  required Function(PlatformFile file) onSelected,
+  List<String> extensions = const ['csv'],
+}) async {
   final result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowedExtensions: extensions,
     withData: true,
-    initialDirectory: 'Downloads'
+    initialDirectory: 'Downloads',
   );
   if (result == null || result.files.isEmpty) return;
   final picked = result.files.single;
@@ -386,12 +390,8 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
     super.initState();
     _staff = [...widget.staff]
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    _controllers = {
-      for (final s in _staff) s.id: TextEditingController(),
-    };
-    _qualifiesForBonus = {
-      for (final s in _staff) s.id: false,
-    };
+    _controllers = {for (final s in _staff) s.id: TextEditingController()};
+    _qualifiesForBonus = {for (final s in _staff) s.id: false};
   }
 
   @override
@@ -453,47 +453,57 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
         child: _staff.isEmpty
             ? const Center(child: Text('No workers with shifts this period.'))
             : SingleChildScrollView(
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('Name')),
-                    DataColumn(label: Text('Worker ID')),
-                    DataColumn(label: Text('Pay rate')),
-                    DataColumn(label: Text('Bonus')),
-                  ],
-                  rows: [
-                    for (final s in _staff)
-                      DataRow(cells: [
-                        DataCell(Text(s.name)),
-                        DataCell(Text('${s.id}')),
-                        DataCell(SizedBox(
-                          width: 120,
-                          child: TextField(
-                            controller: _controllers[s.id],
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d*'),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columnSpacing: 24,
+                    columns: const [
+                      DataColumn(label: Text('Name')),
+                      DataColumn(label: Text('Worker ID')),
+                      DataColumn(label: Text('Pay rate')),
+                      DataColumn(label: Text('Bonus')),
+                    ],
+                    rows: [
+                      for (final s in _staff)
+                        DataRow(
+                          cells: [
+                            DataCell(Text(s.name)),
+                            DataCell(Text('${s.id}')),
+                            DataCell(
+                              SizedBox(
+                                width: 120,
+                                child: TextField(
+                                  controller: _controllers[s.id],
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d*'),
+                                    ),
+                                  ],
+                                  decoration: const InputDecoration(
+                                    prefixText: '\$ ',
+                                    isDense: true,
+                                    hintText: '0.00',
+                                  ),
+                                ),
                               ),
-                            ],
-                            decoration: const InputDecoration(
-                              prefixText: '\$ ',
-                              isDense: true,
-                              hintText: '0.00',
                             ),
-                          ),
-                        )),
-                        DataCell(
-                          Checkbox(
-                            value: _qualifiesForBonus[s.id] ?? false,
-                            onChanged: (value) => setState(
-                              () => _qualifiesForBonus[s.id] = value ?? false,
+                            DataCell(
+                              Checkbox(
+                                value: _qualifiesForBonus[s.id] ?? false,
+                                onChanged: (value) => setState(
+                                  () =>
+                                      _qualifiesForBonus[s.id] = value ?? false,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ]),
-                  ],
+                    ],
+                  ),
                 ),
               ),
       ),
@@ -615,9 +625,9 @@ class _GenerateReportButton extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: FilledButton.icon(
             onPressed: state.canGenerateReport
-                ? () => context
-                    .read<PreparePayrollBloc>()
-                    .add(const PreparePayrollEvent.reportRequested())
+                ? () => context.read<PreparePayrollBloc>().add(
+                    const PreparePayrollEvent.reportRequested(),
+                  )
                 : null,
             icon: const Icon(Icons.play_arrow),
             label: const Text('Generate report'),
@@ -648,7 +658,8 @@ class _WorkerRowsTable extends StatelessWidget {
         final title = _titleRange(state.payPeriodStart, state.payPeriodEnd);
         final bonusPot = state.bonusPot;
         final totalCleans = state.totalCleans;
-        final sortedRows = [...workerRows!]..sort(
+        final sortedRows = [...workerRows!]
+          ..sort(
             (a, b) => a.worker.toLowerCase().compareTo(b.worker.toLowerCase()),
           );
         return Column(
@@ -671,12 +682,26 @@ class _WorkerRowsTable extends StatelessWidget {
                   // DataColumn2(label: _HeaderLabel('#'), fixedWidth: 8),
                   DataColumn2(label: _HeaderLabel('Worker')),
                   // DataColumn2(label: _HeaderLabel('Dates'), size: ColumnSize.L),
-                  DataColumn2(label: _HeaderLabel('Net Hours'), numeric: true, tooltip: 'Clocked in time - NTT'),
+                  DataColumn2(
+                    label: _HeaderLabel('Net Hours'),
+                    numeric: true,
+                    tooltip: 'Clocked in time - NTT',
+                  ),
                   DataColumn2(label: _HeaderLabel('Pay rate'), numeric: true),
-                  DataColumn2(label: _HeaderLabel('Gross'), numeric: true, tooltip: 'Pay rate * net hours'),
+                  DataColumn2(
+                    label: _HeaderLabel('Gross'),
+                    numeric: true,
+                    tooltip: 'Pay rate * net hours',
+                  ),
                   DataColumn2(label: _HeaderLabel('Mileage'), numeric: true),
-                  DataColumn2(label: _HeaderLabel('Mileage pay'), numeric: true),
-                  DataColumn2(label: _HeaderLabel('Hourly pay & Drive'), numeric: true),
+                  DataColumn2(
+                    label: _HeaderLabel('Mileage pay'),
+                    numeric: true,
+                  ),
+                  DataColumn2(
+                    label: _HeaderLabel('Hourly pay & Drive'),
+                    numeric: true,
+                  ),
                   DataColumn2(label: _HeaderLabel('Bonus pay'), numeric: true),
                 ],
                 rows: [
@@ -728,9 +753,14 @@ class _WorkerRowsTable extends StatelessWidget {
                               pot: bonusPot,
                               totalCleans: totalCleans,
                             ),
-                            child: Text(_money(
-                              r.bonusPay(pot: bonusPot, totalCleans: totalCleans),
-                            )),
+                            child: Text(
+                              _money(
+                                r.bonusPay(
+                                  pot: bonusPot,
+                                  totalCleans: totalCleans,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -755,8 +785,9 @@ class _WorkerRowsTable extends StatelessWidget {
     final revenueShare = 0.035 * revenue;
     final heath = state.heathDeductions ?? 0;
     final qualifies = row.qualifiesForBonus;
-    final share =
-        (!qualifies || totalCleans <= 0) ? 0.0 : row.cleans / totalCleans;
+    final share = (!qualifies || totalCleans <= 0)
+        ? 0.0
+        : row.cleans / totalCleans;
     final grossShare = pot * share;
     final bonus = row.bonusPay(pot: pot, totalCleans: totalCleans);
 
@@ -833,42 +864,40 @@ class _WorkerRowsTable extends StatelessWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Date')),
-                DataColumn(label: Text('Shift')),
-                DataColumn(label: Text('Shift total')),
-                DataColumn(label: Text('Tasks')),
-                DataColumn(label: Text('Tasks total')),
-                DataColumn(label: Text('Properties'), numeric: true),
-                DataColumn(label: Text('Proposed NTT (min)'), numeric: true),
-              ],
-              rows: [
-                for (final n in row.nttRows)
-                  DataRow(
-                    color: n.inadvertentProperties.isNotEmpty
-                        ? WidgetStateProperty.all(
-                            Theme.of(context)
-                                .colorScheme
-                                .errorContainer
-                                .withValues(alpha: 0.4),
-                          )
-                        : null,
-                    cells: [
-                      DataCell(Text(n.date)),
-                      DataCell(Text(_timePair(n.shift))),
-                      DataCell(Text(n.shiftTotalTime)),
-                      DataCell(Text(_timePair(n.tasks))),
-                      DataCell(Text(n.tasksTotalTime)),
-                      DataCell(_PropertiesCell(row: n)),
-                      DataCell(
-                        Tooltip(
-                          message: n.math,
-                          child: Text(n.proposedNTT.toString()),
+                columns: const [
+                  DataColumn(label: Text('Date')),
+                  DataColumn(label: Text('Shift')),
+                  DataColumn(label: Text('Shift total')),
+                  DataColumn(label: Text('Tasks')),
+                  DataColumn(label: Text('Tasks total')),
+                  DataColumn(label: Text('Properties'), numeric: true),
+                  DataColumn(label: Text('Proposed NTT (min)'), numeric: true),
+                ],
+                rows: [
+                  for (final n in row.nttRows)
+                    DataRow(
+                      color: n.inadvertentProperties.isNotEmpty
+                          ? WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.errorContainer
+                                  .withValues(alpha: 0.4),
+                            )
+                          : null,
+                      cells: [
+                        DataCell(Text(n.date)),
+                        DataCell(Text(_timePair(n.shift))),
+                        DataCell(Text(n.shiftTotalTime)),
+                        DataCell(Text(_timePair(n.tasks))),
+                        DataCell(Text(n.tasksTotalTime)),
+                        DataCell(_PropertiesCell(row: n)),
+                        DataCell(
+                          Tooltip(
+                            message: n.math,
+                            child: Text(n.proposedNTT.toString()),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-              ],
+                      ],
+                    ),
+                ],
               ),
             ),
           ),
@@ -914,23 +943,22 @@ class _WorkerRowsTable extends StatelessWidget {
 
   String _monthDay(DateTime d) => '${_monthName(d.month)} ${d.day}';
 
-  String _longDate(DateTime d) =>
-      '${_monthName(d.month)} ${d.day}, ${d.year}';
+  String _longDate(DateTime d) => '${_monthName(d.month)} ${d.day}, ${d.year}';
 
   String _monthName(int month) => const [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ][month - 1];
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ][month - 1];
 }
 
 class _HeaderLabel extends StatelessWidget {
@@ -960,8 +988,7 @@ class _PropertiesCell extends StatelessWidget {
     final hasInadvertent = row.inadvertentProperties.isNotEmpty;
     if (!hasInadvertent) return Text(row.properties.toString());
     return Tooltip(
-      message:
-          'Not in schedule: ${row.inadvertentProperties.join(', ')}',
+      message: 'Not in schedule: ${row.inadvertentProperties.join(', ')}',
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
