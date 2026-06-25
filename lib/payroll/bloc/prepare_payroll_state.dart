@@ -27,17 +27,14 @@ abstract class PreparePayrollState with _$PreparePayrollState {
       0.035 * (cleaningRevenue ?? 0) - (heathDeductions ?? 0);
 
   /// Total "Check Out Clean" cleans across all workers — the denominator for
-  /// each worker's pot share. Over-time cleans are included here (even though
-  /// they're excluded from a worker's own qualifying [WorkerRow.cleans]) so the
-  /// pot is still divided across every clean performed; the over-time worker
-  /// simply forfeits credit for that clean. Workers who don't qualify for the
-  /// bonus ([WorkerRow.qualifiesForBonus] false) are excluded entirely.
+  /// each worker's pot share. Every clean performed dilutes the pot, including
+  /// over-time cleans and the cleans of workers who don't qualify for the bonus
+  /// ([WorkerRow.qualifiesForBonus] false); those workers simply forfeit their
+  /// share (their [WorkerRow.bonusPay] is 0) rather than being removed from the
+  /// total.
   int get totalCleans =>
-      workerRows.data?.fold<int>(
-          0,
-          (sum, r) => r.qualifiesForBonus
-              ? sum + r.cleans + r.overTimeCleans
-              : sum) ??
+      workerRows.data
+          ?.fold<int>(0, (sum, r) => sum + r.cleans + r.overTimeCleans) ??
       0;
 
   /// True once Operto shifts have been fetched — the pay-rate file can only be

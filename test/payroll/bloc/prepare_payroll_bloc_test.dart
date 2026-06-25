@@ -233,8 +233,8 @@ void main() {
     });
 
     test(
-        'totalCleans includes over-time cleans but excludes non-qualifying '
-        'workers', () {
+        'totalCleans includes over-time cleans and non-qualifying workers '
+        '(they forfeit their share, not the pot total)', () {
       final state = PreparePayrollState(
         workerRows: AsyncOperation.success(data: const [
           WorkerRow(
@@ -260,7 +260,7 @@ void main() {
             cleans: 2,
             qualifiesForBonus: true,
           ),
-          // Carol doesn't qualify — her cleans don't divide the pot.
+          // Carol doesn't qualify, but her cleans still divide the pot.
           WorkerRow(
             worker: 'Carol',
             periodHours: 8,
@@ -274,8 +274,8 @@ void main() {
           ),
         ]),
       );
-      // 3 + 1 (Alice incl. over-time) + 2 (Bob); Carol's 5 excluded = 6.
-      expect(state.totalCleans, 6);
+      // 3 + 1 (Alice incl. over-time) + 2 (Bob) + 5 (Carol) = 11.
+      expect(state.totalCleans, 11);
     });
 
     test('canGenerateReport requires a successful staffDayTimes fetch', () {
