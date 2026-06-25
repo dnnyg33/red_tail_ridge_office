@@ -14,7 +14,12 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WorkerRow {
 
- String get worker; double get periodHours; String get periodBreaks; double get periodNtt; double get mileageForPeriod; double get payRate; double get periodHourlyPay; double get mileagePay; List<ProposedNttRow> get nttRows; int get cleans; DateTime? get periodStart; DateTime? get periodEnd;
+ String get worker; double get periodHours; String get periodBreaks; double get periodNtt; double get mileageForPeriod; double get payRate; double get periodHourlyPay; double get mileagePay; List<ProposedNttRow> get nttRows; int get cleans;/// "Check out clean" tasks excluded from the bonus because their tracked
+/// time exceeded the unit's `maxCleanTime`. Not included in [cleans].
+ int get overTimeCleans;/// Whether this worker's cleans count toward the bonus pot (from the
+/// pay-rate file). Defaults to false; when false they earn no bonus and
+/// their cleans are excluded from the pot's total.
+ bool get qualifiesForBonus; DateTime? get periodStart; DateTime? get periodEnd;
 /// Create a copy of WorkerRow
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +30,16 @@ $WorkerRowCopyWith<WorkerRow> get copyWith => _$WorkerRowCopyWithImpl<WorkerRow>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkerRow&&(identical(other.worker, worker) || other.worker == worker)&&(identical(other.periodHours, periodHours) || other.periodHours == periodHours)&&(identical(other.periodBreaks, periodBreaks) || other.periodBreaks == periodBreaks)&&(identical(other.periodNtt, periodNtt) || other.periodNtt == periodNtt)&&(identical(other.mileageForPeriod, mileageForPeriod) || other.mileageForPeriod == mileageForPeriod)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.periodHourlyPay, periodHourlyPay) || other.periodHourlyPay == periodHourlyPay)&&(identical(other.mileagePay, mileagePay) || other.mileagePay == mileagePay)&&const DeepCollectionEquality().equals(other.nttRows, nttRows)&&(identical(other.cleans, cleans) || other.cleans == cleans)&&(identical(other.periodStart, periodStart) || other.periodStart == periodStart)&&(identical(other.periodEnd, periodEnd) || other.periodEnd == periodEnd));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkerRow&&(identical(other.worker, worker) || other.worker == worker)&&(identical(other.periodHours, periodHours) || other.periodHours == periodHours)&&(identical(other.periodBreaks, periodBreaks) || other.periodBreaks == periodBreaks)&&(identical(other.periodNtt, periodNtt) || other.periodNtt == periodNtt)&&(identical(other.mileageForPeriod, mileageForPeriod) || other.mileageForPeriod == mileageForPeriod)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.periodHourlyPay, periodHourlyPay) || other.periodHourlyPay == periodHourlyPay)&&(identical(other.mileagePay, mileagePay) || other.mileagePay == mileagePay)&&const DeepCollectionEquality().equals(other.nttRows, nttRows)&&(identical(other.cleans, cleans) || other.cleans == cleans)&&(identical(other.overTimeCleans, overTimeCleans) || other.overTimeCleans == overTimeCleans)&&(identical(other.qualifiesForBonus, qualifiesForBonus) || other.qualifiesForBonus == qualifiesForBonus)&&(identical(other.periodStart, periodStart) || other.periodStart == periodStart)&&(identical(other.periodEnd, periodEnd) || other.periodEnd == periodEnd));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,worker,periodHours,periodBreaks,periodNtt,mileageForPeriod,payRate,periodHourlyPay,mileagePay,const DeepCollectionEquality().hash(nttRows),cleans,periodStart,periodEnd);
+int get hashCode => Object.hash(runtimeType,worker,periodHours,periodBreaks,periodNtt,mileageForPeriod,payRate,periodHourlyPay,mileagePay,const DeepCollectionEquality().hash(nttRows),cleans,overTimeCleans,qualifiesForBonus,periodStart,periodEnd);
 
 @override
 String toString() {
-  return 'WorkerRow(worker: $worker, periodHours: $periodHours, periodBreaks: $periodBreaks, periodNtt: $periodNtt, mileageForPeriod: $mileageForPeriod, payRate: $payRate, periodHourlyPay: $periodHourlyPay, mileagePay: $mileagePay, nttRows: $nttRows, cleans: $cleans, periodStart: $periodStart, periodEnd: $periodEnd)';
+  return 'WorkerRow(worker: $worker, periodHours: $periodHours, periodBreaks: $periodBreaks, periodNtt: $periodNtt, mileageForPeriod: $mileageForPeriod, payRate: $payRate, periodHourlyPay: $periodHourlyPay, mileagePay: $mileagePay, nttRows: $nttRows, cleans: $cleans, overTimeCleans: $overTimeCleans, qualifiesForBonus: $qualifiesForBonus, periodStart: $periodStart, periodEnd: $periodEnd)';
 }
 
 
@@ -45,7 +50,7 @@ abstract mixin class $WorkerRowCopyWith<$Res>  {
   factory $WorkerRowCopyWith(WorkerRow value, $Res Function(WorkerRow) _then) = _$WorkerRowCopyWithImpl;
 @useResult
 $Res call({
- String worker, double periodHours, String periodBreaks, double periodNtt, double mileageForPeriod, double payRate, double periodHourlyPay, double mileagePay, List<ProposedNttRow> nttRows, int cleans, DateTime? periodStart, DateTime? periodEnd
+ String worker, double periodHours, String periodBreaks, double periodNtt, double mileageForPeriod, double payRate, double periodHourlyPay, double mileagePay, List<ProposedNttRow> nttRows, int cleans, int overTimeCleans, bool qualifiesForBonus, DateTime? periodStart, DateTime? periodEnd
 });
 
 
@@ -62,7 +67,7 @@ class _$WorkerRowCopyWithImpl<$Res>
 
 /// Create a copy of WorkerRow
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? worker = null,Object? periodHours = null,Object? periodBreaks = null,Object? periodNtt = null,Object? mileageForPeriod = null,Object? payRate = null,Object? periodHourlyPay = null,Object? mileagePay = null,Object? nttRows = null,Object? cleans = null,Object? periodStart = freezed,Object? periodEnd = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? worker = null,Object? periodHours = null,Object? periodBreaks = null,Object? periodNtt = null,Object? mileageForPeriod = null,Object? payRate = null,Object? periodHourlyPay = null,Object? mileagePay = null,Object? nttRows = null,Object? cleans = null,Object? overTimeCleans = null,Object? qualifiesForBonus = null,Object? periodStart = freezed,Object? periodEnd = freezed,}) {
   return _then(_self.copyWith(
 worker: null == worker ? _self.worker : worker // ignore: cast_nullable_to_non_nullable
 as String,periodHours: null == periodHours ? _self.periodHours : periodHours // ignore: cast_nullable_to_non_nullable
@@ -74,7 +79,9 @@ as double,periodHourlyPay: null == periodHourlyPay ? _self.periodHourlyPay : per
 as double,mileagePay: null == mileagePay ? _self.mileagePay : mileagePay // ignore: cast_nullable_to_non_nullable
 as double,nttRows: null == nttRows ? _self.nttRows : nttRows // ignore: cast_nullable_to_non_nullable
 as List<ProposedNttRow>,cleans: null == cleans ? _self.cleans : cleans // ignore: cast_nullable_to_non_nullable
-as int,periodStart: freezed == periodStart ? _self.periodStart : periodStart // ignore: cast_nullable_to_non_nullable
+as int,overTimeCleans: null == overTimeCleans ? _self.overTimeCleans : overTimeCleans // ignore: cast_nullable_to_non_nullable
+as int,qualifiesForBonus: null == qualifiesForBonus ? _self.qualifiesForBonus : qualifiesForBonus // ignore: cast_nullable_to_non_nullable
+as bool,periodStart: freezed == periodStart ? _self.periodStart : periodStart // ignore: cast_nullable_to_non_nullable
 as DateTime?,periodEnd: freezed == periodEnd ? _self.periodEnd : periodEnd // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -161,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String worker,  double periodHours,  String periodBreaks,  double periodNtt,  double mileageForPeriod,  double payRate,  double periodHourlyPay,  double mileagePay,  List<ProposedNttRow> nttRows,  int cleans,  DateTime? periodStart,  DateTime? periodEnd)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String worker,  double periodHours,  String periodBreaks,  double periodNtt,  double mileageForPeriod,  double payRate,  double periodHourlyPay,  double mileagePay,  List<ProposedNttRow> nttRows,  int cleans,  int overTimeCleans,  bool qualifiesForBonus,  DateTime? periodStart,  DateTime? periodEnd)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WorkerRow() when $default != null:
-return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNtt,_that.mileageForPeriod,_that.payRate,_that.periodHourlyPay,_that.mileagePay,_that.nttRows,_that.cleans,_that.periodStart,_that.periodEnd);case _:
+return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNtt,_that.mileageForPeriod,_that.payRate,_that.periodHourlyPay,_that.mileagePay,_that.nttRows,_that.cleans,_that.overTimeCleans,_that.qualifiesForBonus,_that.periodStart,_that.periodEnd);case _:
   return orElse();
 
 }
@@ -182,10 +189,10 @@ return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNt
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String worker,  double periodHours,  String periodBreaks,  double periodNtt,  double mileageForPeriod,  double payRate,  double periodHourlyPay,  double mileagePay,  List<ProposedNttRow> nttRows,  int cleans,  DateTime? periodStart,  DateTime? periodEnd)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String worker,  double periodHours,  String periodBreaks,  double periodNtt,  double mileageForPeriod,  double payRate,  double periodHourlyPay,  double mileagePay,  List<ProposedNttRow> nttRows,  int cleans,  int overTimeCleans,  bool qualifiesForBonus,  DateTime? periodStart,  DateTime? periodEnd)  $default,) {final _that = this;
 switch (_that) {
 case _WorkerRow():
-return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNtt,_that.mileageForPeriod,_that.payRate,_that.periodHourlyPay,_that.mileagePay,_that.nttRows,_that.cleans,_that.periodStart,_that.periodEnd);case _:
+return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNtt,_that.mileageForPeriod,_that.payRate,_that.periodHourlyPay,_that.mileagePay,_that.nttRows,_that.cleans,_that.overTimeCleans,_that.qualifiesForBonus,_that.periodStart,_that.periodEnd);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +209,10 @@ return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNt
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String worker,  double periodHours,  String periodBreaks,  double periodNtt,  double mileageForPeriod,  double payRate,  double periodHourlyPay,  double mileagePay,  List<ProposedNttRow> nttRows,  int cleans,  DateTime? periodStart,  DateTime? periodEnd)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String worker,  double periodHours,  String periodBreaks,  double periodNtt,  double mileageForPeriod,  double payRate,  double periodHourlyPay,  double mileagePay,  List<ProposedNttRow> nttRows,  int cleans,  int overTimeCleans,  bool qualifiesForBonus,  DateTime? periodStart,  DateTime? periodEnd)?  $default,) {final _that = this;
 switch (_that) {
 case _WorkerRow() when $default != null:
-return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNtt,_that.mileageForPeriod,_that.payRate,_that.periodHourlyPay,_that.mileagePay,_that.nttRows,_that.cleans,_that.periodStart,_that.periodEnd);case _:
+return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNtt,_that.mileageForPeriod,_that.payRate,_that.periodHourlyPay,_that.mileagePay,_that.nttRows,_that.cleans,_that.overTimeCleans,_that.qualifiesForBonus,_that.periodStart,_that.periodEnd);case _:
   return null;
 
 }
@@ -217,7 +224,7 @@ return $default(_that.worker,_that.periodHours,_that.periodBreaks,_that.periodNt
 
 
 class _WorkerRow extends WorkerRow {
-  const _WorkerRow({required this.worker, required this.periodHours, required this.periodBreaks, this.periodNtt = 0, required this.mileageForPeriod, required this.payRate, required this.periodHourlyPay, required this.mileagePay, final  List<ProposedNttRow> nttRows = const <ProposedNttRow>[], this.cleans = 0, this.periodStart, this.periodEnd}): _nttRows = nttRows,super._();
+  const _WorkerRow({required this.worker, required this.periodHours, required this.periodBreaks, this.periodNtt = 0, required this.mileageForPeriod, required this.payRate, required this.periodHourlyPay, required this.mileagePay, final  List<ProposedNttRow> nttRows = const <ProposedNttRow>[], this.cleans = 0, this.overTimeCleans = 0, this.qualifiesForBonus = false, this.periodStart, this.periodEnd}): _nttRows = nttRows,super._();
   
 
 @override final  String worker;
@@ -236,6 +243,13 @@ class _WorkerRow extends WorkerRow {
 }
 
 @override@JsonKey() final  int cleans;
+/// "Check out clean" tasks excluded from the bonus because their tracked
+/// time exceeded the unit's `maxCleanTime`. Not included in [cleans].
+@override@JsonKey() final  int overTimeCleans;
+/// Whether this worker's cleans count toward the bonus pot (from the
+/// pay-rate file). Defaults to false; when false they earn no bonus and
+/// their cleans are excluded from the pot's total.
+@override@JsonKey() final  bool qualifiesForBonus;
 @override final  DateTime? periodStart;
 @override final  DateTime? periodEnd;
 
@@ -249,16 +263,16 @@ _$WorkerRowCopyWith<_WorkerRow> get copyWith => __$WorkerRowCopyWithImpl<_Worker
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkerRow&&(identical(other.worker, worker) || other.worker == worker)&&(identical(other.periodHours, periodHours) || other.periodHours == periodHours)&&(identical(other.periodBreaks, periodBreaks) || other.periodBreaks == periodBreaks)&&(identical(other.periodNtt, periodNtt) || other.periodNtt == periodNtt)&&(identical(other.mileageForPeriod, mileageForPeriod) || other.mileageForPeriod == mileageForPeriod)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.periodHourlyPay, periodHourlyPay) || other.periodHourlyPay == periodHourlyPay)&&(identical(other.mileagePay, mileagePay) || other.mileagePay == mileagePay)&&const DeepCollectionEquality().equals(other._nttRows, _nttRows)&&(identical(other.cleans, cleans) || other.cleans == cleans)&&(identical(other.periodStart, periodStart) || other.periodStart == periodStart)&&(identical(other.periodEnd, periodEnd) || other.periodEnd == periodEnd));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkerRow&&(identical(other.worker, worker) || other.worker == worker)&&(identical(other.periodHours, periodHours) || other.periodHours == periodHours)&&(identical(other.periodBreaks, periodBreaks) || other.periodBreaks == periodBreaks)&&(identical(other.periodNtt, periodNtt) || other.periodNtt == periodNtt)&&(identical(other.mileageForPeriod, mileageForPeriod) || other.mileageForPeriod == mileageForPeriod)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.periodHourlyPay, periodHourlyPay) || other.periodHourlyPay == periodHourlyPay)&&(identical(other.mileagePay, mileagePay) || other.mileagePay == mileagePay)&&const DeepCollectionEquality().equals(other._nttRows, _nttRows)&&(identical(other.cleans, cleans) || other.cleans == cleans)&&(identical(other.overTimeCleans, overTimeCleans) || other.overTimeCleans == overTimeCleans)&&(identical(other.qualifiesForBonus, qualifiesForBonus) || other.qualifiesForBonus == qualifiesForBonus)&&(identical(other.periodStart, periodStart) || other.periodStart == periodStart)&&(identical(other.periodEnd, periodEnd) || other.periodEnd == periodEnd));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,worker,periodHours,periodBreaks,periodNtt,mileageForPeriod,payRate,periodHourlyPay,mileagePay,const DeepCollectionEquality().hash(_nttRows),cleans,periodStart,periodEnd);
+int get hashCode => Object.hash(runtimeType,worker,periodHours,periodBreaks,periodNtt,mileageForPeriod,payRate,periodHourlyPay,mileagePay,const DeepCollectionEquality().hash(_nttRows),cleans,overTimeCleans,qualifiesForBonus,periodStart,periodEnd);
 
 @override
 String toString() {
-  return 'WorkerRow(worker: $worker, periodHours: $periodHours, periodBreaks: $periodBreaks, periodNtt: $periodNtt, mileageForPeriod: $mileageForPeriod, payRate: $payRate, periodHourlyPay: $periodHourlyPay, mileagePay: $mileagePay, nttRows: $nttRows, cleans: $cleans, periodStart: $periodStart, periodEnd: $periodEnd)';
+  return 'WorkerRow(worker: $worker, periodHours: $periodHours, periodBreaks: $periodBreaks, periodNtt: $periodNtt, mileageForPeriod: $mileageForPeriod, payRate: $payRate, periodHourlyPay: $periodHourlyPay, mileagePay: $mileagePay, nttRows: $nttRows, cleans: $cleans, overTimeCleans: $overTimeCleans, qualifiesForBonus: $qualifiesForBonus, periodStart: $periodStart, periodEnd: $periodEnd)';
 }
 
 
@@ -269,7 +283,7 @@ abstract mixin class _$WorkerRowCopyWith<$Res> implements $WorkerRowCopyWith<$Re
   factory _$WorkerRowCopyWith(_WorkerRow value, $Res Function(_WorkerRow) _then) = __$WorkerRowCopyWithImpl;
 @override @useResult
 $Res call({
- String worker, double periodHours, String periodBreaks, double periodNtt, double mileageForPeriod, double payRate, double periodHourlyPay, double mileagePay, List<ProposedNttRow> nttRows, int cleans, DateTime? periodStart, DateTime? periodEnd
+ String worker, double periodHours, String periodBreaks, double periodNtt, double mileageForPeriod, double payRate, double periodHourlyPay, double mileagePay, List<ProposedNttRow> nttRows, int cleans, int overTimeCleans, bool qualifiesForBonus, DateTime? periodStart, DateTime? periodEnd
 });
 
 
@@ -286,7 +300,7 @@ class __$WorkerRowCopyWithImpl<$Res>
 
 /// Create a copy of WorkerRow
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? worker = null,Object? periodHours = null,Object? periodBreaks = null,Object? periodNtt = null,Object? mileageForPeriod = null,Object? payRate = null,Object? periodHourlyPay = null,Object? mileagePay = null,Object? nttRows = null,Object? cleans = null,Object? periodStart = freezed,Object? periodEnd = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? worker = null,Object? periodHours = null,Object? periodBreaks = null,Object? periodNtt = null,Object? mileageForPeriod = null,Object? payRate = null,Object? periodHourlyPay = null,Object? mileagePay = null,Object? nttRows = null,Object? cleans = null,Object? overTimeCleans = null,Object? qualifiesForBonus = null,Object? periodStart = freezed,Object? periodEnd = freezed,}) {
   return _then(_WorkerRow(
 worker: null == worker ? _self.worker : worker // ignore: cast_nullable_to_non_nullable
 as String,periodHours: null == periodHours ? _self.periodHours : periodHours // ignore: cast_nullable_to_non_nullable
@@ -298,7 +312,9 @@ as double,periodHourlyPay: null == periodHourlyPay ? _self.periodHourlyPay : per
 as double,mileagePay: null == mileagePay ? _self.mileagePay : mileagePay // ignore: cast_nullable_to_non_nullable
 as double,nttRows: null == nttRows ? _self._nttRows : nttRows // ignore: cast_nullable_to_non_nullable
 as List<ProposedNttRow>,cleans: null == cleans ? _self.cleans : cleans // ignore: cast_nullable_to_non_nullable
-as int,periodStart: freezed == periodStart ? _self.periodStart : periodStart // ignore: cast_nullable_to_non_nullable
+as int,overTimeCleans: null == overTimeCleans ? _self.overTimeCleans : overTimeCleans // ignore: cast_nullable_to_non_nullable
+as int,qualifiesForBonus: null == qualifiesForBonus ? _self.qualifiesForBonus : qualifiesForBonus // ignore: cast_nullable_to_non_nullable
+as bool,periodStart: freezed == periodStart ? _self.periodStart : periodStart // ignore: cast_nullable_to_non_nullable
 as DateTime?,periodEnd: freezed == periodEnd ? _self.periodEnd : periodEnd // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

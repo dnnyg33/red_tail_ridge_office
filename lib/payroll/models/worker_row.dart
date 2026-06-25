@@ -19,6 +19,13 @@ abstract class WorkerRow with _$WorkerRow {
     required double mileagePay,
     @Default(<ProposedNttRow>[]) List<ProposedNttRow> nttRows,
     @Default(0) int cleans,
+    /// "Check out clean" tasks excluded from the bonus because their tracked
+    /// time exceeded the unit's `maxCleanTime`. Not included in [cleans].
+    @Default(0) int overTimeCleans,
+    /// Whether this worker's cleans count toward the bonus pot (from the
+    /// pay-rate file). Defaults to false; when false they earn no bonus and
+    /// their cleans are excluded from the pot's total.
+    @Default(false) bool qualifiesForBonus,
     DateTime? periodStart,
     DateTime? periodEnd,
   }) = _WorkerRow;
@@ -30,9 +37,10 @@ abstract class WorkerRow with _$WorkerRow {
 
   /// This worker's share of the bonus [pot], proportional to their cleans:
   ///   pot × (cleans / totalCleans) − callback deductions (0 for now).
-  /// Returns 0 when there are no cleans to divide the pot among.
+  /// Returns 0 when the worker doesn't qualify for the bonus or there are no
+  /// cleans to divide the pot among.
   double bonusPay({required double pot, required int totalCleans}) {
-    if (totalCleans <= 0) return 0;
+    if (!qualifiesForBonus || totalCleans <= 0) return 0;
     const callbackDeductions = 0;
     return pot * (cleans / totalCleans) - callbackDeductions;
   }

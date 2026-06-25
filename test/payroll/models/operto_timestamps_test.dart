@@ -70,4 +70,27 @@ void main() {
       expect(parseOpertoDate('20260601230000'), DateTime(2026, 6, 1));
     });
   });
+
+  group('parseOpertoElapsed', () {
+    test('parses an HH:MM:SS duration', () {
+      expect(
+        parseOpertoElapsed('01:23:33'),
+        const Duration(hours: 1, minutes: 23, seconds: 33),
+      );
+    });
+
+    test('parses an MM:SS duration', () {
+      expect(
+        parseOpertoElapsed('50:00'),
+        const Duration(minutes: 50),
+      );
+    });
+
+    test('returns null for empty or unparseable input', () {
+      expect(parseOpertoElapsed(''), isNull);
+      expect(parseOpertoElapsed(null), isNull);
+      expect(parseOpertoElapsed('1h23m'), isNull);
+      expect(parseOpertoElapsed('1:2:3:4'), isNull);
+    });
+  });
 }

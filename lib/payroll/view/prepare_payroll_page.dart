@@ -378,6 +378,7 @@ class _PayRateEditorDialog extends StatefulWidget {
 class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
   late final List<Staff> _staff;
   late final Map<int, TextEditingController> _controllers;
+  late final Map<int, bool> _qualifiesForBonus;
   bool _saving = false;
 
   @override
@@ -387,6 +388,9 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     _controllers = {
       for (final s in _staff) s.id: TextEditingController(),
+    };
+    _qualifiesForBonus = {
+      for (final s in _staff) s.id: false,
     };
   }
 
@@ -408,6 +412,7 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
           'name': s.name,
           'payRate': double.tryParse(_controllers[s.id]!.text.trim()) ?? 0,
           'workerId': s.id,
+          'qualifiesForBonus': _qualifiesForBonus[s.id] ?? false,
         },
     ];
     final bytes = utf8.encode(
@@ -453,6 +458,7 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
                     DataColumn(label: Text('Name')),
                     DataColumn(label: Text('Worker ID')),
                     DataColumn(label: Text('Pay rate')),
+                    DataColumn(label: Text('Bonus')),
                   ],
                   rows: [
                     for (final s in _staff)
@@ -478,6 +484,14 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
                             ),
                           ),
                         )),
+                        DataCell(
+                          Checkbox(
+                            value: _qualifiesForBonus[s.id] ?? false,
+                            onChanged: (value) => setState(
+                              () => _qualifiesForBonus[s.id] = value ?? false,
+                            ),
+                          ),
+                        ),
                       ]),
                   ],
                 ),
@@ -634,6 +648,9 @@ class _WorkerRowsTable extends StatelessWidget {
         final title = _titleRange(state.payPeriodStart, state.payPeriodEnd);
         final bonusPot = state.bonusPot;
         final totalCleans = state.totalCleans;
+        final sortedRows = [...workerRows!]..sort(
+            (a, b) => a.worker.toLowerCase().compareTo(b.worker.toLowerCase()),
+          );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -663,7 +680,7 @@ class _WorkerRowsTable extends StatelessWidget {
                   DataColumn2(label: _HeaderLabel('Bonus pay'), numeric: true),
                 ],
                 rows: [
-                  for (final (i, r) in workerRows!.indexed)
+                  for (final (i, r) in sortedRows.indexed)
                     DataRow2(
                       color: i.isOdd
                           ? WidgetStateProperty.all(
@@ -737,7 +754,9 @@ class _WorkerRowsTable extends StatelessWidget {
     final revenue = state.cleaningRevenue ?? 0;
     final revenueShare = 0.035 * revenue;
     final heath = state.heathDeductions ?? 0;
-    final share = totalCleans <= 0 ? 0.0 : row.cleans / totalCleans;
+    final qualifies = row.qualifiesForBonus;
+    final share =
+        (!qualifies || totalCleans <= 0) ? 0.0 : row.cleans / totalCleans;
     final grossShare = pot * share;
     final bonus = row.bonusPay(pot: pot, totalCleans: totalCleans);
 
@@ -758,7 +777,14 @@ class _WorkerRowsTable extends StatelessWidget {
               const Divider(),
               _bonusLine('Total pot', _money(pot), bold: true),
               const SizedBox(height: 12),
+              if (!qualifies)
+                _bonusLine('Not eligible for bonus', 'cleans excluded'),
               _bonusLine("This worker's cleans", '${row.cleans}'),
+              if (row.overTimeCleans > 0)
+                _bonusLine(
+                  'Over-time cleans (excluded)',
+                  '${row.overTimeCleans}',
+                ),
               _bonusLine('Total cleans', '$totalCleans'),
               _bonusLine('Share of pot', pct(share)),
               const Divider(),

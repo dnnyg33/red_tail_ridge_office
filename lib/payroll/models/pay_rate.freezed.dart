@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PayRate {
 
- String get name; double get payRate; int get workerId;
+ String get name; double get payRate; int get workerId;/// Whether this worker's cleans count toward the bonus pot. Defaults to
+/// false when the field is absent — a worker must be explicitly opted in.
+ bool get qualifiesForBonus;
 /// Create a copy of PayRate
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +27,16 @@ $PayRateCopyWith<PayRate> get copyWith => _$PayRateCopyWithImpl<PayRate>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PayRate&&(identical(other.name, name) || other.name == name)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.workerId, workerId) || other.workerId == workerId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PayRate&&(identical(other.name, name) || other.name == name)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.workerId, workerId) || other.workerId == workerId)&&(identical(other.qualifiesForBonus, qualifiesForBonus) || other.qualifiesForBonus == qualifiesForBonus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,payRate,workerId);
+int get hashCode => Object.hash(runtimeType,name,payRate,workerId,qualifiesForBonus);
 
 @override
 String toString() {
-  return 'PayRate(name: $name, payRate: $payRate, workerId: $workerId)';
+  return 'PayRate(name: $name, payRate: $payRate, workerId: $workerId, qualifiesForBonus: $qualifiesForBonus)';
 }
 
 
@@ -45,7 +47,7 @@ abstract mixin class $PayRateCopyWith<$Res>  {
   factory $PayRateCopyWith(PayRate value, $Res Function(PayRate) _then) = _$PayRateCopyWithImpl;
 @useResult
 $Res call({
- String name, double payRate, int workerId
+ String name, double payRate, int workerId, bool qualifiesForBonus
 });
 
 
@@ -62,12 +64,13 @@ class _$PayRateCopyWithImpl<$Res>
 
 /// Create a copy of PayRate
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? payRate = null,Object? workerId = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? payRate = null,Object? workerId = null,Object? qualifiesForBonus = null,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,payRate: null == payRate ? _self.payRate : payRate // ignore: cast_nullable_to_non_nullable
 as double,workerId: null == workerId ? _self.workerId : workerId // ignore: cast_nullable_to_non_nullable
-as int,
+as int,qualifiesForBonus: null == qualifiesForBonus ? _self.qualifiesForBonus : qualifiesForBonus // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -152,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  double payRate,  int workerId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  double payRate,  int workerId,  bool qualifiesForBonus)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PayRate() when $default != null:
-return $default(_that.name,_that.payRate,_that.workerId);case _:
+return $default(_that.name,_that.payRate,_that.workerId,_that.qualifiesForBonus);case _:
   return orElse();
 
 }
@@ -173,10 +176,10 @@ return $default(_that.name,_that.payRate,_that.workerId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  double payRate,  int workerId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  double payRate,  int workerId,  bool qualifiesForBonus)  $default,) {final _that = this;
 switch (_that) {
 case _PayRate():
-return $default(_that.name,_that.payRate,_that.workerId);case _:
+return $default(_that.name,_that.payRate,_that.workerId,_that.qualifiesForBonus);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +196,10 @@ return $default(_that.name,_that.payRate,_that.workerId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  double payRate,  int workerId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  double payRate,  int workerId,  bool qualifiesForBonus)?  $default,) {final _that = this;
 switch (_that) {
 case _PayRate() when $default != null:
-return $default(_that.name,_that.payRate,_that.workerId);case _:
+return $default(_that.name,_that.payRate,_that.workerId,_that.qualifiesForBonus);case _:
   return null;
 
 }
@@ -208,12 +211,15 @@ return $default(_that.name,_that.payRate,_that.workerId);case _:
 
 
 class _PayRate extends PayRate {
-  const _PayRate({required this.name, required this.payRate, required this.workerId}): super._();
+  const _PayRate({required this.name, required this.payRate, required this.workerId, this.qualifiesForBonus = false}): super._();
   
 
 @override final  String name;
 @override final  double payRate;
 @override final  int workerId;
+/// Whether this worker's cleans count toward the bonus pot. Defaults to
+/// false when the field is absent — a worker must be explicitly opted in.
+@override@JsonKey() final  bool qualifiesForBonus;
 
 /// Create a copy of PayRate
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +231,16 @@ _$PayRateCopyWith<_PayRate> get copyWith => __$PayRateCopyWithImpl<_PayRate>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PayRate&&(identical(other.name, name) || other.name == name)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.workerId, workerId) || other.workerId == workerId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PayRate&&(identical(other.name, name) || other.name == name)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.workerId, workerId) || other.workerId == workerId)&&(identical(other.qualifiesForBonus, qualifiesForBonus) || other.qualifiesForBonus == qualifiesForBonus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,payRate,workerId);
+int get hashCode => Object.hash(runtimeType,name,payRate,workerId,qualifiesForBonus);
 
 @override
 String toString() {
-  return 'PayRate(name: $name, payRate: $payRate, workerId: $workerId)';
+  return 'PayRate(name: $name, payRate: $payRate, workerId: $workerId, qualifiesForBonus: $qualifiesForBonus)';
 }
 
 
@@ -245,7 +251,7 @@ abstract mixin class _$PayRateCopyWith<$Res> implements $PayRateCopyWith<$Res> {
   factory _$PayRateCopyWith(_PayRate value, $Res Function(_PayRate) _then) = __$PayRateCopyWithImpl;
 @override @useResult
 $Res call({
- String name, double payRate, int workerId
+ String name, double payRate, int workerId, bool qualifiesForBonus
 });
 
 
@@ -262,12 +268,13 @@ class __$PayRateCopyWithImpl<$Res>
 
 /// Create a copy of PayRate
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? payRate = null,Object? workerId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? payRate = null,Object? workerId = null,Object? qualifiesForBonus = null,}) {
   return _then(_PayRate(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,payRate: null == payRate ? _self.payRate : payRate // ignore: cast_nullable_to_non_nullable
 as double,workerId: null == workerId ? _self.workerId : workerId // ignore: cast_nullable_to_non_nullable
-as int,
+as int,qualifiesForBonus: null == qualifiesForBonus ? _self.qualifiesForBonus : qualifiesForBonus // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

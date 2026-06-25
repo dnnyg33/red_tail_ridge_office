@@ -183,13 +183,21 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     emit(state.copyWith(workerRows: AsyncOperation.processing()));
     try {
       final payRateBytes = state.payRateFile?.bytes;
+      final payRates =
+          payRateBytes == null ? const <PayRate>[] : _parsePayRates(payRateBytes);
       final rows = const OpertoPayrollBuilder().build(
         staffDayTimes: staffDayTimes,
         staffTaskTimes: state.staffTaskTimes,
         staffTasks: state.staffTasks,
         staffNamesById: state.staffNamesById,
-        payRatesById:
-            payRateBytes == null ? const {} : _parsePayRates(payRateBytes),
+        payRatesById: {
+          for (final r in payRates)
+            if (r.workerId != 0) r.workerId: r.payRate,
+        },
+        qualifiesForBonusById: {
+          for (final r in payRates)
+            if (r.workerId != 0) r.workerId: r.qualifiesForBonus,
+        },
         mileageConstant: state.mileageConstant ?? 0,
       );
 
@@ -208,20 +216,16 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
   }
 
   /// Parses the uploaded pay-rate JSON: an array of objects with `name`,
-  /// `payRate`, and `workerId`. Returns a `workerId -> payRate` map; entries
-  /// without a worker id are skipped.
-  Map<int, double> _parsePayRates(Uint8List bytes) {
+  /// `payRate`, `workerId`, and optional `qualifiesForBonus`. Returns the
+  /// decoded [PayRate]s; non-object entries are skipped.
+  List<PayRate> _parsePayRates(Uint8List bytes) {
     final decoded = jsonDecode(utf8.decode(bytes, allowMalformed: true));
-    if (decoded is! List) return const {};
+    if (decoded is! List) return const [];
 
-    final rates = <int, double>{};
-    for (final item in decoded) {
-      if (item is Map<String, dynamic>) {
-        final payRate = PayRate.fromJson(item);
-        if (payRate.workerId != 0) rates[payRate.workerId] = payRate.payRate;
-      }
-    }
-    return rates;
+    return [
+      for (final item in decoded)
+        if (item is Map<String, dynamic>) PayRate.fromJson(item),
+    ];
   }
 
   (DateTime?, DateTime?) _overallRange(List<WorkerRow> rows) {

@@ -31,6 +31,7 @@ class OpertoPayrollBuilder {
     required Map<int, String> staffNamesById,
     required Map<int, double> payRatesById,
     required double mileageConstant,
+    Map<int, bool> qualifiesForBonusById = const {},
   }) {
     final propertyIdByTaskId = {
       for (final t in staffTasks)
@@ -110,9 +111,31 @@ class OpertoPayrollBuilder {
         n.workerName: n,
     };
 
+    // "Check out clean" tallies per worker. A clean whose tracked time exceeds
+    // its unit's maxCleanTime does not count toward the bonus and is reported
+    // separately. Cleans with an unknown unit or no tracked time are counted.
+    final cleanTallies = <String, _CleanTally>{};
+    for (final t in staffTasks) {
+      if (!t.taskName.toLowerCase().contains('check out clean')) continue;
+      final name = staffNamesById[t.staffId];
+      if (name == null) continue;
+
+      final tally = cleanTallies.putIfAbsent(name, _CleanTally.new);
+      final maxCleanTime = propertyById[t.propertyId]?.maxCleanTime;
+      final tracked = t.timeTracked;
+      if (maxCleanTime != null &&
+          tracked != null &&
+          tracked.inSeconds > maxCleanTime * 60) {
+        tally.overTime++;
+      } else {
+        tally.counted++;
+      }
+    }
+
     final rows = <WorkerRow>[];
-    for (final agg in aggregates.values) {
+    for (final MapEntry(key: staffId, value: agg) in aggregates.entries) {
       final workerNtt = workerNtts[agg.name];
+      final cleanTally = cleanTallies[agg.name];
       final periodNtt = workerNtt?.totalNtt ?? 0;
       final periodHours = agg.totalMinutes / 60.0;
       final grossPay = agg.payRate * periodHours;
@@ -128,7 +151,9 @@ class OpertoPayrollBuilder {
         periodBreaks: periodNtt.toStringAsFixed(2),
         periodNtt: periodNtt,
         nttRows: workerNtt?.nttRows ?? const <ProposedNttRow>[],
-        cleans: assignments.checkoutCleanCountFor(agg.name),
+        cleans: cleanTally?.counted ?? 0,
+        overTimeCleans: cleanTally?.overTime ?? 0,
+        qualifiesForBonus: qualifiesForBonusById[staffId] ?? false,
       ));
     }
     return rows;
@@ -151,6 +176,13 @@ class OpertoPayrollBuilder {
   /// `HH:MM` 24-hour.
   static String _hhmm(DateTime d) =>
       '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+}
+
+/// Per-worker checkout-clean counts: [counted] go toward the bonus, [overTime]
+/// are excluded for exceeding the unit's maxCleanTime.
+class _CleanTally {
+  int counted = 0;
+  int overTime = 0;
 }
 
 class _WorkerAggregate {

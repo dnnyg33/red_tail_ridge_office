@@ -11,6 +11,7 @@ import 'package:red_tail_ridge_office/auth/models/auth_provider.dart';
 import 'package:red_tail_ridge_office/auth/models/auth_session.dart';
 import 'package:red_tail_ridge_office/payroll/bloc/prepare_payroll_bloc.dart';
 import 'package:red_tail_ridge_office/payroll/models/staff_day_time.dart';
+import 'package:red_tail_ridge_office/payroll/models/worker_row.dart';
 import 'package:red_tail_ridge_office/payroll/parsers/operto_payroll_builder.dart';
 import 'package:red_tail_ridge_office/payroll/service/operto_api.dart';
 
@@ -229,6 +230,52 @@ void main() {
       const state =
           PreparePayrollState(cleaningRevenue: 1000, heathDeductions: 5);
       expect(state.bonusPot, closeTo(0.035 * 1000 - 5, 1e-9));
+    });
+
+    test(
+        'totalCleans includes over-time cleans but excludes non-qualifying '
+        'workers', () {
+      final state = PreparePayrollState(
+        workerRows: AsyncOperation.success(data: const [
+          WorkerRow(
+            worker: 'Alice',
+            periodHours: 8,
+            periodBreaks: '0',
+            mileageForPeriod: 0,
+            payRate: 16,
+            periodHourlyPay: 128,
+            mileagePay: 0,
+            cleans: 3,
+            overTimeCleans: 1,
+            qualifiesForBonus: true,
+          ),
+          WorkerRow(
+            worker: 'Bob',
+            periodHours: 8,
+            periodBreaks: '0',
+            mileageForPeriod: 0,
+            payRate: 16,
+            periodHourlyPay: 128,
+            mileagePay: 0,
+            cleans: 2,
+            qualifiesForBonus: true,
+          ),
+          // Carol doesn't qualify — her cleans don't divide the pot.
+          WorkerRow(
+            worker: 'Carol',
+            periodHours: 8,
+            periodBreaks: '0',
+            mileageForPeriod: 0,
+            payRate: 16,
+            periodHourlyPay: 128,
+            mileagePay: 0,
+            cleans: 5,
+            qualifiesForBonus: false,
+          ),
+        ]),
+      );
+      // 3 + 1 (Alice incl. over-time) + 2 (Bob); Carol's 5 excluded = 6.
+      expect(state.totalCleans, 6);
     });
 
     test('canGenerateReport requires a successful staffDayTimes fetch', () {

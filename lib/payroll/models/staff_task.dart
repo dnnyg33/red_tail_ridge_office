@@ -21,6 +21,10 @@ abstract class StaffTask with _$StaffTask {
     required int propertyId,
     @Default('') String taskName,
     DateTime? taskDate,
+    /// Time spent on the task, parsed from the API's `HH:MM:SS` `TimeTracked`
+    /// string. Null when not tracked. Compared against the unit's
+    /// `maxCleanTime` to decide whether a checkout clean counts for the bonus.
+    Duration? timeTracked,
   }) = _StaffTask;
 
   static StaffTask fromJson(Map<String, dynamic> json) => StaffTask(
@@ -29,5 +33,6 @@ abstract class StaffTask with _$StaffTask {
         propertyId: opertoInt(json['PropertyID']) ?? 0,
         taskName: (json['TaskName'] as String?)?.trim() ?? '',
         taskDate: parseOpertoDate(json['TaskDate']),
+        timeTracked: parseOpertoElapsed(json['TimeTracked']),
       );
 }

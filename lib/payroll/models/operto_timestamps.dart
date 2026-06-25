@@ -6,6 +6,26 @@ int? opertoInt(Object? value) =>
 double? opertoDouble(Object? value) =>
     value is num ? value.toDouble() : double.tryParse('${value ?? ''}'.trim());
 
+/// Parses an Operto elapsed-time string in `HH:MM:SS` (or `MM:SS`) form — e.g.
+/// `"01:23:33"` → 1h 23m 33s — into a [Duration]. Returns null for empty or
+/// unparseable input.
+Duration? parseOpertoElapsed(Object? value) {
+  final s = value?.toString().trim() ?? '';
+  if (s.isEmpty) return null;
+
+  final parts = s.split(':');
+  if (parts.length < 2 || parts.length > 3) return null;
+
+  final nums = [for (final p in parts) int.tryParse(p.trim())];
+  if (nums.contains(null)) return null;
+
+  final (h, m, sec) = switch (nums.length) {
+    3 => (nums[0]!, nums[1]!, nums[2]!),
+    _ => (0, nums[0]!, nums[1]!),
+  };
+  return Duration(hours: h, minutes: m, seconds: sec);
+}
+
 /// Parses an Operto date that may arrive as a 14-digit timestamp
 /// (`YYYYMMDDHHMMSS`), an 8-digit `YYYYMMDD`, an ISO string, or a
 /// `YYYY/MM/DD`/`YYYY-MM-DD` string. Returns the date (time stripped), or null.
