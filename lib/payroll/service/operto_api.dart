@@ -74,7 +74,7 @@ class OpertoApi {
     required String authorization,
     required DateTime startDate,
     required DateTime endDate,
-    int perPage = 200,
+    int perPage = 1000,
   }) {
     return _fetchAll(
       authorization: authorization,
