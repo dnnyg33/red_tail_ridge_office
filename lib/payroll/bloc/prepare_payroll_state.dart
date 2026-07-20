@@ -21,10 +21,13 @@ abstract class PreparePayrollState with _$PreparePayrollState {
     @Default(<int, String>{}) Map<int, String> staffNamesById,
   }) = _PreparePayrollState;
 
+  /// Fraction of cleaning revenue that funds the bonus pot (5.75%).
+  static const double bonusRevenueRate = 0.0575;
+
   /// Bonus pot shared across all workers:
-  ///   3.5% of cleaning revenue, less heath deductions.
+  ///   5.75% of cleaning revenue, less heath deductions.
   double get bonusPot =>
-      0.035 * (cleaningRevenue ?? 0) - (heathDeductions ?? 0);
+      bonusRevenueRate * (cleaningRevenue ?? 0) - (heathDeductions ?? 0);
 
   /// Total "Check Out Clean" cleans across all workers — the denominator for
   /// each worker's pot share. Every clean performed dilutes the pot, including

@@ -795,7 +795,7 @@ class _WorkerRowsTable extends StatelessWidget {
     required int totalCleans,
   }) {
     final revenue = state.cleaningRevenue ?? 0;
-    final revenueShare = 0.035 * revenue;
+    final revenueShare = PreparePayrollState.bonusRevenueRate * revenue;
     final heath = state.heathDeductions ?? 0;
     final qualifies = row.qualifiesForBonus;
     final share = (!qualifies || totalCleans <= 0)
@@ -804,7 +804,7 @@ class _WorkerRowsTable extends StatelessWidget {
     final grossShare = pot * share;
     final bonus = row.bonusPay(pot: pot, totalCleans: totalCleans);
 
-    String pct(double v) => '${(v * 100).toStringAsFixed(1)}%';
+    String pct(double v) => '${(v * 100).toStringAsFixed(2)}%';
 
     showDialog<void>(
       context: context,
@@ -816,14 +816,17 @@ class _WorkerRowsTable extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _bonusLine('Cleaning revenue', _money(revenue)),
-              _bonusLine('× 3.5%', _money(revenueShare)),
+              _bonusLine(
+                '× ${pct(PreparePayrollState.bonusRevenueRate)}',
+                _money(revenueShare),
+              ),
               _bonusLine('− Heath deductions', '−${_money(heath)}'),
               const Divider(),
               _bonusLine('Total pot', _money(pot), bold: true),
               const SizedBox(height: 12),
               if (!qualifies)
                 _bonusLine('Not eligible for bonus', 'cleans excluded'),
-              _bonusLine("This worker's cleans", '${row.cleans}'),
+              _bonusLine("This worker's qualifying cleans", '${row.cleans}'),
               if (row.overTimeCleans > 0)
                 _bonusLine(
                   'Over-time cleans (excluded)',
