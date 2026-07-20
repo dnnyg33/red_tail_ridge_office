@@ -31,15 +31,8 @@ class PreparePayrollPage extends StatelessWidget {
             AsyncOperationStatus.processing => const Center(
               child: CircularProgressIndicator(),
             ),
-            AsyncOperationStatus.error => Center(
-              child: Column(
-                children: [
-                  Text(state.workerRows.error ?? 'Unable to load payroll.'),
-                  _GenerateReportButton(),
-                ],
-              ),
-            ),
             AsyncOperationStatus.idle ||
+            AsyncOperationStatus.error ||
             AsyncOperationStatus.success => _PreparePayrollBody(state: state),
           };
         },
@@ -87,11 +80,17 @@ class _PreparePayrollBody extends StatelessWidget {
                     _CleaningRevenueField(),
                   ],
                 ),
-                SizedBox(height: 24),
-                _GenerateReportButton(),
               ],
             ),
           ),
+          if (state.workerRows.hasError) ...[
+            const SizedBox(height: 16),
+            _ReportErrorBanner(message: state.workerRows.error),
+          ] else if (state.hasFetchedStaffDayTimes &&
+              state.payRateFile == null) ...[
+            const SizedBox(height: 16),
+            const _PayRateFilePrompt(),
+          ],
           SizedBox(height: 24),
           SizedBox(
             height: hasRows ? tableHeight : null,
@@ -432,20 +431,19 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
         setState(() => _saving = false);
         return; // user cancelled the save dialog
       }
-      // Automatically use the just-saved file as the pay rates input and kick
-      // off the report so the user doesn't have to re-upload and re-run.
+      // Automatically use the just-saved file as the pay rates input; the bloc
+      // recomputes the report on its own, so the user needn't re-upload it.
       final fileName = path
           .split(RegExp(r'[/\\]'))
           .last;
-      bloc..add(
+      bloc.add(
         PreparePayrollEvent.payRateFileSelected(
           PlatformFile(name: fileName, size: bytes.length, bytes: bytes),
         ),
-      )..add(const PreparePayrollEvent.reportRequested());
+      );
       navigator.pop();
       messenger.showSnackBar(
-        const SnackBar(
-            content: Text('Pay rate file saved. Generating report…')),
+        const SnackBar(content: Text('Pay rate file saved.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -624,29 +622,74 @@ class _CleaningRevenueField extends StatelessWidget {
   }
 }
 
-class _GenerateReportButton extends StatelessWidget {
-  const _GenerateReportButton();
+/// Prompt shown once Operto data is fetched but no pay rate file is present —
+/// a pay rate file is required before the report table can be built.
+class _PayRateFilePrompt extends StatelessWidget {
+  const _PayRateFilePrompt();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
-      buildWhen: (prev, curr) =>
-          prev.canGenerateReport != curr.canGenerateReport ||
-          prev.workerRows != curr.workerRows,
-      builder: (context, state) {
-        return Align(
-          alignment: Alignment.centerRight,
-          child: FilledButton.icon(
-            onPressed: state.canGenerateReport
-                ? () => context.read<PreparePayrollBloc>().add(
-                    const PreparePayrollEvent.reportRequested(),
-                  )
-                : null,
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Generate report'),
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: theme.colorScheme.onSecondaryContainer,
           ),
-        );
-      },
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Add or generate a pay rate file to build the report.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSecondaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Inline banner shown when the live report recompute fails, so the inputs
+/// stay on screen for the user to correct rather than being replaced by a
+/// full-page error.
+class _ReportErrorBanner extends StatelessWidget {
+  const _ReportErrorBanner({required this.message});
+
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message ?? 'Unable to build the report.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

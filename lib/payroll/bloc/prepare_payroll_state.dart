@@ -51,9 +51,6 @@ abstract class PreparePayrollState with _$PreparePayrollState {
           if (sdt.clockIn != null && sdt.clockOut != null) sdt.staffId,
       };
 
-  bool get canGenerateReport =>
-      staffDayTimes.isSuccess && !workerRows.isProcessing;
-
   bool get canFetchStaffDayTimes =>
       startDate != null && endDate != null && !staffDayTimes.isProcessing;
 }

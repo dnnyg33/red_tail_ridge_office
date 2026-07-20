@@ -55,7 +55,7 @@ extension PreparePayrollEventPatterns on PreparePayrollEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _PreparePayrollStarted value)?  started,TResult Function( _PreparePayrollPayRateFileSelected value)?  payRateFileSelected,TResult Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,TResult Function( _PreparePayrollReportRequested value)?  reportRequested,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _PreparePayrollStarted value)?  started,TResult Function( _PreparePayrollPayRateFileSelected value)?  payRateFileSelected,TResult Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
@@ -66,8 +66,7 @@ return heathDeductionsChanged(_that);case _PreparePayrollCleaningRevenueChanged(
 return cleaningRevenueChanged(_that);case _PreparePayrollStartDateChanged() when startDateChanged != null:
 return startDateChanged(_that);case _PreparePayrollEndDateChanged() when endDateChanged != null:
 return endDateChanged(_that);case _PreparePayrollStaffDayTimesRequested() when staffDayTimesRequested != null:
-return staffDayTimesRequested(_that);case _PreparePayrollReportRequested() when reportRequested != null:
-return reportRequested(_that);case _:
+return staffDayTimesRequested(_that);case _:
   return orElse();
 
 }
@@ -85,7 +84,7 @@ return reportRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _PreparePayrollStarted value)  started,required TResult Function( _PreparePayrollPayRateFileSelected value)  payRateFileSelected,required TResult Function( _PreparePayrollMileageConstantChanged value)  mileageConstantChanged,required TResult Function( _PreparePayrollHeathDeductionsChanged value)  heathDeductionsChanged,required TResult Function( _PreparePayrollCleaningRevenueChanged value)  cleaningRevenueChanged,required TResult Function( _PreparePayrollStartDateChanged value)  startDateChanged,required TResult Function( _PreparePayrollEndDateChanged value)  endDateChanged,required TResult Function( _PreparePayrollStaffDayTimesRequested value)  staffDayTimesRequested,required TResult Function( _PreparePayrollReportRequested value)  reportRequested,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _PreparePayrollStarted value)  started,required TResult Function( _PreparePayrollPayRateFileSelected value)  payRateFileSelected,required TResult Function( _PreparePayrollMileageConstantChanged value)  mileageConstantChanged,required TResult Function( _PreparePayrollHeathDeductionsChanged value)  heathDeductionsChanged,required TResult Function( _PreparePayrollCleaningRevenueChanged value)  cleaningRevenueChanged,required TResult Function( _PreparePayrollStartDateChanged value)  startDateChanged,required TResult Function( _PreparePayrollEndDateChanged value)  endDateChanged,required TResult Function( _PreparePayrollStaffDayTimesRequested value)  staffDayTimesRequested,}){
 final _that = this;
 switch (_that) {
 case _PreparePayrollStarted():
@@ -96,8 +95,7 @@ return heathDeductionsChanged(_that);case _PreparePayrollCleaningRevenueChanged(
 return cleaningRevenueChanged(_that);case _PreparePayrollStartDateChanged():
 return startDateChanged(_that);case _PreparePayrollEndDateChanged():
 return endDateChanged(_that);case _PreparePayrollStaffDayTimesRequested():
-return staffDayTimesRequested(_that);case _PreparePayrollReportRequested():
-return reportRequested(_that);}
+return staffDayTimesRequested(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -111,7 +109,7 @@ return reportRequested(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _PreparePayrollStarted value)?  started,TResult? Function( _PreparePayrollPayRateFileSelected value)?  payRateFileSelected,TResult? Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult? Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult? Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult? Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult? Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult? Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,TResult? Function( _PreparePayrollReportRequested value)?  reportRequested,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _PreparePayrollStarted value)?  started,TResult? Function( _PreparePayrollPayRateFileSelected value)?  payRateFileSelected,TResult? Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult? Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult? Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult? Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult? Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult? Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,}){
 final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
@@ -122,8 +120,7 @@ return heathDeductionsChanged(_that);case _PreparePayrollCleaningRevenueChanged(
 return cleaningRevenueChanged(_that);case _PreparePayrollStartDateChanged() when startDateChanged != null:
 return startDateChanged(_that);case _PreparePayrollEndDateChanged() when endDateChanged != null:
 return endDateChanged(_that);case _PreparePayrollStaffDayTimesRequested() when staffDayTimesRequested != null:
-return staffDayTimesRequested(_that);case _PreparePayrollReportRequested() when reportRequested != null:
-return reportRequested(_that);case _:
+return staffDayTimesRequested(_that);case _:
   return null;
 
 }
@@ -140,7 +137,7 @@ return reportRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( PlatformFile file)?  payRateFileSelected,TResult Function( double? value)?  mileageConstantChanged,TResult Function( double? value)?  heathDeductionsChanged,TResult Function( double? value)?  cleaningRevenueChanged,TResult Function( DateTime? date)?  startDateChanged,TResult Function( DateTime? date)?  endDateChanged,TResult Function()?  staffDayTimesRequested,TResult Function()?  reportRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( PlatformFile file)?  payRateFileSelected,TResult Function( double? value)?  mileageConstantChanged,TResult Function( double? value)?  heathDeductionsChanged,TResult Function( double? value)?  cleaningRevenueChanged,TResult Function( DateTime? date)?  startDateChanged,TResult Function( DateTime? date)?  endDateChanged,TResult Function()?  staffDayTimesRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
 return started();case _PreparePayrollPayRateFileSelected() when payRateFileSelected != null:
@@ -150,8 +147,7 @@ return heathDeductionsChanged(_that.value);case _PreparePayrollCleaningRevenueCh
 return cleaningRevenueChanged(_that.value);case _PreparePayrollStartDateChanged() when startDateChanged != null:
 return startDateChanged(_that.date);case _PreparePayrollEndDateChanged() when endDateChanged != null:
 return endDateChanged(_that.date);case _PreparePayrollStaffDayTimesRequested() when staffDayTimesRequested != null:
-return staffDayTimesRequested();case _PreparePayrollReportRequested() when reportRequested != null:
-return reportRequested();case _:
+return staffDayTimesRequested();case _:
   return orElse();
 
 }
@@ -169,7 +165,7 @@ return reportRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( PlatformFile file)  payRateFileSelected,required TResult Function( double? value)  mileageConstantChanged,required TResult Function( double? value)  heathDeductionsChanged,required TResult Function( double? value)  cleaningRevenueChanged,required TResult Function( DateTime? date)  startDateChanged,required TResult Function( DateTime? date)  endDateChanged,required TResult Function()  staffDayTimesRequested,required TResult Function()  reportRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( PlatformFile file)  payRateFileSelected,required TResult Function( double? value)  mileageConstantChanged,required TResult Function( double? value)  heathDeductionsChanged,required TResult Function( double? value)  cleaningRevenueChanged,required TResult Function( DateTime? date)  startDateChanged,required TResult Function( DateTime? date)  endDateChanged,required TResult Function()  staffDayTimesRequested,}) {final _that = this;
 switch (_that) {
 case _PreparePayrollStarted():
 return started();case _PreparePayrollPayRateFileSelected():
@@ -179,8 +175,7 @@ return heathDeductionsChanged(_that.value);case _PreparePayrollCleaningRevenueCh
 return cleaningRevenueChanged(_that.value);case _PreparePayrollStartDateChanged():
 return startDateChanged(_that.date);case _PreparePayrollEndDateChanged():
 return endDateChanged(_that.date);case _PreparePayrollStaffDayTimesRequested():
-return staffDayTimesRequested();case _PreparePayrollReportRequested():
-return reportRequested();}
+return staffDayTimesRequested();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -194,7 +189,7 @@ return reportRequested();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( PlatformFile file)?  payRateFileSelected,TResult? Function( double? value)?  mileageConstantChanged,TResult? Function( double? value)?  heathDeductionsChanged,TResult? Function( double? value)?  cleaningRevenueChanged,TResult? Function( DateTime? date)?  startDateChanged,TResult? Function( DateTime? date)?  endDateChanged,TResult? Function()?  staffDayTimesRequested,TResult? Function()?  reportRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( PlatformFile file)?  payRateFileSelected,TResult? Function( double? value)?  mileageConstantChanged,TResult? Function( double? value)?  heathDeductionsChanged,TResult? Function( double? value)?  cleaningRevenueChanged,TResult? Function( DateTime? date)?  startDateChanged,TResult? Function( DateTime? date)?  endDateChanged,TResult? Function()?  staffDayTimesRequested,}) {final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
 return started();case _PreparePayrollPayRateFileSelected() when payRateFileSelected != null:
@@ -204,8 +199,7 @@ return heathDeductionsChanged(_that.value);case _PreparePayrollCleaningRevenueCh
 return cleaningRevenueChanged(_that.value);case _PreparePayrollStartDateChanged() when startDateChanged != null:
 return startDateChanged(_that.date);case _PreparePayrollEndDateChanged() when endDateChanged != null:
 return endDateChanged(_that.date);case _PreparePayrollStaffDayTimesRequested() when staffDayTimesRequested != null:
-return staffDayTimesRequested();case _PreparePayrollReportRequested() when reportRequested != null:
-return reportRequested();case _:
+return staffDayTimesRequested();case _:
   return null;
 
 }
@@ -665,38 +659,6 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'PreparePayrollEvent.staffDayTimesRequested()';
-}
-
-
-}
-
-
-
-
-/// @nodoc
-
-
-class _PreparePayrollReportRequested implements PreparePayrollEvent {
-  const _PreparePayrollReportRequested();
-  
-
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollReportRequested);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-  return 'PreparePayrollEvent.reportRequested()';
 }
 
 

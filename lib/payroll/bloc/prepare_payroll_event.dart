@@ -26,7 +26,4 @@ sealed class PreparePayrollEvent with _$PreparePayrollEvent {
 
   const factory PreparePayrollEvent.staffDayTimesRequested() =
       _PreparePayrollStaffDayTimesRequested;
-
-  const factory PreparePayrollEvent.reportRequested() =
-      _PreparePayrollReportRequested;
 }

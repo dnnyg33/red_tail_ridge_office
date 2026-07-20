@@ -38,7 +38,6 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     on<_PreparePayrollStartDateChanged>(_onStartDateChanged);
     on<_PreparePayrollEndDateChanged>(_onEndDateChanged);
     on<_PreparePayrollStaffDayTimesRequested>(_onStaffDayTimesRequested);
-    on<_PreparePayrollReportRequested>(_onReportRequested);
   }
 
   final AuthBloc _authBloc;
@@ -63,6 +62,7 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     Emitter<PreparePayrollState> emit,
   ) {
     emit(state.copyWith(payRateFile: event.file));
+    _recomputeReport(emit);
   }
 
   void _onMileageConstantChanged(
@@ -70,6 +70,7 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     Emitter<PreparePayrollState> emit,
   ) {
     emit(state.copyWith(mileageConstant: event.value));
+    _recomputeReport(emit);
   }
 
   void _onHeathDeductionsChanged(
@@ -149,6 +150,7 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
         staffTasks: tasks,
         staffNamesById: {for (final s in staff) s.id: s.name},
       ));
+      _recomputeReport(emit);
     } catch (error) {
       emit(state.copyWith(
         staffDayTimes:
@@ -168,23 +170,19 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     return _opertoApi.fetchStaff(authorization: session.authorizationHeader);
   }
 
-  void _onReportRequested(
-    _PreparePayrollReportRequested event,
-    Emitter<PreparePayrollState> emit,
-  ) {
+  /// Rebuilds the payroll report from the current state. Called automatically
+  /// whenever an input that feeds the report changes (Operto data fetched, pay
+  /// rate file uploaded, or mileage constant edited) so the table stays in sync
+  /// without a "Generate report" action. No-ops until both the Operto data and
+  /// a pay rate file are available — both are required to build the table — and
+  /// never emits a processing state so the page doesn't flash a spinner on every
+  /// keystroke.
+  void _recomputeReport(Emitter<PreparePayrollState> emit) {
     final staffDayTimes = state.staffDayTimes.data;
-    if (staffDayTimes == null) {
-      emit(state.copyWith(
-        workerRows: AsyncOperation.error(
-            error: 'Fetch Operto data before generating the report.'),
-      ));
-      return;
-    }
-    emit(state.copyWith(workerRows: AsyncOperation.processing()));
+    final payRateBytes = state.payRateFile?.bytes;
+    if (staffDayTimes == null || payRateBytes == null) return;
     try {
-      final payRateBytes = state.payRateFile?.bytes;
-      final payRates =
-          payRateBytes == null ? const <PayRate>[] : _parsePayRates(payRateBytes);
+      final payRates = _parsePayRates(payRateBytes);
       final rows = const OpertoPayrollBuilder().build(
         staffDayTimes: staffDayTimes,
         staffTaskTimes: state.staffTaskTimes,
