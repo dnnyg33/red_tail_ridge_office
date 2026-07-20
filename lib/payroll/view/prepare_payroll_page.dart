@@ -353,16 +353,17 @@ class _GeneratePayRateFileButtonState
       message: ready
           ? 'Generate a pay rate file for workers with shifts this period'
           : 'Fetch Operto data first',
-      child: OutlinedButton.icon(
+      child: Row(children: [TextButton(
         onPressed: (_loading || !ready) ? null : _onPressed,
-        icon: _loading
+          child: Text('Need to make a new one?',)),
+        _loading
             ? const SizedBox(
                 width: 18,
                 height: 18,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.request_quote),
-        label: const Text('Generate pay rate file'),
+      ],
       ),
     );
   }
@@ -405,6 +406,7 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
   Future<void> _save() async {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    final bloc = context.read<PreparePayrollBloc>();
 
     final entries = [
       for (final s in _staff)
@@ -430,9 +432,20 @@ class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
         setState(() => _saving = false);
         return; // user cancelled the save dialog
       }
+      // Automatically use the just-saved file as the pay rates input and kick
+      // off the report so the user doesn't have to re-upload and re-run.
+      final fileName = path
+          .split(RegExp(r'[/\\]'))
+          .last;
+      bloc..add(
+        PreparePayrollEvent.payRateFileSelected(
+          PlatformFile(name: fileName, size: bytes.length, bytes: bytes),
+        ),
+      )..add(const PreparePayrollEvent.reportRequested());
       navigator.pop();
       messenger.showSnackBar(
-        const SnackBar(content: Text('Pay rate file saved.')),
+        const SnackBar(
+            content: Text('Pay rate file saved. Generating report…')),
       );
     } catch (e) {
       if (!mounted) return;
