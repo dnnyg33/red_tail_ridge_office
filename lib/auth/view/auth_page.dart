@@ -23,10 +23,15 @@ class AuthPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              for (final provider in AuthProvider.values)
+              for (final (i, provider) in AuthProvider.values.indexed)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: _ProviderCard(provider: provider),
+                  child: _ProviderCard(
+                    provider: provider,
+                    // Only the first card starts open; the rest stay collapsed
+                    // so the whole list of providers fits on screen.
+                    initiallyExpanded: i == 0,
+                  ),
                 ),
             ],
           ),
@@ -37,9 +42,15 @@ class AuthPage extends StatelessWidget {
 }
 
 class _ProviderCard extends StatefulWidget {
-  const _ProviderCard({required this.provider});
+  const _ProviderCard({
+    required this.provider,
+    this.initiallyExpanded = false,
+  });
 
   final AuthProvider provider;
+
+  /// Whether the card's credentials/details section starts expanded.
+  final bool initiallyExpanded;
 
   @override
   State<_ProviderCard> createState() => _ProviderCardState();
@@ -105,54 +116,49 @@ class _ProviderCardState extends State<_ProviderCard> {
             ? state.loginStatus.error
             : null;
 
+        // The header (icon, name, connection status) stays visible when
+        // collapsed; the credentials form or token details live inside.
         return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(provider.icon, color: theme.colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        provider.displayName,
-                        style: theme.textTheme.titleLarge,
-                      ),
-                    ),
-                    _StatusChip(connected: isConnected),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(provider.description, style: theme.textTheme.bodyMedium),
-                const SizedBox(height: 16),
-                if (isConnected)
-                  _ConnectedDetails(
-                    session: session,
-                    onDisconnect: _disconnect,
-                  )
-                else
-                  _CredentialsForm(
-                    provider: provider,
-                    idController: _idController,
-                    secretController: _secretController,
-                    obscureSecret: _obscureSecret,
-                    onToggleObscure: () =>
-                        setState(() => _obscureSecret = !_obscureSecret),
-                    isProcessing: isThisProcessing,
-                    onConnect: _connect,
-                  ),
-                if (error != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    error,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.error),
-                  ),
-                ],
-              ],
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            initiallyExpanded: widget.initiallyExpanded,
+            leading: Icon(provider.icon, color: theme.colorScheme.primary),
+            title: Text(
+              provider.displayName,
+              style: theme.textTheme.titleLarge,
             ),
+            subtitle: _StatusChip(connected: isConnected),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(provider.description, style: theme.textTheme.bodyMedium),
+              const SizedBox(height: 16),
+              if (isConnected)
+                _ConnectedDetails(
+                  session: session,
+                  onDisconnect: _disconnect,
+                )
+              else
+                _CredentialsForm(
+                  provider: provider,
+                  idController: _idController,
+                  secretController: _secretController,
+                  obscureSecret: _obscureSecret,
+                  onToggleObscure: () =>
+                      setState(() => _obscureSecret = !_obscureSecret),
+                  isProcessing: isThisProcessing,
+                  onConnect: _connect,
+                ),
+              if (error != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  error,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: theme.colorScheme.error),
+                ),
+              ],
+            ],
           ),
         );
       },
