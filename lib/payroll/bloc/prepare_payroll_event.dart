@@ -5,9 +5,11 @@ part of 'prepare_payroll_bloc.dart';
 sealed class PreparePayrollEvent with _$PreparePayrollEvent {
   const factory PreparePayrollEvent.started() = _PreparePayrollStarted;
 
-  const factory PreparePayrollEvent.payRateFileSelected(
-    PlatformFile file,
-  ) = _PreparePayrollPayRateFileSelected;
+  /// Replaces the whole bonus-eligibility map (the editor saves every worker
+  /// at once), keyed by Operto `StaffID`.
+  const factory PreparePayrollEvent.bonusEligibilityChanged(
+    Map<int, bool> qualifiesForBonusById,
+  ) = _PreparePayrollBonusEligibilityChanged;
 
   const factory PreparePayrollEvent.mileageConstantChanged(double? value) =
       _PreparePayrollMileageConstantChanged;

@@ -8,9 +8,6 @@ part 'staff_task.freezed.dart';
 /// This is the API equivalent of the old schedule CSV: it ties a staff member
 /// to a task on a property for a date, and resolves a [StaffTaskTime]'s
 /// `TaskID` to its property.
-///
-/// (Pay fields on this endpoint come back as 0, so pay is taken from an
-/// uploaded CSV instead.)
 @freezed
 abstract class StaffTask with _$StaffTask {
   const StaffTask._();
@@ -21,6 +18,10 @@ abstract class StaffTask with _$StaffTask {
     required int propertyId,
     @Default('') String taskName,
     DateTime? taskDate,
+    /// The staff member's hourly rate on this task, from the API's `PayRate`.
+    /// 0 when Operto has no rate on the record; [OpertoPayrollBuilder] takes a
+    /// worker's rate from their latest task carrying a non-zero one.
+    @Default(0) double payRate,
     /// Time spent on the task, parsed from the API's `HH:MM:SS` `TimeTracked`
     /// string. Null when not tracked. Compared against the unit's
     /// `maxCleanTime` to decide whether a checkout clean counts for the bonus.
@@ -33,6 +34,7 @@ abstract class StaffTask with _$StaffTask {
         propertyId: opertoInt(json['PropertyID']) ?? 0,
         taskName: (json['TaskName'] as String?)?.trim() ?? '',
         taskDate: parseOpertoDate(json['TaskDate']),
+        payRate: opertoDouble(json['PayRate']) ?? 0,
         timeTracked: parseOpertoElapsed(json['TimeTracked']),
       );
 }

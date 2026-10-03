@@ -14,7 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StaffTask {
 
- int get taskId; int get staffId; int get propertyId; String get taskName; DateTime? get taskDate;/// Time spent on the task, parsed from the API's `HH:MM:SS` `TimeTracked`
+ int get taskId; int get staffId; int get propertyId; String get taskName; DateTime? get taskDate;/// The staff member's hourly rate on this task, from the API's `PayRate`.
+/// 0 when Operto has no rate on the record; [OpertoPayrollBuilder] takes a
+/// worker's rate from their latest task carrying a non-zero one.
+ double get payRate;/// Time spent on the task, parsed from the API's `HH:MM:SS` `TimeTracked`
 /// string. Null when not tracked. Compared against the unit's
 /// `maxCleanTime` to decide whether a checkout clean counts for the bonus.
  Duration? get timeTracked;
@@ -28,16 +31,16 @@ $StaffTaskCopyWith<StaffTask> get copyWith => _$StaffTaskCopyWithImpl<StaffTask>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StaffTask&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.propertyId, propertyId) || other.propertyId == propertyId)&&(identical(other.taskName, taskName) || other.taskName == taskName)&&(identical(other.taskDate, taskDate) || other.taskDate == taskDate)&&(identical(other.timeTracked, timeTracked) || other.timeTracked == timeTracked));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StaffTask&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.propertyId, propertyId) || other.propertyId == propertyId)&&(identical(other.taskName, taskName) || other.taskName == taskName)&&(identical(other.taskDate, taskDate) || other.taskDate == taskDate)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.timeTracked, timeTracked) || other.timeTracked == timeTracked));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,taskId,staffId,propertyId,taskName,taskDate,timeTracked);
+int get hashCode => Object.hash(runtimeType,taskId,staffId,propertyId,taskName,taskDate,payRate,timeTracked);
 
 @override
 String toString() {
-  return 'StaffTask(taskId: $taskId, staffId: $staffId, propertyId: $propertyId, taskName: $taskName, taskDate: $taskDate, timeTracked: $timeTracked)';
+  return 'StaffTask(taskId: $taskId, staffId: $staffId, propertyId: $propertyId, taskName: $taskName, taskDate: $taskDate, payRate: $payRate, timeTracked: $timeTracked)';
 }
 
 
@@ -48,7 +51,7 @@ abstract mixin class $StaffTaskCopyWith<$Res>  {
   factory $StaffTaskCopyWith(StaffTask value, $Res Function(StaffTask) _then) = _$StaffTaskCopyWithImpl;
 @useResult
 $Res call({
- int taskId, int staffId, int propertyId, String taskName, DateTime? taskDate, Duration? timeTracked
+ int taskId, int staffId, int propertyId, String taskName, DateTime? taskDate, double payRate, Duration? timeTracked
 });
 
 
@@ -65,14 +68,15 @@ class _$StaffTaskCopyWithImpl<$Res>
 
 /// Create a copy of StaffTask
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? staffId = null,Object? propertyId = null,Object? taskName = null,Object? taskDate = freezed,Object? timeTracked = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,Object? staffId = null,Object? propertyId = null,Object? taskName = null,Object? taskDate = freezed,Object? payRate = null,Object? timeTracked = freezed,}) {
   return _then(_self.copyWith(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as int,staffId: null == staffId ? _self.staffId : staffId // ignore: cast_nullable_to_non_nullable
 as int,propertyId: null == propertyId ? _self.propertyId : propertyId // ignore: cast_nullable_to_non_nullable
 as int,taskName: null == taskName ? _self.taskName : taskName // ignore: cast_nullable_to_non_nullable
 as String,taskDate: freezed == taskDate ? _self.taskDate : taskDate // ignore: cast_nullable_to_non_nullable
-as DateTime?,timeTracked: freezed == timeTracked ? _self.timeTracked : timeTracked // ignore: cast_nullable_to_non_nullable
+as DateTime?,payRate: null == payRate ? _self.payRate : payRate // ignore: cast_nullable_to_non_nullable
+as double,timeTracked: freezed == timeTracked ? _self.timeTracked : timeTracked // ignore: cast_nullable_to_non_nullable
 as Duration?,
   ));
 }
@@ -158,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int taskId,  int staffId,  int propertyId,  String taskName,  DateTime? taskDate,  Duration? timeTracked)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int taskId,  int staffId,  int propertyId,  String taskName,  DateTime? taskDate,  double payRate,  Duration? timeTracked)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StaffTask() when $default != null:
-return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that.taskDate,_that.timeTracked);case _:
+return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that.taskDate,_that.payRate,_that.timeTracked);case _:
   return orElse();
 
 }
@@ -179,10 +183,10 @@ return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int taskId,  int staffId,  int propertyId,  String taskName,  DateTime? taskDate,  Duration? timeTracked)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int taskId,  int staffId,  int propertyId,  String taskName,  DateTime? taskDate,  double payRate,  Duration? timeTracked)  $default,) {final _that = this;
 switch (_that) {
 case _StaffTask():
-return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that.taskDate,_that.timeTracked);case _:
+return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that.taskDate,_that.payRate,_that.timeTracked);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +203,10 @@ return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int taskId,  int staffId,  int propertyId,  String taskName,  DateTime? taskDate,  Duration? timeTracked)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int taskId,  int staffId,  int propertyId,  String taskName,  DateTime? taskDate,  double payRate,  Duration? timeTracked)?  $default,) {final _that = this;
 switch (_that) {
 case _StaffTask() when $default != null:
-return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that.taskDate,_that.timeTracked);case _:
+return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that.taskDate,_that.payRate,_that.timeTracked);case _:
   return null;
 
 }
@@ -214,7 +218,7 @@ return $default(_that.taskId,_that.staffId,_that.propertyId,_that.taskName,_that
 
 
 class _StaffTask extends StaffTask {
-  const _StaffTask({required this.taskId, required this.staffId, required this.propertyId, this.taskName = '', this.taskDate, this.timeTracked}): super._();
+  const _StaffTask({required this.taskId, required this.staffId, required this.propertyId, this.taskName = '', this.taskDate, this.payRate = 0, this.timeTracked}): super._();
   
 
 @override final  int taskId;
@@ -222,6 +226,10 @@ class _StaffTask extends StaffTask {
 @override final  int propertyId;
 @override@JsonKey() final  String taskName;
 @override final  DateTime? taskDate;
+/// The staff member's hourly rate on this task, from the API's `PayRate`.
+/// 0 when Operto has no rate on the record; [OpertoPayrollBuilder] takes a
+/// worker's rate from their latest task carrying a non-zero one.
+@override@JsonKey() final  double payRate;
 /// Time spent on the task, parsed from the API's `HH:MM:SS` `TimeTracked`
 /// string. Null when not tracked. Compared against the unit's
 /// `maxCleanTime` to decide whether a checkout clean counts for the bonus.
@@ -237,16 +245,16 @@ _$StaffTaskCopyWith<_StaffTask> get copyWith => __$StaffTaskCopyWithImpl<_StaffT
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StaffTask&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.propertyId, propertyId) || other.propertyId == propertyId)&&(identical(other.taskName, taskName) || other.taskName == taskName)&&(identical(other.taskDate, taskDate) || other.taskDate == taskDate)&&(identical(other.timeTracked, timeTracked) || other.timeTracked == timeTracked));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StaffTask&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.staffId, staffId) || other.staffId == staffId)&&(identical(other.propertyId, propertyId) || other.propertyId == propertyId)&&(identical(other.taskName, taskName) || other.taskName == taskName)&&(identical(other.taskDate, taskDate) || other.taskDate == taskDate)&&(identical(other.payRate, payRate) || other.payRate == payRate)&&(identical(other.timeTracked, timeTracked) || other.timeTracked == timeTracked));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,taskId,staffId,propertyId,taskName,taskDate,timeTracked);
+int get hashCode => Object.hash(runtimeType,taskId,staffId,propertyId,taskName,taskDate,payRate,timeTracked);
 
 @override
 String toString() {
-  return 'StaffTask(taskId: $taskId, staffId: $staffId, propertyId: $propertyId, taskName: $taskName, taskDate: $taskDate, timeTracked: $timeTracked)';
+  return 'StaffTask(taskId: $taskId, staffId: $staffId, propertyId: $propertyId, taskName: $taskName, taskDate: $taskDate, payRate: $payRate, timeTracked: $timeTracked)';
 }
 
 
@@ -257,7 +265,7 @@ abstract mixin class _$StaffTaskCopyWith<$Res> implements $StaffTaskCopyWith<$Re
   factory _$StaffTaskCopyWith(_StaffTask value, $Res Function(_StaffTask) _then) = __$StaffTaskCopyWithImpl;
 @override @useResult
 $Res call({
- int taskId, int staffId, int propertyId, String taskName, DateTime? taskDate, Duration? timeTracked
+ int taskId, int staffId, int propertyId, String taskName, DateTime? taskDate, double payRate, Duration? timeTracked
 });
 
 
@@ -274,14 +282,15 @@ class __$StaffTaskCopyWithImpl<$Res>
 
 /// Create a copy of StaffTask
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? staffId = null,Object? propertyId = null,Object? taskName = null,Object? taskDate = freezed,Object? timeTracked = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? staffId = null,Object? propertyId = null,Object? taskName = null,Object? taskDate = freezed,Object? payRate = null,Object? timeTracked = freezed,}) {
   return _then(_StaffTask(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as int,staffId: null == staffId ? _self.staffId : staffId // ignore: cast_nullable_to_non_nullable
 as int,propertyId: null == propertyId ? _self.propertyId : propertyId // ignore: cast_nullable_to_non_nullable
 as int,taskName: null == taskName ? _self.taskName : taskName // ignore: cast_nullable_to_non_nullable
 as String,taskDate: freezed == taskDate ? _self.taskDate : taskDate // ignore: cast_nullable_to_non_nullable
-as DateTime?,timeTracked: freezed == timeTracked ? _self.timeTracked : timeTracked // ignore: cast_nullable_to_non_nullable
+as DateTime?,payRate: null == payRate ? _self.payRate : payRate // ignore: cast_nullable_to_non_nullable
+as double,timeTracked: freezed == timeTracked ? _self.timeTracked : timeTracked // ignore: cast_nullable_to_non_nullable
 as Duration?,
   ));
 }

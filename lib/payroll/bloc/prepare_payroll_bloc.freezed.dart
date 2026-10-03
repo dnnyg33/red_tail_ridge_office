@@ -55,12 +55,12 @@ extension PreparePayrollEventPatterns on PreparePayrollEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _PreparePayrollStarted value)?  started,TResult Function( _PreparePayrollPayRateFileSelected value)?  payRateFileSelected,TResult Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _PreparePayrollStarted value)?  started,TResult Function( _PreparePayrollBonusEligibilityChanged value)?  bonusEligibilityChanged,TResult Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
-return started(_that);case _PreparePayrollPayRateFileSelected() when payRateFileSelected != null:
-return payRateFileSelected(_that);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return started(_that);case _PreparePayrollBonusEligibilityChanged() when bonusEligibilityChanged != null:
+return bonusEligibilityChanged(_that);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that);case _PreparePayrollHeathDeductionsChanged() when heathDeductionsChanged != null:
 return heathDeductionsChanged(_that);case _PreparePayrollCleaningRevenueChanged() when cleaningRevenueChanged != null:
 return cleaningRevenueChanged(_that);case _PreparePayrollStartDateChanged() when startDateChanged != null:
@@ -84,12 +84,12 @@ return staffDayTimesRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _PreparePayrollStarted value)  started,required TResult Function( _PreparePayrollPayRateFileSelected value)  payRateFileSelected,required TResult Function( _PreparePayrollMileageConstantChanged value)  mileageConstantChanged,required TResult Function( _PreparePayrollHeathDeductionsChanged value)  heathDeductionsChanged,required TResult Function( _PreparePayrollCleaningRevenueChanged value)  cleaningRevenueChanged,required TResult Function( _PreparePayrollStartDateChanged value)  startDateChanged,required TResult Function( _PreparePayrollEndDateChanged value)  endDateChanged,required TResult Function( _PreparePayrollStaffDayTimesRequested value)  staffDayTimesRequested,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _PreparePayrollStarted value)  started,required TResult Function( _PreparePayrollBonusEligibilityChanged value)  bonusEligibilityChanged,required TResult Function( _PreparePayrollMileageConstantChanged value)  mileageConstantChanged,required TResult Function( _PreparePayrollHeathDeductionsChanged value)  heathDeductionsChanged,required TResult Function( _PreparePayrollCleaningRevenueChanged value)  cleaningRevenueChanged,required TResult Function( _PreparePayrollStartDateChanged value)  startDateChanged,required TResult Function( _PreparePayrollEndDateChanged value)  endDateChanged,required TResult Function( _PreparePayrollStaffDayTimesRequested value)  staffDayTimesRequested,}){
 final _that = this;
 switch (_that) {
 case _PreparePayrollStarted():
-return started(_that);case _PreparePayrollPayRateFileSelected():
-return payRateFileSelected(_that);case _PreparePayrollMileageConstantChanged():
+return started(_that);case _PreparePayrollBonusEligibilityChanged():
+return bonusEligibilityChanged(_that);case _PreparePayrollMileageConstantChanged():
 return mileageConstantChanged(_that);case _PreparePayrollHeathDeductionsChanged():
 return heathDeductionsChanged(_that);case _PreparePayrollCleaningRevenueChanged():
 return cleaningRevenueChanged(_that);case _PreparePayrollStartDateChanged():
@@ -109,12 +109,12 @@ return staffDayTimesRequested(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _PreparePayrollStarted value)?  started,TResult? Function( _PreparePayrollPayRateFileSelected value)?  payRateFileSelected,TResult? Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult? Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult? Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult? Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult? Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult? Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _PreparePayrollStarted value)?  started,TResult? Function( _PreparePayrollBonusEligibilityChanged value)?  bonusEligibilityChanged,TResult? Function( _PreparePayrollMileageConstantChanged value)?  mileageConstantChanged,TResult? Function( _PreparePayrollHeathDeductionsChanged value)?  heathDeductionsChanged,TResult? Function( _PreparePayrollCleaningRevenueChanged value)?  cleaningRevenueChanged,TResult? Function( _PreparePayrollStartDateChanged value)?  startDateChanged,TResult? Function( _PreparePayrollEndDateChanged value)?  endDateChanged,TResult? Function( _PreparePayrollStaffDayTimesRequested value)?  staffDayTimesRequested,}){
 final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
-return started(_that);case _PreparePayrollPayRateFileSelected() when payRateFileSelected != null:
-return payRateFileSelected(_that);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return started(_that);case _PreparePayrollBonusEligibilityChanged() when bonusEligibilityChanged != null:
+return bonusEligibilityChanged(_that);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that);case _PreparePayrollHeathDeductionsChanged() when heathDeductionsChanged != null:
 return heathDeductionsChanged(_that);case _PreparePayrollCleaningRevenueChanged() when cleaningRevenueChanged != null:
 return cleaningRevenueChanged(_that);case _PreparePayrollStartDateChanged() when startDateChanged != null:
@@ -137,11 +137,11 @@ return staffDayTimesRequested(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( PlatformFile file)?  payRateFileSelected,TResult Function( double? value)?  mileageConstantChanged,TResult Function( double? value)?  heathDeductionsChanged,TResult Function( double? value)?  cleaningRevenueChanged,TResult Function( DateTime? date)?  startDateChanged,TResult Function( DateTime? date)?  endDateChanged,TResult Function()?  staffDayTimesRequested,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( Map<int, bool> qualifiesForBonusById)?  bonusEligibilityChanged,TResult Function( double? value)?  mileageConstantChanged,TResult Function( double? value)?  heathDeductionsChanged,TResult Function( double? value)?  cleaningRevenueChanged,TResult Function( DateTime? date)?  startDateChanged,TResult Function( DateTime? date)?  endDateChanged,TResult Function()?  staffDayTimesRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
-return started();case _PreparePayrollPayRateFileSelected() when payRateFileSelected != null:
-return payRateFileSelected(_that.file);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return started();case _PreparePayrollBonusEligibilityChanged() when bonusEligibilityChanged != null:
+return bonusEligibilityChanged(_that.qualifiesForBonusById);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that.value);case _PreparePayrollHeathDeductionsChanged() when heathDeductionsChanged != null:
 return heathDeductionsChanged(_that.value);case _PreparePayrollCleaningRevenueChanged() when cleaningRevenueChanged != null:
 return cleaningRevenueChanged(_that.value);case _PreparePayrollStartDateChanged() when startDateChanged != null:
@@ -165,11 +165,11 @@ return staffDayTimesRequested();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( PlatformFile file)  payRateFileSelected,required TResult Function( double? value)  mileageConstantChanged,required TResult Function( double? value)  heathDeductionsChanged,required TResult Function( double? value)  cleaningRevenueChanged,required TResult Function( DateTime? date)  startDateChanged,required TResult Function( DateTime? date)  endDateChanged,required TResult Function()  staffDayTimesRequested,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( Map<int, bool> qualifiesForBonusById)  bonusEligibilityChanged,required TResult Function( double? value)  mileageConstantChanged,required TResult Function( double? value)  heathDeductionsChanged,required TResult Function( double? value)  cleaningRevenueChanged,required TResult Function( DateTime? date)  startDateChanged,required TResult Function( DateTime? date)  endDateChanged,required TResult Function()  staffDayTimesRequested,}) {final _that = this;
 switch (_that) {
 case _PreparePayrollStarted():
-return started();case _PreparePayrollPayRateFileSelected():
-return payRateFileSelected(_that.file);case _PreparePayrollMileageConstantChanged():
+return started();case _PreparePayrollBonusEligibilityChanged():
+return bonusEligibilityChanged(_that.qualifiesForBonusById);case _PreparePayrollMileageConstantChanged():
 return mileageConstantChanged(_that.value);case _PreparePayrollHeathDeductionsChanged():
 return heathDeductionsChanged(_that.value);case _PreparePayrollCleaningRevenueChanged():
 return cleaningRevenueChanged(_that.value);case _PreparePayrollStartDateChanged():
@@ -189,11 +189,11 @@ return staffDayTimesRequested();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( PlatformFile file)?  payRateFileSelected,TResult? Function( double? value)?  mileageConstantChanged,TResult? Function( double? value)?  heathDeductionsChanged,TResult? Function( double? value)?  cleaningRevenueChanged,TResult? Function( DateTime? date)?  startDateChanged,TResult? Function( DateTime? date)?  endDateChanged,TResult? Function()?  staffDayTimesRequested,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( Map<int, bool> qualifiesForBonusById)?  bonusEligibilityChanged,TResult? Function( double? value)?  mileageConstantChanged,TResult? Function( double? value)?  heathDeductionsChanged,TResult? Function( double? value)?  cleaningRevenueChanged,TResult? Function( DateTime? date)?  startDateChanged,TResult? Function( DateTime? date)?  endDateChanged,TResult? Function()?  staffDayTimesRequested,}) {final _that = this;
 switch (_that) {
 case _PreparePayrollStarted() when started != null:
-return started();case _PreparePayrollPayRateFileSelected() when payRateFileSelected != null:
-return payRateFileSelected(_that.file);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
+return started();case _PreparePayrollBonusEligibilityChanged() when bonusEligibilityChanged != null:
+return bonusEligibilityChanged(_that.qualifiesForBonusById);case _PreparePayrollMileageConstantChanged() when mileageConstantChanged != null:
 return mileageConstantChanged(_that.value);case _PreparePayrollHeathDeductionsChanged() when heathDeductionsChanged != null:
 return heathDeductionsChanged(_that.value);case _PreparePayrollCleaningRevenueChanged() when cleaningRevenueChanged != null:
 return cleaningRevenueChanged(_that.value);case _PreparePayrollStartDateChanged() when startDateChanged != null:
@@ -242,43 +242,49 @@ String toString() {
 /// @nodoc
 
 
-class _PreparePayrollPayRateFileSelected implements PreparePayrollEvent {
-  const _PreparePayrollPayRateFileSelected(this.file);
+class _PreparePayrollBonusEligibilityChanged implements PreparePayrollEvent {
+  const _PreparePayrollBonusEligibilityChanged(final  Map<int, bool> qualifiesForBonusById): _qualifiesForBonusById = qualifiesForBonusById;
   
 
- final  PlatformFile file;
+ final  Map<int, bool> _qualifiesForBonusById;
+ Map<int, bool> get qualifiesForBonusById {
+  if (_qualifiesForBonusById is EqualUnmodifiableMapView) return _qualifiesForBonusById;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_qualifiesForBonusById);
+}
+
 
 /// Create a copy of PreparePayrollEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$PreparePayrollPayRateFileSelectedCopyWith<_PreparePayrollPayRateFileSelected> get copyWith => __$PreparePayrollPayRateFileSelectedCopyWithImpl<_PreparePayrollPayRateFileSelected>(this, _$identity);
+_$PreparePayrollBonusEligibilityChangedCopyWith<_PreparePayrollBonusEligibilityChanged> get copyWith => __$PreparePayrollBonusEligibilityChangedCopyWithImpl<_PreparePayrollBonusEligibilityChanged>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollPayRateFileSelected&&(identical(other.file, file) || other.file == file));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollBonusEligibilityChanged&&const DeepCollectionEquality().equals(other._qualifiesForBonusById, _qualifiesForBonusById));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,file);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_qualifiesForBonusById));
 
 @override
 String toString() {
-  return 'PreparePayrollEvent.payRateFileSelected(file: $file)';
+  return 'PreparePayrollEvent.bonusEligibilityChanged(qualifiesForBonusById: $qualifiesForBonusById)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$PreparePayrollPayRateFileSelectedCopyWith<$Res> implements $PreparePayrollEventCopyWith<$Res> {
-  factory _$PreparePayrollPayRateFileSelectedCopyWith(_PreparePayrollPayRateFileSelected value, $Res Function(_PreparePayrollPayRateFileSelected) _then) = __$PreparePayrollPayRateFileSelectedCopyWithImpl;
+abstract mixin class _$PreparePayrollBonusEligibilityChangedCopyWith<$Res> implements $PreparePayrollEventCopyWith<$Res> {
+  factory _$PreparePayrollBonusEligibilityChangedCopyWith(_PreparePayrollBonusEligibilityChanged value, $Res Function(_PreparePayrollBonusEligibilityChanged) _then) = __$PreparePayrollBonusEligibilityChangedCopyWithImpl;
 @useResult
 $Res call({
- PlatformFile file
+ Map<int, bool> qualifiesForBonusById
 });
 
 
@@ -286,19 +292,19 @@ $Res call({
 
 }
 /// @nodoc
-class __$PreparePayrollPayRateFileSelectedCopyWithImpl<$Res>
-    implements _$PreparePayrollPayRateFileSelectedCopyWith<$Res> {
-  __$PreparePayrollPayRateFileSelectedCopyWithImpl(this._self, this._then);
+class __$PreparePayrollBonusEligibilityChangedCopyWithImpl<$Res>
+    implements _$PreparePayrollBonusEligibilityChangedCopyWith<$Res> {
+  __$PreparePayrollBonusEligibilityChangedCopyWithImpl(this._self, this._then);
 
-  final _PreparePayrollPayRateFileSelected _self;
-  final $Res Function(_PreparePayrollPayRateFileSelected) _then;
+  final _PreparePayrollBonusEligibilityChanged _self;
+  final $Res Function(_PreparePayrollBonusEligibilityChanged) _then;
 
 /// Create a copy of PreparePayrollEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? file = null,}) {
-  return _then(_PreparePayrollPayRateFileSelected(
-null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
-as PlatformFile,
+@pragma('vm:prefer-inline') $Res call({Object? qualifiesForBonusById = null,}) {
+  return _then(_PreparePayrollBonusEligibilityChanged(
+null == qualifiesForBonusById ? _self._qualifiesForBonusById : qualifiesForBonusById // ignore: cast_nullable_to_non_nullable
+as Map<int, bool>,
   ));
 }
 
@@ -670,7 +676,10 @@ String toString() {
 /// @nodoc
 mixin _$PreparePayrollState {
 
- AsyncOperation<List<WorkerRow>> get workerRows; DateTime? get payPeriodStart; DateTime? get payPeriodEnd; PlatformFile? get payRateFile; double? get mileageConstant; double? get heathDeductions; double? get cleaningRevenue; DateTime? get startDate; DateTime? get endDate; AsyncOperation<List<StaffDayTime>> get staffDayTimes; List<StaffTaskTime> get staffTaskTimes; List<StaffTask> get staffTasks; Map<int, String> get staffNamesById;
+ AsyncOperation<List<WorkerRow>> get workerRows; DateTime? get payPeriodStart; DateTime? get payPeriodEnd; double? get mileageConstant; double? get heathDeductions; double? get cleaningRevenue; DateTime? get startDate; DateTime? get endDate; AsyncOperation<List<StaffDayTime>> get staffDayTimes; List<StaffTaskTime> get staffTaskTimes; List<StaffTask> get staffTasks; Map<int, String> get staffNamesById;/// Workers (by Operto `StaffID`) whose cleans earn a share of the bonus
+/// pot. Operto exposes no such field, so it's entered in-app and persisted
+/// across runs; a worker absent from the map does not qualify.
+ Map<int, bool> get qualifiesForBonusById;
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -681,16 +690,16 @@ $PreparePayrollStateCopyWith<PreparePayrollState> get copyWith => _$PreparePayro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.payRateFile, payRateFile) || other.payRateFile == payRateFile)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant)&&(identical(other.heathDeductions, heathDeductions) || other.heathDeductions == heathDeductions)&&(identical(other.cleaningRevenue, cleaningRevenue) || other.cleaningRevenue == cleaningRevenue)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.staffDayTimes, staffDayTimes) || other.staffDayTimes == staffDayTimes)&&const DeepCollectionEquality().equals(other.staffTaskTimes, staffTaskTimes)&&const DeepCollectionEquality().equals(other.staffTasks, staffTasks)&&const DeepCollectionEquality().equals(other.staffNamesById, staffNamesById));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant)&&(identical(other.heathDeductions, heathDeductions) || other.heathDeductions == heathDeductions)&&(identical(other.cleaningRevenue, cleaningRevenue) || other.cleaningRevenue == cleaningRevenue)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.staffDayTimes, staffDayTimes) || other.staffDayTimes == staffDayTimes)&&const DeepCollectionEquality().equals(other.staffTaskTimes, staffTaskTimes)&&const DeepCollectionEquality().equals(other.staffTasks, staffTasks)&&const DeepCollectionEquality().equals(other.staffNamesById, staffNamesById)&&const DeepCollectionEquality().equals(other.qualifiesForBonusById, qualifiesForBonusById));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,payRateFile,mileageConstant,heathDeductions,cleaningRevenue,startDate,endDate,staffDayTimes,const DeepCollectionEquality().hash(staffTaskTimes),const DeepCollectionEquality().hash(staffTasks),const DeepCollectionEquality().hash(staffNamesById));
+int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,mileageConstant,heathDeductions,cleaningRevenue,startDate,endDate,staffDayTimes,const DeepCollectionEquality().hash(staffTaskTimes),const DeepCollectionEquality().hash(staffTasks),const DeepCollectionEquality().hash(staffNamesById),const DeepCollectionEquality().hash(qualifiesForBonusById));
 
 @override
 String toString() {
-  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, payRateFile: $payRateFile, mileageConstant: $mileageConstant, heathDeductions: $heathDeductions, cleaningRevenue: $cleaningRevenue, startDate: $startDate, endDate: $endDate, staffDayTimes: $staffDayTimes, staffTaskTimes: $staffTaskTimes, staffTasks: $staffTasks, staffNamesById: $staffNamesById)';
+  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, mileageConstant: $mileageConstant, heathDeductions: $heathDeductions, cleaningRevenue: $cleaningRevenue, startDate: $startDate, endDate: $endDate, staffDayTimes: $staffDayTimes, staffTaskTimes: $staffTaskTimes, staffTasks: $staffTasks, staffNamesById: $staffNamesById, qualifiesForBonusById: $qualifiesForBonusById)';
 }
 
 
@@ -701,7 +710,7 @@ abstract mixin class $PreparePayrollStateCopyWith<$Res>  {
   factory $PreparePayrollStateCopyWith(PreparePayrollState value, $Res Function(PreparePayrollState) _then) = _$PreparePayrollStateCopyWithImpl;
 @useResult
 $Res call({
- AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, PlatformFile? payRateFile, double? mileageConstant, double? heathDeductions, double? cleaningRevenue, DateTime? startDate, DateTime? endDate, AsyncOperation<List<StaffDayTime>> staffDayTimes, List<StaffTaskTime> staffTaskTimes, List<StaffTask> staffTasks, Map<int, String> staffNamesById
+ AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, double? mileageConstant, double? heathDeductions, double? cleaningRevenue, DateTime? startDate, DateTime? endDate, AsyncOperation<List<StaffDayTime>> staffDayTimes, List<StaffTaskTime> staffTaskTimes, List<StaffTask> staffTasks, Map<int, String> staffNamesById, Map<int, bool> qualifiesForBonusById
 });
 
 
@@ -718,13 +727,12 @@ class _$PreparePayrollStateCopyWithImpl<$Res>
 
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? payRateFile = freezed,Object? mileageConstant = freezed,Object? heathDeductions = freezed,Object? cleaningRevenue = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? staffDayTimes = null,Object? staffTaskTimes = null,Object? staffTasks = null,Object? staffNamesById = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? mileageConstant = freezed,Object? heathDeductions = freezed,Object? cleaningRevenue = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? staffDayTimes = null,Object? staffTaskTimes = null,Object? staffTasks = null,Object? staffNamesById = null,Object? qualifiesForBonusById = null,}) {
   return _then(_self.copyWith(
 workerRows: null == workerRows ? _self.workerRows : workerRows // ignore: cast_nullable_to_non_nullable
 as AsyncOperation<List<WorkerRow>>,payPeriodStart: freezed == payPeriodStart ? _self.payPeriodStart : payPeriodStart // ignore: cast_nullable_to_non_nullable
 as DateTime?,payPeriodEnd: freezed == payPeriodEnd ? _self.payPeriodEnd : payPeriodEnd // ignore: cast_nullable_to_non_nullable
-as DateTime?,payRateFile: freezed == payRateFile ? _self.payRateFile : payRateFile // ignore: cast_nullable_to_non_nullable
-as PlatformFile?,mileageConstant: freezed == mileageConstant ? _self.mileageConstant : mileageConstant // ignore: cast_nullable_to_non_nullable
+as DateTime?,mileageConstant: freezed == mileageConstant ? _self.mileageConstant : mileageConstant // ignore: cast_nullable_to_non_nullable
 as double?,heathDeductions: freezed == heathDeductions ? _self.heathDeductions : heathDeductions // ignore: cast_nullable_to_non_nullable
 as double?,cleaningRevenue: freezed == cleaningRevenue ? _self.cleaningRevenue : cleaningRevenue // ignore: cast_nullable_to_non_nullable
 as double?,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
@@ -733,7 +741,8 @@ as DateTime?,staffDayTimes: null == staffDayTimes ? _self.staffDayTimes : staffD
 as AsyncOperation<List<StaffDayTime>>,staffTaskTimes: null == staffTaskTimes ? _self.staffTaskTimes : staffTaskTimes // ignore: cast_nullable_to_non_nullable
 as List<StaffTaskTime>,staffTasks: null == staffTasks ? _self.staffTasks : staffTasks // ignore: cast_nullable_to_non_nullable
 as List<StaffTask>,staffNamesById: null == staffNamesById ? _self.staffNamesById : staffNamesById // ignore: cast_nullable_to_non_nullable
-as Map<int, String>,
+as Map<int, String>,qualifiesForBonusById: null == qualifiesForBonusById ? _self.qualifiesForBonusById : qualifiesForBonusById // ignore: cast_nullable_to_non_nullable
+as Map<int, bool>,
   ));
 }
 /// Create a copy of PreparePayrollState
@@ -836,10 +845,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? payRateFile,  double? mileageConstant,  double? heathDeductions,  double? cleaningRevenue,  DateTime? startDate,  DateTime? endDate,  AsyncOperation<List<StaffDayTime>> staffDayTimes,  List<StaffTaskTime> staffTaskTimes,  List<StaffTask> staffTasks,  Map<int, String> staffNamesById)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  double? mileageConstant,  double? heathDeductions,  double? cleaningRevenue,  DateTime? startDate,  DateTime? endDate,  AsyncOperation<List<StaffDayTime>> staffDayTimes,  List<StaffTaskTime> staffTaskTimes,  List<StaffTask> staffTasks,  Map<int, String> staffNamesById,  Map<int, bool> qualifiesForBonusById)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreparePayrollState() when $default != null:
-return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.payRateFile,_that.mileageConstant,_that.heathDeductions,_that.cleaningRevenue,_that.startDate,_that.endDate,_that.staffDayTimes,_that.staffTaskTimes,_that.staffTasks,_that.staffNamesById);case _:
+return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.mileageConstant,_that.heathDeductions,_that.cleaningRevenue,_that.startDate,_that.endDate,_that.staffDayTimes,_that.staffTaskTimes,_that.staffTasks,_that.staffNamesById,_that.qualifiesForBonusById);case _:
   return orElse();
 
 }
@@ -857,10 +866,10 @@ return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? payRateFile,  double? mileageConstant,  double? heathDeductions,  double? cleaningRevenue,  DateTime? startDate,  DateTime? endDate,  AsyncOperation<List<StaffDayTime>> staffDayTimes,  List<StaffTaskTime> staffTaskTimes,  List<StaffTask> staffTasks,  Map<int, String> staffNamesById)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  double? mileageConstant,  double? heathDeductions,  double? cleaningRevenue,  DateTime? startDate,  DateTime? endDate,  AsyncOperation<List<StaffDayTime>> staffDayTimes,  List<StaffTaskTime> staffTaskTimes,  List<StaffTask> staffTasks,  Map<int, String> staffNamesById,  Map<int, bool> qualifiesForBonusById)  $default,) {final _that = this;
 switch (_that) {
 case _PreparePayrollState():
-return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.payRateFile,_that.mileageConstant,_that.heathDeductions,_that.cleaningRevenue,_that.startDate,_that.endDate,_that.staffDayTimes,_that.staffTaskTimes,_that.staffTasks,_that.staffNamesById);case _:
+return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.mileageConstant,_that.heathDeductions,_that.cleaningRevenue,_that.startDate,_that.endDate,_that.staffDayTimes,_that.staffTaskTimes,_that.staffTasks,_that.staffNamesById,_that.qualifiesForBonusById);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -877,10 +886,10 @@ return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.p
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  PlatformFile? payRateFile,  double? mileageConstant,  double? heathDeductions,  double? cleaningRevenue,  DateTime? startDate,  DateTime? endDate,  AsyncOperation<List<StaffDayTime>> staffDayTimes,  List<StaffTaskTime> staffTaskTimes,  List<StaffTask> staffTasks,  Map<int, String> staffNamesById)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AsyncOperation<List<WorkerRow>> workerRows,  DateTime? payPeriodStart,  DateTime? payPeriodEnd,  double? mileageConstant,  double? heathDeductions,  double? cleaningRevenue,  DateTime? startDate,  DateTime? endDate,  AsyncOperation<List<StaffDayTime>> staffDayTimes,  List<StaffTaskTime> staffTaskTimes,  List<StaffTask> staffTasks,  Map<int, String> staffNamesById,  Map<int, bool> qualifiesForBonusById)?  $default,) {final _that = this;
 switch (_that) {
 case _PreparePayrollState() when $default != null:
-return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.payRateFile,_that.mileageConstant,_that.heathDeductions,_that.cleaningRevenue,_that.startDate,_that.endDate,_that.staffDayTimes,_that.staffTaskTimes,_that.staffTasks,_that.staffNamesById);case _:
+return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.mileageConstant,_that.heathDeductions,_that.cleaningRevenue,_that.startDate,_that.endDate,_that.staffDayTimes,_that.staffTaskTimes,_that.staffTasks,_that.staffNamesById,_that.qualifiesForBonusById);case _:
   return null;
 
 }
@@ -892,13 +901,12 @@ return $default(_that.workerRows,_that.payPeriodStart,_that.payPeriodEnd,_that.p
 
 
 class _PreparePayrollState extends PreparePayrollState {
-  const _PreparePayrollState({this.workerRows = const AsyncOperation.idle(), this.payPeriodStart, this.payPeriodEnd, this.payRateFile, this.mileageConstant = 0.725, this.heathDeductions, this.cleaningRevenue, this.startDate, this.endDate, this.staffDayTimes = const AsyncOperation.idle(), final  List<StaffTaskTime> staffTaskTimes = const <StaffTaskTime>[], final  List<StaffTask> staffTasks = const <StaffTask>[], final  Map<int, String> staffNamesById = const <int, String>{}}): _staffTaskTimes = staffTaskTimes,_staffTasks = staffTasks,_staffNamesById = staffNamesById,super._();
+  const _PreparePayrollState({this.workerRows = const AsyncOperation.idle(), this.payPeriodStart, this.payPeriodEnd, this.mileageConstant = 0.725, this.heathDeductions, this.cleaningRevenue, this.startDate, this.endDate, this.staffDayTimes = const AsyncOperation.idle(), final  List<StaffTaskTime> staffTaskTimes = const <StaffTaskTime>[], final  List<StaffTask> staffTasks = const <StaffTask>[], final  Map<int, String> staffNamesById = const <int, String>{}, final  Map<int, bool> qualifiesForBonusById = const <int, bool>{}}): _staffTaskTimes = staffTaskTimes,_staffTasks = staffTasks,_staffNamesById = staffNamesById,_qualifiesForBonusById = qualifiesForBonusById,super._();
   
 
 @override@JsonKey() final  AsyncOperation<List<WorkerRow>> workerRows;
 @override final  DateTime? payPeriodStart;
 @override final  DateTime? payPeriodEnd;
-@override final  PlatformFile? payRateFile;
 @override@JsonKey() final  double? mileageConstant;
 @override final  double? heathDeductions;
 @override final  double? cleaningRevenue;
@@ -926,6 +934,19 @@ class _PreparePayrollState extends PreparePayrollState {
   return EqualUnmodifiableMapView(_staffNamesById);
 }
 
+/// Workers (by Operto `StaffID`) whose cleans earn a share of the bonus
+/// pot. Operto exposes no such field, so it's entered in-app and persisted
+/// across runs; a worker absent from the map does not qualify.
+ final  Map<int, bool> _qualifiesForBonusById;
+/// Workers (by Operto `StaffID`) whose cleans earn a share of the bonus
+/// pot. Operto exposes no such field, so it's entered in-app and persisted
+/// across runs; a worker absent from the map does not qualify.
+@override@JsonKey() Map<int, bool> get qualifiesForBonusById {
+  if (_qualifiesForBonusById is EqualUnmodifiableMapView) return _qualifiesForBonusById;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_qualifiesForBonusById);
+}
+
 
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
@@ -937,16 +958,16 @@ _$PreparePayrollStateCopyWith<_PreparePayrollState> get copyWith => __$PreparePa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.payRateFile, payRateFile) || other.payRateFile == payRateFile)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant)&&(identical(other.heathDeductions, heathDeductions) || other.heathDeductions == heathDeductions)&&(identical(other.cleaningRevenue, cleaningRevenue) || other.cleaningRevenue == cleaningRevenue)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.staffDayTimes, staffDayTimes) || other.staffDayTimes == staffDayTimes)&&const DeepCollectionEquality().equals(other._staffTaskTimes, _staffTaskTimes)&&const DeepCollectionEquality().equals(other._staffTasks, _staffTasks)&&const DeepCollectionEquality().equals(other._staffNamesById, _staffNamesById));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreparePayrollState&&(identical(other.workerRows, workerRows) || other.workerRows == workerRows)&&(identical(other.payPeriodStart, payPeriodStart) || other.payPeriodStart == payPeriodStart)&&(identical(other.payPeriodEnd, payPeriodEnd) || other.payPeriodEnd == payPeriodEnd)&&(identical(other.mileageConstant, mileageConstant) || other.mileageConstant == mileageConstant)&&(identical(other.heathDeductions, heathDeductions) || other.heathDeductions == heathDeductions)&&(identical(other.cleaningRevenue, cleaningRevenue) || other.cleaningRevenue == cleaningRevenue)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.staffDayTimes, staffDayTimes) || other.staffDayTimes == staffDayTimes)&&const DeepCollectionEquality().equals(other._staffTaskTimes, _staffTaskTimes)&&const DeepCollectionEquality().equals(other._staffTasks, _staffTasks)&&const DeepCollectionEquality().equals(other._staffNamesById, _staffNamesById)&&const DeepCollectionEquality().equals(other._qualifiesForBonusById, _qualifiesForBonusById));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,payRateFile,mileageConstant,heathDeductions,cleaningRevenue,startDate,endDate,staffDayTimes,const DeepCollectionEquality().hash(_staffTaskTimes),const DeepCollectionEquality().hash(_staffTasks),const DeepCollectionEquality().hash(_staffNamesById));
+int get hashCode => Object.hash(runtimeType,workerRows,payPeriodStart,payPeriodEnd,mileageConstant,heathDeductions,cleaningRevenue,startDate,endDate,staffDayTimes,const DeepCollectionEquality().hash(_staffTaskTimes),const DeepCollectionEquality().hash(_staffTasks),const DeepCollectionEquality().hash(_staffNamesById),const DeepCollectionEquality().hash(_qualifiesForBonusById));
 
 @override
 String toString() {
-  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, payRateFile: $payRateFile, mileageConstant: $mileageConstant, heathDeductions: $heathDeductions, cleaningRevenue: $cleaningRevenue, startDate: $startDate, endDate: $endDate, staffDayTimes: $staffDayTimes, staffTaskTimes: $staffTaskTimes, staffTasks: $staffTasks, staffNamesById: $staffNamesById)';
+  return 'PreparePayrollState(workerRows: $workerRows, payPeriodStart: $payPeriodStart, payPeriodEnd: $payPeriodEnd, mileageConstant: $mileageConstant, heathDeductions: $heathDeductions, cleaningRevenue: $cleaningRevenue, startDate: $startDate, endDate: $endDate, staffDayTimes: $staffDayTimes, staffTaskTimes: $staffTaskTimes, staffTasks: $staffTasks, staffNamesById: $staffNamesById, qualifiesForBonusById: $qualifiesForBonusById)';
 }
 
 
@@ -957,7 +978,7 @@ abstract mixin class _$PreparePayrollStateCopyWith<$Res> implements $PreparePayr
   factory _$PreparePayrollStateCopyWith(_PreparePayrollState value, $Res Function(_PreparePayrollState) _then) = __$PreparePayrollStateCopyWithImpl;
 @override @useResult
 $Res call({
- AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, PlatformFile? payRateFile, double? mileageConstant, double? heathDeductions, double? cleaningRevenue, DateTime? startDate, DateTime? endDate, AsyncOperation<List<StaffDayTime>> staffDayTimes, List<StaffTaskTime> staffTaskTimes, List<StaffTask> staffTasks, Map<int, String> staffNamesById
+ AsyncOperation<List<WorkerRow>> workerRows, DateTime? payPeriodStart, DateTime? payPeriodEnd, double? mileageConstant, double? heathDeductions, double? cleaningRevenue, DateTime? startDate, DateTime? endDate, AsyncOperation<List<StaffDayTime>> staffDayTimes, List<StaffTaskTime> staffTaskTimes, List<StaffTask> staffTasks, Map<int, String> staffNamesById, Map<int, bool> qualifiesForBonusById
 });
 
 
@@ -974,13 +995,12 @@ class __$PreparePayrollStateCopyWithImpl<$Res>
 
 /// Create a copy of PreparePayrollState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? payRateFile = freezed,Object? mileageConstant = freezed,Object? heathDeductions = freezed,Object? cleaningRevenue = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? staffDayTimes = null,Object? staffTaskTimes = null,Object? staffTasks = null,Object? staffNamesById = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? workerRows = null,Object? payPeriodStart = freezed,Object? payPeriodEnd = freezed,Object? mileageConstant = freezed,Object? heathDeductions = freezed,Object? cleaningRevenue = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? staffDayTimes = null,Object? staffTaskTimes = null,Object? staffTasks = null,Object? staffNamesById = null,Object? qualifiesForBonusById = null,}) {
   return _then(_PreparePayrollState(
 workerRows: null == workerRows ? _self.workerRows : workerRows // ignore: cast_nullable_to_non_nullable
 as AsyncOperation<List<WorkerRow>>,payPeriodStart: freezed == payPeriodStart ? _self.payPeriodStart : payPeriodStart // ignore: cast_nullable_to_non_nullable
 as DateTime?,payPeriodEnd: freezed == payPeriodEnd ? _self.payPeriodEnd : payPeriodEnd // ignore: cast_nullable_to_non_nullable
-as DateTime?,payRateFile: freezed == payRateFile ? _self.payRateFile : payRateFile // ignore: cast_nullable_to_non_nullable
-as PlatformFile?,mileageConstant: freezed == mileageConstant ? _self.mileageConstant : mileageConstant // ignore: cast_nullable_to_non_nullable
+as DateTime?,mileageConstant: freezed == mileageConstant ? _self.mileageConstant : mileageConstant // ignore: cast_nullable_to_non_nullable
 as double?,heathDeductions: freezed == heathDeductions ? _self.heathDeductions : heathDeductions // ignore: cast_nullable_to_non_nullable
 as double?,cleaningRevenue: freezed == cleaningRevenue ? _self.cleaningRevenue : cleaningRevenue // ignore: cast_nullable_to_non_nullable
 as double?,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
@@ -989,7 +1009,8 @@ as DateTime?,staffDayTimes: null == staffDayTimes ? _self.staffDayTimes : staffD
 as AsyncOperation<List<StaffDayTime>>,staffTaskTimes: null == staffTaskTimes ? _self._staffTaskTimes : staffTaskTimes // ignore: cast_nullable_to_non_nullable
 as List<StaffTaskTime>,staffTasks: null == staffTasks ? _self._staffTasks : staffTasks // ignore: cast_nullable_to_non_nullable
 as List<StaffTask>,staffNamesById: null == staffNamesById ? _self._staffNamesById : staffNamesById // ignore: cast_nullable_to_non_nullable
-as Map<int, String>,
+as Map<int, String>,qualifiesForBonusById: null == qualifiesForBonusById ? _self._qualifiesForBonusById : qualifiesForBonusById // ignore: cast_nullable_to_non_nullable
+as Map<int, bool>,
   ));
 }
 

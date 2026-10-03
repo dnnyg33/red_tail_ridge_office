@@ -11,6 +11,7 @@ import 'package:red_tail_ridge_office/auth/models/auth_provider.dart';
 import 'package:red_tail_ridge_office/auth/models/auth_session.dart';
 import 'package:red_tail_ridge_office/payroll/bloc/prepare_payroll_bloc.dart';
 import 'package:red_tail_ridge_office/payroll/models/staff_day_time.dart';
+import 'package:red_tail_ridge_office/payroll/models/staff_task.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_row.dart';
 import 'package:red_tail_ridge_office/payroll/parsers/operto_payroll_builder.dart';
 import 'package:red_tail_ridge_office/payroll/service/operto_api.dart';
@@ -79,6 +80,20 @@ OpertoApi _mockOpertoApi() {
           ],
           'has_more': false,
         },
+      '/api/v1/stafftasks' => {
+          'data': [
+            {
+              'TaskID': 7,
+              'StaffID': 132,
+              'PropertyID': 126992,
+              'TaskName': 'Check Out Clean',
+              'TaskDate': '20260601',
+              'PayRate': '22.50',
+              'TimeTracked': '01:00:00',
+            },
+          ],
+          'has_more': false,
+        },
       _ => {'data': <dynamic>[], 'has_more': false},
     };
     return http.Response(jsonEncode(body), 200,
@@ -96,6 +111,21 @@ PreparePayrollBloc _buildBloc({
       opertoApi: opertoApi ?? _mockOpertoApi(),
     );
 
+/// One worker (Alice, StaffID 132) with a single 8-hour shift — enough for the
+/// bloc to recompute a one-row report.
+PreparePayrollState _seedWithShift() => PreparePayrollState(
+      mileageConstant: 0.5,
+      staffNamesById: const {132: 'Alice'},
+      staffDayTimes: AsyncOperation.success(data: [
+        StaffDayTime(
+          id: 1,
+          staffId: 132,
+          clockIn: DateTime(2026, 6, 1, 9),
+          clockOut: DateTime(2026, 6, 1, 17),
+        ),
+      ]),
+    );
+
 void main() {
   setUpAll(() => HydratedBloc.storage = _InMemoryStorage());
 
@@ -105,7 +135,7 @@ void main() {
       expect(state.workerRows.isIdle, isTrue);
       expect(state.staffDayTimes.isIdle, isTrue);
       expect(state.mileageConstant, 0.725);
-      expect(state.payRateFile, isNull);
+      expect(state.qualifiesForBonusById, isEmpty);
       expect(state.startDate, isNull);
     });
 
@@ -184,52 +214,93 @@ void main() {
         expect(bloc.state.staffDayTimes.data, hasLength(1));
         expect(bloc.state.staffNamesById, {132: 'Alice'});
         expect(bloc.state.staffTaskTimes, isEmpty);
+        // The fetch recomputes the report, and the rate comes from the task's
+        // own PayRate rather than an uploaded file.
+        expect(bloc.state.staffTasks.single.payRate, 22.50);
+        expect(bloc.state.workerRows.data!.single.payRate, 22.50);
       },
     );
 
     blocTest<PreparePayrollBloc, PreparePayrollState>(
-      'ReportRequested without fetched data errors the workerRows op',
+      'an input change with no fetched data leaves the report untouched',
       build: _buildBloc,
-      act: (bloc) => bloc.add(const PreparePayrollEvent.reportRequested()),
-      verify: (bloc) {
-        expect(bloc.state.workerRows.hasError, isTrue);
-        expect(bloc.state.workerRows.error, contains('Fetch Operto data'));
-      },
+      act: (bloc) =>
+          bloc.add(const PreparePayrollEvent.mileageConstantChanged(0.5)),
+      verify: (bloc) => expect(bloc.state.workerRows.isIdle, isTrue),
     );
 
     blocTest<PreparePayrollBloc, PreparePayrollState>(
-      'ReportRequested builds worker rows and the overall pay period',
+      'an input change recomputes the rows and the overall pay period',
       build: _buildBloc,
-      seed: () => PreparePayrollState(
-        mileageConstant: 0.5,
-        staffNamesById: const {132: 'Alice'},
-        staffDayTimes: AsyncOperation.success(data: [
-          StaffDayTime(
-            id: 1,
-            staffId: 132,
-            clockIn: DateTime(2026, 6, 1, 9),
-            clockOut: DateTime(2026, 6, 1, 17),
-          ),
-        ]),
-      ),
-      act: (bloc) => bloc.add(const PreparePayrollEvent.reportRequested()),
+      seed: _seedWithShift,
+      act: (bloc) =>
+          bloc.add(const PreparePayrollEvent.mileageConstantChanged(0.5)),
       verify: (bloc) {
         expect(bloc.state.workerRows.isSuccess, isTrue);
         final row = bloc.state.workerRows.data!.single;
         expect(row.worker, 'Alice');
         expect(row.periodHours, 8);
+        // No StaffTasks seeded, so no Operto rate to read.
         expect(row.payRate, OpertoPayrollBuilder.defaultPayRate);
         expect(bloc.state.payPeriodStart, DateTime(2026, 6, 1, 9));
         expect(bloc.state.payPeriodEnd, DateTime(2026, 6, 1, 9));
       },
     );
+
+    blocTest<PreparePayrollBloc, PreparePayrollState>(
+      'the seeded StaffTasks PayRate drives the row rate',
+      build: _buildBloc,
+      seed: () => _seedWithShift().copyWith(
+        staffTasks: [
+          StaffTask(
+            taskId: 7,
+            staffId: 132,
+            propertyId: 126992,
+            taskName: 'Check Out Clean',
+            taskDate: DateTime(2026, 6, 1),
+            payRate: 22.50,
+          ),
+        ],
+      ),
+      act: (bloc) =>
+          bloc.add(const PreparePayrollEvent.mileageConstantChanged(0.5)),
+      verify: (bloc) =>
+          expect(bloc.state.workerRows.data!.single.payRate, 22.50),
+    );
+
+    blocTest<PreparePayrollBloc, PreparePayrollState>(
+      'BonusEligibilityChanged stores the flags and recomputes the rows',
+      build: _buildBloc,
+      seed: _seedWithShift,
+      act: (bloc) => bloc
+          .add(const PreparePayrollEvent.bonusEligibilityChanged({132: true})),
+      verify: (bloc) {
+        expect(bloc.state.qualifiesForBonusById, {132: true});
+        expect(bloc.state.workerRows.data!.single.qualifiesForBonus, isTrue);
+      },
+    );
+
+    test('only the bonus eligibility map is persisted', () {
+      final bloc = _buildBloc();
+      final json = bloc.toJson(
+        _seedWithShift().copyWith(qualifiesForBonusById: const {132: true}),
+      );
+      expect(json, {
+        'qualifiesForBonusById': {'132': true},
+      });
+
+      final restored = bloc.fromJson(json)!;
+      expect(restored.qualifiesForBonusById, {132: true});
+      // Nothing else rides along — the fetched data is re-pulled each run.
+      expect(restored.staffDayTimes.isIdle, isTrue);
+    });
   });
 
   group('PreparePayrollState computed properties', () {
-    test('bonusPot is 3.5% of cleaning revenue less heath deductions', () {
+    test('bonusPot is 5.75% of cleaning revenue less heath deductions', () {
       const state =
           PreparePayrollState(cleaningRevenue: 1000, heathDeductions: 5);
-      expect(state.bonusPot, closeTo(0.035 * 1000 - 5, 1e-9));
+      expect(state.bonusPot, closeTo(0.0575 * 1000 - 5, 1e-9));
     });
 
     test(
@@ -278,14 +349,14 @@ void main() {
       expect(state.totalCleans, 11);
     });
 
-    test('canGenerateReport requires a successful staffDayTimes fetch', () {
+    test('hasFetchedStaffDayTimes requires a successful fetch', () {
       const idle = PreparePayrollState();
-      expect(idle.canGenerateReport, isFalse);
+      expect(idle.hasFetchedStaffDayTimes, isFalse);
 
       final fetched = PreparePayrollState(
         staffDayTimes: AsyncOperation.success(data: const []),
       );
-      expect(fetched.canGenerateReport, isTrue);
+      expect(fetched.hasFetchedStaffDayTimes, isTrue);
     });
   });
 }

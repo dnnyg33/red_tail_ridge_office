@@ -8,7 +8,6 @@ abstract class PreparePayrollState with _$PreparePayrollState {
     @Default(AsyncOperation.idle()) AsyncOperation<List<WorkerRow>> workerRows,
     DateTime? payPeriodStart,
     DateTime? payPeriodEnd,
-    PlatformFile? payRateFile,
     @Default(0.725) double? mileageConstant,
     double? heathDeductions,
     double? cleaningRevenue,
@@ -19,6 +18,10 @@ abstract class PreparePayrollState with _$PreparePayrollState {
     @Default(<StaffTaskTime>[]) List<StaffTaskTime> staffTaskTimes,
     @Default(<StaffTask>[]) List<StaffTask> staffTasks,
     @Default(<int, String>{}) Map<int, String> staffNamesById,
+    /// Workers (by Operto `StaffID`) whose cleans earn a share of the bonus
+    /// pot. Operto exposes no such field, so it's entered in-app and persisted
+    /// across runs; a worker absent from the map does not qualify.
+    @Default(<int, bool>{}) Map<int, bool> qualifiesForBonusById,
   }) = _PreparePayrollState;
 
   /// Fraction of cleaning revenue that funds the bonus pot (5.75%).
@@ -40,8 +43,8 @@ abstract class PreparePayrollState with _$PreparePayrollState {
           ?.fold<int>(0, (sum, r) => sum + r.cleans + r.overTimeCleans) ??
       0;
 
-  /// True once Operto shifts have been fetched — the pay-rate file can only be
-  /// generated for workers found in that data.
+  /// True once Operto shifts have been fetched — bonus eligibility can only be
+  /// edited for workers found in that data.
   bool get hasFetchedStaffDayTimes => staffDayTimes.isSuccess;
 
   /// Staff IDs with at least one worked shift (clock in *and* out) in the

@@ -1,16 +1,10 @@
 
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utils/networking/async_operation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/models/auth_provider.dart';
-import '../models/pay_rate.dart';
-import '../models/staff.dart';
 import '../models/staff_day_time.dart';
 import '../models/staff_task.dart';
 import '../models/staff_task_time.dart';
@@ -23,7 +17,11 @@ part 'prepare_payroll_event.dart';
 part 'prepare_payroll_state.dart';
 
 
-class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> {
+/// Payroll report state machine. Hydrated purely to remember which workers
+/// qualify for the bonus — Operto has no such field, so it's the one input the
+/// user still enters by hand and the one thing worth surviving a restart.
+class PreparePayrollBloc
+    extends HydratedBloc<PreparePayrollEvent, PreparePayrollState> {
   PreparePayrollBloc({
     required AuthBloc authBloc,
     OpertoApi? opertoApi,
@@ -31,7 +29,7 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
         _opertoApi = opertoApi ?? OpertoApi(),
         super(const PreparePayrollState()) {
     on<_PreparePayrollStarted>(_onStarted);
-    on<_PreparePayrollPayRateFileSelected>(_onPayRateFileSelected);
+    on<_PreparePayrollBonusEligibilityChanged>(_onBonusEligibilityChanged);
     on<_PreparePayrollMileageConstantChanged>(_onMileageConstantChanged);
     on<_PreparePayrollHeathDeductionsChanged>(_onHeathDeductionsChanged);
     on<_PreparePayrollCleaningRevenueChanged>(_onCleaningRevenueChanged);
@@ -57,11 +55,13 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     );
   }
 
-  void _onPayRateFileSelected(
-    _PreparePayrollPayRateFileSelected event,
+  void _onBonusEligibilityChanged(
+    _PreparePayrollBonusEligibilityChanged event,
     Emitter<PreparePayrollState> emit,
   ) {
-    emit(state.copyWith(payRateFile: event.file));
+    emit(state.copyWith(
+      qualifiesForBonusById: Map.unmodifiable(event.qualifiesForBonusById),
+    ));
     _recomputeReport(emit);
   }
 
@@ -159,43 +159,22 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     }
   }
 
-  /// Fetches every Operto staff member for the pay-rate editor. Throws an
-  /// [OpertoApiException] when Operto isn't connected; otherwise propagates any
-  /// underlying fetch error.
-  Future<List<Staff>> fetchStaffForPayRates() async {
-    final session = await _authBloc.ensureValidSession(AuthProvider.operto);
-    if (session == null) {
-      throw const OpertoApiException('Connect Operto under Connections first.');
-    }
-    return _opertoApi.fetchStaff(authorization: session.authorizationHeader);
-  }
-
   /// Rebuilds the payroll report from the current state. Called automatically
-  /// whenever an input that feeds the report changes (Operto data fetched, pay
-  /// rate file uploaded, or mileage constant edited) so the table stays in sync
-  /// without a "Generate report" action. No-ops until both the Operto data and
-  /// a pay rate file are available — both are required to build the table — and
-  /// never emits a processing state so the page doesn't flash a spinner on every
-  /// keystroke.
+  /// whenever an input that feeds the report changes (Operto data fetched,
+  /// bonus eligibility edited, or mileage constant changed) so the table stays
+  /// in sync without a "Generate report" action. No-ops until the Operto data
+  /// is available, and never emits a processing state so the page doesn't flash
+  /// a spinner on every keystroke.
   void _recomputeReport(Emitter<PreparePayrollState> emit) {
     final staffDayTimes = state.staffDayTimes.data;
-    final payRateBytes = state.payRateFile?.bytes;
-    if (staffDayTimes == null || payRateBytes == null) return;
+    if (staffDayTimes == null) return;
     try {
-      final payRates = _parsePayRates(payRateBytes);
       final rows = const OpertoPayrollBuilder().build(
         staffDayTimes: staffDayTimes,
         staffTaskTimes: state.staffTaskTimes,
         staffTasks: state.staffTasks,
         staffNamesById: state.staffNamesById,
-        payRatesById: {
-          for (final r in payRates)
-            if (r.workerId != 0) r.workerId: r.payRate,
-        },
-        qualifiesForBonusById: {
-          for (final r in payRates)
-            if (r.workerId != 0) r.workerId: r.qualifiesForBonus,
-        },
+        qualifiesForBonusById: state.qualifiesForBonusById,
         mileageConstant: state.mileageConstant ?? 0,
       );
 
@@ -213,18 +192,30 @@ class PreparePayrollBloc extends Bloc<PreparePayrollEvent, PreparePayrollState> 
     }
   }
 
-  /// Parses the uploaded pay-rate JSON: an array of objects with `name`,
-  /// `payRate`, `workerId`, and optional `qualifiesForBonus`. Returns the
-  /// decoded [PayRate]s; non-object entries are skipped.
-  List<PayRate> _parsePayRates(Uint8List bytes) {
-    final decoded = jsonDecode(utf8.decode(bytes, allowMalformed: true));
-    if (decoded is! List) return const [];
+  /// Persists only [PreparePayrollState.qualifiesForBonusById]; everything else
+  /// in the state is fetched Operto data or a per-run input. Keys are stringed
+  /// because JSON object keys must be strings.
+  @override
+  Map<String, dynamic> toJson(PreparePayrollState state) => {
+        _bonusKey: {
+          for (final e in state.qualifiesForBonusById.entries)
+            '${e.key}': e.value,
+        },
+      };
 
-    return [
-      for (final item in decoded)
-        if (item is Map<String, dynamic>) PayRate.fromJson(item),
-    ];
+  @override
+  PreparePayrollState? fromJson(Map<String, dynamic> json) {
+    final stored = json[_bonusKey];
+    if (stored is! Map) return null;
+    return PreparePayrollState(
+      qualifiesForBonusById: Map.unmodifiable({
+        for (final e in stored.entries)
+          ?int.tryParse('${e.key}'): e.value == true,
+      }),
+    );
   }
+
+  static const String _bonusKey = 'qualifiesForBonusById';
 
   (DateTime?, DateTime?) _overallRange(List<WorkerRow> rows) {
     DateTime? start;

@@ -1,19 +1,14 @@
-import 'dart:convert';
-
 import 'package:data_table_2/data_table_2.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utils/networking/async_operation.dart';
 import 'package:flutter_utils/widgets/alerts/show_alert.dart';
-import 'package:red_tail_ridge_office/payroll/models/staff.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_ntt.dart';
 import 'package:red_tail_ridge_office/payroll/models/worker_row.dart';
 
 import '../bloc/prepare_payroll_bloc.dart';
-import '../service/operto_api.dart';
-import '../service/pay_rate_file_saver.dart';
+import '../date_range_presets.dart';
 
 class PreparePayrollPage extends StatelessWidget {
   const PreparePayrollPage({super.key});
@@ -69,7 +64,7 @@ class _PreparePayrollBody extends StatelessWidget {
               children: [
                 _OpertoShiftsField(),
                 SizedBox(height: 12),
-                _PayRateFileField(),
+                _BonusEligibilityField(),
                 SizedBox(height: 24),
                 Row(
                   children: [
@@ -86,10 +81,6 @@ class _PreparePayrollBody extends StatelessWidget {
           if (state.workerRows.hasError) ...[
             const SizedBox(height: 16),
             _ReportErrorBanner(message: state.workerRows.error),
-          ] else if (state.hasFetchedStaffDayTimes &&
-              state.payRateFile == null) ...[
-            const SizedBox(height: 16),
-            const _PayRateFilePrompt(),
           ],
           SizedBox(height: 24),
           SizedBox(
@@ -129,9 +120,11 @@ class _OpertoShiftsField extends StatelessWidget {
                     context,
                     title: 'Operto data',
                     message:
-                        'Pull staff clock in/out (StaffDayTimes) and task time '
-                        '(StaffTaskTimes) from Operto for the selected date '
-                        'range, replacing the time-tracking CSV uploads.',
+                        'Pull staff clock in/out (StaffDayTimes), task time '
+                        '(StaffTaskTimes) and task assignments (StaffTasks, '
+                        'which carry each worker\'s pay rate) from Operto for '
+                        'the selected date range, replacing the time-tracking '
+                        'CSV uploads.',
                   ),
                   icon: const Icon(Icons.help),
                 ),
@@ -167,6 +160,7 @@ class _OpertoShiftsField extends StatelessWidget {
                 ),
               ],
             ),
+            const _DateRangePresets(),
             if (staffDayTimes.hasError)
               Padding(
                 padding: const EdgeInsets.only(left: 48, top: 4),
@@ -192,6 +186,46 @@ class _OpertoShiftsField extends StatelessWidget {
     );
   }
 }
+
+/// One-tap fills for the date fields, aligned under them (the 48px indent
+/// clears the help icon). Each button only sets the dates — the user still
+/// presses "Fetch Operto data" — and its tooltip names the range it resolves
+/// to, since "last period" depends on today's date.
+class _DateRangePresets extends StatelessWidget {
+  const _DateRangePresets();
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<PreparePayrollBloc>();
+    final now = DateTime.now();
+    final presets = <String, (DateTime, DateTime)>{
+      'Last month': lastCalendarMonth(now),
+      'Last period': lastSemiMonthlyPeriod(now),
+    };
+    return Padding(
+      padding: const EdgeInsets.only(left: 48),
+      child: Row(
+        children: [
+          for (final MapEntry(key: label, value: (start, end))
+              in presets.entries)
+            Tooltip(
+              message: '${_isoDate(start)} – ${_isoDate(end)}',
+              child: TextButton(
+                onPressed: () => bloc
+                  ..add(PreparePayrollEvent.startDateChanged(start))
+                  ..add(PreparePayrollEvent.endDateChanged(end)),
+                child: Text(label),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+String _isoDate(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
 
 class _DateField extends StatelessWidget {
   const _DateField({
@@ -220,62 +254,68 @@ class _DateField extends StatelessWidget {
         if (picked != null) onChanged(picked);
       },
       icon: const Icon(Icons.calendar_today, size: 16),
-      label: Text(value == null ? label : '$label: ${_format(value!)}'),
+      label: Text(value == null ? label : '$label: ${_isoDate(value!)}'),
     );
   }
-
-  String _format(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }
 
-class _PayRateFileField extends StatelessWidget {
-  const _PayRateFileField();
+/// Bonus eligibility — the one payroll input Operto can't supply. Pay rates
+/// come from each Operto task's own `PayRate`, so there's no pay-rate file to
+/// upload any more; all that's left to enter by hand is who qualifies for the
+/// bonus, and that selection persists across runs.
+class _BonusEligibilityField extends StatelessWidget {
+  const _BonusEligibilityField();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return BlocBuilder<PreparePayrollBloc, PreparePayrollState>(
-      buildWhen: (prev, curr) => prev.payRateFile != curr.payRateFile,
+      buildWhen: (prev, curr) =>
+          prev.qualifiesForBonusById != curr.qualifiesForBonusById ||
+          prev.staffDayTimes != curr.staffDayTimes,
       builder: (context, state) {
+        final withShifts = state.staffIdsWithShifts;
+        final qualifying = withShifts
+            .where((id) => state.qualifiesForBonusById[id] == true)
+            .length;
+        final ready = state.hasFetchedStaffDayTimes;
         return Row(
           children: [
             IconButton(
               onPressed: () => showAlert(
                 context,
-                title: 'Special Instructions',
+                title: 'Bonus eligibility',
                 message:
-                    'Pay rates are not available from the Operto API, so '
-                    'upload a JSON array of objects with name, payRate, '
-                    'and workerId — one per worker, e.g.\n\n'
-                    '[\n'
-                    '  {"name": "Alice", "payRate": 22.50, "workerId": 132},\n'
-                    '  {"name": "Bob", "payRate": 20.00, "workerId": 134}\n'
-                    ']',
+                    'Pay rates now come straight from Operto (each task\'s '
+                    'PayRate), so no pay-rate file is needed. Operto has no '
+                    'notion of bonus eligibility though, so pick which workers '
+                    'passed their performance review here — their cleans earn '
+                    'a share of the bonus pot. The choice is remembered '
+                    'between runs.',
               ),
               icon: const Icon(Icons.help),
             ),
             OutlinedButton.icon(
-              onPressed: () => _pickFile(
-                context,
-                extensions: const ['json'],
-                onSelected: (picked) {
-                  final bloc = context.read<PreparePayrollBloc>();
-                  bloc.add(PreparePayrollEvent.payRateFileSelected(picked));
-                },
-              ),
-              icon: const Icon(Icons.upload_file),
-              label: const Text('Add pay rates (json)'),
+              onPressed: ready
+                  ? () => showDialog<void>(
+                        context: context,
+                        builder: (_) => const _BonusEligibilityDialog(),
+                      )
+                  : null,
+              icon: const Icon(Icons.workspace_premium_outlined),
+              label: const Text('Bonus eligibility'),
             ),
-            const SizedBox(width: 8),
-            const _GeneratePayRateFileButton(),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                state.payRateFile?.name ?? 'No file selected',
+                ready
+                    ? '$qualifying of ${withShifts.length} '
+                        'workers qualify for the bonus'
+                    : 'Fetch Operto data to choose who qualifies',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: state.payRateFile == null
-                      ? theme.colorScheme.outline
-                      : theme.colorScheme.onSurface,
+                  color: ready
+                      ? theme.colorScheme.onSurface
+                      : theme.colorScheme.outline,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -287,256 +327,86 @@ class _PayRateFileField extends StatelessWidget {
   }
 }
 
-Future<void> _pickFile(
-  BuildContext context, {
-  required Function(PlatformFile file) onSelected,
-  List<String> extensions = const ['csv'],
-}) async {
-  final result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: extensions,
-    withData: true,
-    initialDirectory: 'Downloads',
-  );
-  if (result == null || result.files.isEmpty) return;
-  final picked = result.files.single;
-  onSelected(picked);
-}
-
-/// Fetches all Operto staff, then opens the [_PayRateEditorDialog] so the user
-/// can enter each worker's pay rate and export a pay-rate JSON file.
-class _GeneratePayRateFileButton extends StatefulWidget {
-  const _GeneratePayRateFileButton();
+/// Checkbox list of the workers with shifts this period, toggling whether each
+/// one's cleans earn a share of the bonus pot. Saving dispatches the whole map
+/// at once, merged over the stored one so workers outside this period keep
+/// their setting.
+class _BonusEligibilityDialog extends StatefulWidget {
+  const _BonusEligibilityDialog();
 
   @override
-  State<_GeneratePayRateFileButton> createState() =>
-      _GeneratePayRateFileButtonState();
+  State<_BonusEligibilityDialog> createState() =>
+      _BonusEligibilityDialogState();
 }
 
-class _GeneratePayRateFileButtonState
-    extends State<_GeneratePayRateFileButton> {
-  bool _loading = false;
+class _BonusEligibilityDialogState extends State<_BonusEligibilityDialog> {
+  /// `(staffId, name)` for every worker with a shift this period, by name.
+  late final List<(int, String)> _workers;
 
-  Future<void> _onPressed() async {
-    final bloc = context.read<PreparePayrollBloc>();
-    final messenger = ScaffoldMessenger.of(context);
-    setState(() => _loading = true);
-    try {
-      // Only offer workers who actually have shifts in the fetched period.
-      final idsWithShifts = bloc.state.staffIdsWithShifts;
-      final staff = (await bloc.fetchStaffForPayRates())
-          .where((s) => idsWithShifts.contains(s.id))
-          .toList();
-      if (!mounted) return;
-      await showDialog<void>(
-        context: context,
-        builder: (_) => _PayRateEditorDialog(staff: staff),
-      );
-    } on OpertoApiException catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
-    } catch (e) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Failed to load staff: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final ready = context.select<PreparePayrollBloc, bool>(
-      (bloc) => bloc.state.hasFetchedStaffDayTimes,
-    );
-    return Tooltip(
-      message: ready
-          ? 'Generate a pay rate file for workers with shifts this period'
-          : 'Fetch Operto data first',
-      child: Row(children: [TextButton(
-        onPressed: (_loading || !ready) ? null : _onPressed,
-          child: Text('Need to make a new one?',)),
-        _loading
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.request_quote),
-      ],
-      ),
-    );
-  }
-}
-
-/// Editable table of staff with a pay-rate field each. On save, writes a JSON
-/// array of `{ name, payRate, workerId }` objects via a native save dialog.
-class _PayRateEditorDialog extends StatefulWidget {
-  const _PayRateEditorDialog({required this.staff});
-
-  final List<Staff> staff;
-
-  @override
-  State<_PayRateEditorDialog> createState() => _PayRateEditorDialogState();
-}
-
-class _PayRateEditorDialogState extends State<_PayRateEditorDialog> {
-  late final List<Staff> _staff;
-  late final Map<int, TextEditingController> _controllers;
-  late final Map<int, bool> _qualifiesForBonus;
-  bool _saving = false;
+  /// Working copy of the eligibility flags, committed on save.
+  late final Map<int, bool> _draft;
 
   @override
   void initState() {
     super.initState();
-    _staff = [...widget.staff]
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    _controllers = {for (final s in _staff) s.id: TextEditingController()};
-    _qualifiesForBonus = {for (final s in _staff) s.id: false};
+    final state = context.read<PreparePayrollBloc>().state;
+    _workers = [
+      for (final id in state.staffIdsWithShifts)
+        (id, state.staffNamesById[id] ?? 'Staff $id'),
+    ]..sort((a, b) => a.$2.toLowerCase().compareTo(b.$2.toLowerCase()));
+    _draft = {
+      for (final (id, _) in _workers)
+        id: state.qualifiesForBonusById[id] ?? false,
+    };
   }
 
-  @override
-  void dispose() {
-    for (final controller in _controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    final messenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
+  void _save() {
     final bloc = context.read<PreparePayrollBloc>();
-
-    final entries = [
-      for (final s in _staff)
-        {
-          'name': s.name,
-          'payRate': double.tryParse(_controllers[s.id]!.text.trim()) ?? 0,
-          'workerId': s.id,
-          'qualifiesForBonus': _qualifiesForBonus[s.id] ?? false,
-        },
-    ];
-    final bytes = utf8.encode(
-      const JsonEncoder.withIndent('  ').convert(entries),
+    bloc.add(
+      PreparePayrollEvent.bonusEligibilityChanged({
+        ...bloc.state.qualifiesForBonusById,
+        ..._draft,
+      }),
     );
-
-    setState(() => _saving = true);
-    try {
-      final path = await savePayRateFile(
-        fileName: 'pay_rates.json',
-        bytes: bytes,
-      );
-      if (!mounted) return;
-      if (path == null) {
-        setState(() => _saving = false);
-        return; // user cancelled the save dialog
-      }
-      // Automatically use the just-saved file as the pay rates input; the bloc
-      // recomputes the report on its own, so the user needn't re-upload it.
-      final fileName = path
-          .split(RegExp(r'[/\\]'))
-          .last;
-      bloc.add(
-        PreparePayrollEvent.payRateFileSelected(
-          PlatformFile(name: fileName, size: bytes.length, bytes: bytes),
-        ),
-      );
-      navigator.pop();
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Pay rate file saved.')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _saving = false);
-      messenger.showSnackBar(
-        SnackBar(content: Text('Failed to save file: $e')),
-      );
-    }
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Generate Pay Rate File'),
+      title: const Text('Bonus Eligibility'),
       content: SizedBox(
-        width: 520,
+        width: 420,
         height: MediaQuery.sizeOf(context).height * 0.6,
-        child: _staff.isEmpty
+        child: _workers.isEmpty
             ? const Center(child: Text('No workers with shifts this period.'))
-            : SingleChildScrollView(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 24,
-                    columns: const [
-                      DataColumn(label: Text('Name')),
-                      DataColumn(label: Text('Worker ID')),
-                      DataColumn(label: Text('Pay rate')),
-                      DataColumn(label: Text('Bonus')),
-                    ],
-                    rows: [
-                      for (final s in _staff)
-                        DataRow(
-                          cells: [
-                            DataCell(Text(s.name)),
-                            DataCell(Text('${s.id}')),
-                            DataCell(
-                              SizedBox(
-                                width: 120,
-                                child: TextField(
-                                  controller: _controllers[s.id],
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                      RegExp(r'^\d*\.?\d*'),
-                                    ),
-                                  ],
-                                  decoration: const InputDecoration(
-                                    prefixText: '\$ ',
-                                    isDense: true,
-                                    hintText: '0.00',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            DataCell(
-                              Checkbox(
-                                value: _qualifiesForBonus[s.id] ?? false,
-                                onChanged: (value) => setState(
-                                  () =>
-                                      _qualifiesForBonus[s.id] = value ?? false,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
+            : ListView(
+                children: [
+                  for (final (id, name) in _workers)
+                    CheckboxListTile(
+                      value: _draft[id] ?? false,
+                      title: Text(name),
+                      subtitle: Text('Worker ID $id'),
+                      onChanged: (value) =>
+                          setState(() => _draft[id] = value ?? false),
+                    ),
+                ],
               ),
       ),
       actions: [
         TextButton(
-          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         FilledButton(
-          onPressed: _saving || _staff.isEmpty ? null : _save,
-          child: _saving
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Save'),
+          onPressed: _workers.isEmpty ? null : _save,
+          child: const Text('Save'),
         ),
       ],
     );
   }
 }
+
 
 class _MileageConstantField extends StatelessWidget {
   const _MileageConstantField();
@@ -622,42 +492,6 @@ class _CleaningRevenueField extends StatelessWidget {
   }
 }
 
-/// Prompt shown once Operto data is fetched but no pay rate file is present —
-/// a pay rate file is required before the report table can be built.
-class _PayRateFilePrompt extends StatelessWidget {
-  const _PayRateFilePrompt();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info_outline,
-            color: theme.colorScheme.onSecondaryContainer,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Add or generate a pay rate file to build the report.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSecondaryContainer,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Inline banner shown when the live report recompute fails, so the inputs
 /// stay on screen for the user to correct rather than being replaced by a
 /// full-page error.
@@ -730,7 +564,7 @@ class _WorkerRowsTable extends StatelessWidget {
             ),
             Expanded(
               child: DataTable2(
-                minWidth: 1100,
+                minWidth: 1200,
                 fixedTopRows: 1,
                 fixedLeftColumns: 1,
                 headingRowHeight: 72,
@@ -739,15 +573,20 @@ class _WorkerRowsTable extends StatelessWidget {
                   DataColumn2(label: _HeaderLabel('Worker')),
                   // DataColumn2(label: _HeaderLabel('Dates'), size: ColumnSize.L),
                   DataColumn2(
-                    label: _HeaderLabel('Net Hours'),
+                    label: _HeaderLabel('Hours'),
                     numeric: true,
-                    tooltip: 'Clocked in time - NTT',
+                    tooltip: 'Clocked in time',
+                  ),
+                  DataColumn2(
+                    label: _HeaderLabel('NTT'),
+                    numeric: true,
+                    tooltip: 'Non-task time, deducted from hours as unpaid',
                   ),
                   DataColumn2(label: _HeaderLabel('Pay rate'), numeric: true),
                   DataColumn2(
                     label: _HeaderLabel('Gross'),
                     numeric: true,
-                    tooltip: 'Pay rate * net hours',
+                    tooltip: 'Pay rate * (hours - NTT)',
                   ),
                   DataColumn2(label: _HeaderLabel('Mileage'), numeric: true),
                   DataColumn2(
@@ -755,8 +594,11 @@ class _WorkerRowsTable extends StatelessWidget {
                     numeric: true,
                   ),
                   DataColumn2(
-                    label: _HeaderLabel('Hourly pay & Drive'),
+                    label: _HeaderLabel('Total'),
                     numeric: true,
+                    tooltip: 'Gross + mileage pay = '
+                        '(pay rate * (hours - NTT)) + '
+                        '(mileage * mileage constant). Bonus pay not included.',
                   ),
                   DataColumn2(label: _HeaderLabel('Bonus pay'), numeric: true),
                 ],
@@ -784,22 +626,46 @@ class _WorkerRowsTable extends StatelessWidget {
                         DataCell(
                           Tooltip(
                             message:
-                                '${r.periodHours.toStringAsFixed(2)} clocked in − '
-                                '${r.periodNtt.toStringAsFixed(2)} NTT',
-                            child: Text(r.netHours.toStringAsFixed(2)),
+                                '${r.periodHours.toStringAsFixed(2)} '
+                                'clocked in − '
+                                '${r.periodNtt.toStringAsFixed(2)} NTT = '
+                                '${r.netHours.toStringAsFixed(2)} net hrs',
+                            child: Text(r.periodHours.toStringAsFixed(2)),
+                          ),
+                        ),
+                        DataCell(
+                          Tooltip(
+                            message: r.nttRows.isEmpty
+                                ? 'No non-task time this period'
+                                : 'Non-task time; click the worker for the '
+                                    'per-day breakdown',
+                            child: Text(r.periodNtt.toStringAsFixed(2)),
                           ),
                         ),
                         DataCell(Text(_money(r.payRate))),
                         DataCell(
                           Tooltip(
                             message:
-                                '${_money(r.payRate)} × ${r.netHours.toStringAsFixed(2)} net hrs',
+                                '${_money(r.payRate)} × '
+                                '${r.netHours.toStringAsFixed(2)} net hrs',
                             child: Text(_money(r.periodHourlyPay)),
                           ),
                         ),
                         DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
                         DataCell(Text(_money(r.mileagePay))),
-                        DataCell(Text(_money(r.totalPeriodPay))),
+                        DataCell(
+                          Tooltip(
+                            message:
+                                '${_money(r.periodHourlyPay)} gross '
+                                '(${_money(r.payRate)} × '
+                                '${r.netHours.toStringAsFixed(2)} net hrs)\n'
+                                '+ ${_money(r.mileagePay)} mileage '
+                                '(${r.mileageForPeriod.toStringAsFixed(0)} '
+                                'mi × ${_money(state.mileageConstant ?? 0)})\n'
+                                '= ${_money(r.totalPeriodPay)}',
+                            child: Text(_money(r.totalPeriodPay)),
+                          ),
+                        ),
                         DataCell(
                           TextButton(
                             onPressed: () => _showBonusDialog(

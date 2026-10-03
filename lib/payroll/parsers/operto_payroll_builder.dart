@@ -9,19 +9,20 @@ import '../models/worker_task.dart';
 import '../property_constants.dart';
 import 'ntt_tracking_csv_parser.dart';
 
-/// Builds the payroll [WorkerRow] list entirely from Operto data — no CSV
-/// uploads except the optional pay-rate file.
+/// Builds the payroll [WorkerRow] list entirely from Operto data — no CSV or
+/// JSON uploads at all.
 ///
 /// Shifts + mileage come from [StaffDayTime]s, task time from [StaffTaskTime]s,
 /// and the schedule (assignments, drive time, task-switching leeway, clean
 /// counts, and the inadvertent-property check) from [StaffTask]s. A task's
 /// `PropertyID` is resolved to a [Unit] name via [propertyById] so the
-/// name-keyed drive-time table still applies. Pay rate comes from a
-/// user-supplied per-staff map, defaulting to [defaultPayRate] when absent.
+/// name-keyed drive-time table still applies. Pay rates come from the
+/// [StaffTask]s' own `PayRate` (see [payRatesByStaffId]), defaulting to
+/// [defaultPayRate] when Operto reports none.
 class OpertoPayrollBuilder {
   const OpertoPayrollBuilder();
 
-  /// Hourly rate used when a worker has no entry in the pay-rate file.
+  /// Hourly rate used when none of a worker's tasks carry a rate.
   static const double defaultPayRate = 16;
 
   List<WorkerRow> build({
@@ -29,10 +30,11 @@ class OpertoPayrollBuilder {
     required List<StaffTaskTime> staffTaskTimes,
     required List<StaffTask> staffTasks,
     required Map<int, String> staffNamesById,
-    required Map<int, double> payRatesById,
     required double mileageConstant,
     Map<int, bool> qualifiesForBonusById = const {},
   }) {
+    final payRatesById = payRatesByStaffId(staffTasks);
+
     final propertyIdByTaskId = {
       for (final t in staffTasks)
         if (t.propertyId != 0) t.taskId: t.propertyId,
@@ -157,6 +159,34 @@ class OpertoPayrollBuilder {
       ));
     }
     return rows;
+  }
+
+  /// Each worker's hourly rate, taken from the `PayRate` on their latest
+  /// [StaffTask] that carries a non-zero one.
+  ///
+  /// Operto reports the rate per task, but payroll pays one hourly rate for the
+  /// period, so the most recent rate wins — a mid-period raise applies to the
+  /// whole period. Zero rates are ignored rather than treated as a $0 raise:
+  /// Operto leaves `PayRate` at 0 on records it has no rate for. Tasks with no
+  /// `TaskDate` rank below every dated task, so they only supply a rate when
+  /// nothing dated does. Workers with no non-zero rate are absent from the map
+  /// and fall back to [defaultPayRate].
+  static Map<int, double> payRatesByStaffId(List<StaffTask> staffTasks) {
+    final latest = <int, DateTime?>{};
+    final rates = <int, double>{};
+    for (final t in staffTasks) {
+      if (t.payRate <= 0) continue;
+      if (rates.containsKey(t.staffId)) {
+        final seen = latest[t.staffId];
+        // A dated task beats an undated one; between two dated tasks the later
+        // wins. An undated task never displaces an already-recorded rate.
+        if (t.taskDate == null) continue;
+        if (seen != null && !t.taskDate!.isAfter(seen)) continue;
+      }
+      latest[t.staffId] = t.taskDate;
+      rates[t.staffId] = t.payRate;
+    }
+    return rates;
   }
 
   /// Resolves a `PropertyID` to its mapped [Unit] name, or a stable
