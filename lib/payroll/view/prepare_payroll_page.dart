@@ -564,7 +564,7 @@ class _WorkerRowsTable extends StatelessWidget {
             ),
             Expanded(
               child: DataTable2(
-                minWidth: 1200,
+                minWidth: 1000,
                 fixedTopRows: 1,
                 fixedLeftColumns: 1,
                 headingRowHeight: 72,
@@ -575,32 +575,33 @@ class _WorkerRowsTable extends StatelessWidget {
                   DataColumn2(
                     label: _HeaderLabel('Hours'),
                     numeric: true,
-                    tooltip: 'Clocked in time',
+                    tooltip: 'Clocked in time, paid in full',
+                  ),
+                  DataColumn2(label: _HeaderLabel('Pay rate'), numeric: true),
+                  DataColumn2(
+                    label: _HeaderLabel('Mileage'),
+                    numeric: true,
+                    tooltip: 'Miles driven this period',
+                  ),
+                  DataColumn2(
+                    label: _HeaderLabel('Pay'),
+                    numeric: true,
+                    tooltip: '(hours * pay rate) + '
+                        '(mileage * mileage constant). '
+                        'Bonus pay not included.',
                   ),
                   DataColumn2(
                     label: _HeaderLabel('NTT'),
                     numeric: true,
-                    tooltip: 'Non-task time, deducted from hours as unpaid',
-                  ),
-                  DataColumn2(label: _HeaderLabel('Pay rate'), numeric: true),
-                  DataColumn2(
-                    label: _HeaderLabel('Gross'),
-                    numeric: true,
-                    tooltip: 'Pay rate * (hours - NTT)',
-                  ),
-                  DataColumn2(label: _HeaderLabel('Mileage'), numeric: true),
-                  DataColumn2(
-                    label: _HeaderLabel('Mileage pay'),
-                    numeric: true,
+                    tooltip: 'Non-task time. Paid as hours; its cost '
+                        '(NTT * pay rate) comes off the bonus instead.',
                   ),
                   DataColumn2(
-                    label: _HeaderLabel('Total'),
+                    label: _HeaderLabel('Bonus pay'),
                     numeric: true,
-                    tooltip: 'Gross + mileage pay = '
-                        '(pay rate * (hours - NTT)) + '
-                        '(mileage * mileage constant). Bonus pay not included.',
+                    tooltip: 'Pot share (if eligible) - (NTT * pay rate), '
+                        'floored at \$0.',
                   ),
-                  DataColumn2(label: _HeaderLabel('Bonus pay'), numeric: true),
                 ],
                 rows: [
                   for (final (i, r) in sortedRows.indexed)
@@ -626,44 +627,45 @@ class _WorkerRowsTable extends StatelessWidget {
                         DataCell(
                           Tooltip(
                             message:
-                                '${r.periodHours.toStringAsFixed(2)} '
-                                'clocked in − '
-                                '${r.periodNtt.toStringAsFixed(2)} NTT = '
-                                '${r.netHours.toStringAsFixed(2)} net hrs',
+                                '${r.periodHours.toStringAsFixed(2)} clocked '
+                                'in, of which '
+                                '${r.netHours.toStringAsFixed(2)} on task',
                             child: Text(r.periodHours.toStringAsFixed(2)),
-                          ),
-                        ),
-                        DataCell(
-                          Tooltip(
-                            message: r.nttRows.isEmpty
-                                ? 'No non-task time this period'
-                                : 'Non-task time; click the worker for the '
-                                    'per-day breakdown',
-                            child: Text(r.periodNtt.toStringAsFixed(2)),
                           ),
                         ),
                         DataCell(Text(_money(r.payRate))),
                         DataCell(
                           Tooltip(
                             message:
-                                '${_money(r.payRate)} × '
-                                '${r.netHours.toStringAsFixed(2)} net hrs',
-                            child: Text(_money(r.periodHourlyPay)),
+                                '${r.mileageForPeriod.toStringAsFixed(0)} mi × '
+                                '${_money(state.mileageConstant ?? 0)} = '
+                                '${_money(r.mileagePay)}',
+                            child: Text(r.mileageForPeriod.toStringAsFixed(0)),
                           ),
                         ),
-                        DataCell(Text(r.mileageForPeriod.toStringAsFixed(0))),
-                        DataCell(Text(_money(r.mileagePay))),
                         DataCell(
                           Tooltip(
                             message:
-                                '${_money(r.periodHourlyPay)} gross '
-                                '(${_money(r.payRate)} × '
-                                '${r.netHours.toStringAsFixed(2)} net hrs)\n'
+                                '${_money(r.periodHourlyPay)} hourly '
+                                '(${r.periodHours.toStringAsFixed(2)} hrs × '
+                                '${_money(r.payRate)})\n'
                                 '+ ${_money(r.mileagePay)} mileage '
                                 '(${r.mileageForPeriod.toStringAsFixed(0)} '
                                 'mi × ${_money(state.mileageConstant ?? 0)})\n'
                                 '= ${_money(r.totalPeriodPay)}',
                             child: Text(_money(r.totalPeriodPay)),
+                          ),
+                        ),
+                        DataCell(
+                          Tooltip(
+                            message: r.periodNtt == 0
+                                ? 'No non-task time this period'
+                                : '${r.periodNtt.toStringAsFixed(2)} hrs × '
+                                    '${_money(r.payRate)} = '
+                                    '${_money(r.nttCost)} off the bonus. '
+                                    'Click the worker for the per-day '
+                                    'breakdown.',
+                            child: Text(r.periodNtt.toStringAsFixed(2)),
                           ),
                         ),
                         DataCell(
@@ -712,6 +714,8 @@ class _WorkerRowsTable extends StatelessWidget {
         : row.cleans / totalCleans;
     final grossShare = pot * share;
     final bonus = row.bonusPay(pot: pot, totalCleans: totalCleans);
+    // The bonus floors at 0, so say so when non-task time has eaten it all.
+    final isFloored = qualifies && grossShare - row.nttCost < 0;
 
     String pct(double v) => '${(v * 100).toStringAsFixed(2)}%';
 
@@ -734,7 +738,7 @@ class _WorkerRowsTable extends StatelessWidget {
               _bonusLine('Total pot', _money(pot), bold: true),
               const SizedBox(height: 12),
               if (!qualifies)
-                _bonusLine('Not eligible for bonus', 'cleans excluded'),
+                _bonusLine('Not eligible for bonus', 'earns \$0'),
               _bonusLine("This worker's qualifying cleans", '${row.cleans}'),
               if (row.overTimeCleans > 0)
                 _bonusLine(
@@ -745,7 +749,13 @@ class _WorkerRowsTable extends StatelessWidget {
               _bonusLine('Share of pot', pct(share)),
               const Divider(),
               _bonusLine('Pot × share', _money(grossShare)),
+              _bonusLine(
+                '− Non-task time (${row.periodNtt.toStringAsFixed(2)} hrs × '
+                '${_money(row.payRate)})',
+                '−${_money(row.nttCost)}',
+              ),
               _bonusLine('− Callback deductions', '−${_money(0)}'),
+              if (isFloored) _bonusLine('Floored at', _money(0)),
               const Divider(),
               _bonusLine('Bonus pay', _money(bonus), bold: true),
             ],

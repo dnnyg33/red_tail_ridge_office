@@ -116,6 +116,8 @@ void main() {
       ]).single;
 
       expect(row.payRate, 23);
+      // Every clocked hour is paid; NTT only affects the bonus.
+      expect(row.periodHourlyPay, 8 * 23);
     });
 
     test('ignores zero rates rather than treating them as a cut', () {

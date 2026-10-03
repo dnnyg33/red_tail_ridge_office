@@ -140,13 +140,14 @@ class OpertoPayrollBuilder {
       final cleanTally = cleanTallies[agg.name];
       final periodNtt = workerNtt?.totalNtt ?? 0;
       final periodHours = agg.totalMinutes / 60.0;
-      final grossPay = agg.payRate * periodHours;
       rows.add(WorkerRow(
         worker: agg.name,
         periodHours: periodHours,
         mileageForPeriod: agg.totalMileage,
         payRate: agg.payRate,
-        periodHourlyPay: grossPay - periodNtt * agg.payRate,
+        // Every clocked-in hour is paid; NTT is deducted from the bonus
+        // instead (see [WorkerRow.bonusPay]).
+        periodHourlyPay: agg.payRate * periodHours,
         mileagePay: agg.totalMileage * mileageConstant,
         periodStart: agg.earliest,
         periodEnd: agg.latest,
