@@ -26,45 +26,61 @@ class OpertoApi {
 
   static const String _base = 'https://teams-api.operto.com/api/v1';
 
-  /// Fetches every StaffDayTime in [startDate]..[endDate], following the
-  /// `has_more` pagination flag across pages.
+  /// Fetches every StaffDayTime whose clock-in falls on a Pacific calendar day
+  /// in [startDate]..[endDate] (inclusive), following the `has_more`
+  /// pagination flag across pages. See [_nextDay] for why the query window is
+  /// a day wider than the range.
   Future<List<StaffDayTime>> fetchStaffDayTimes({
     required String authorization,
     required DateTime startDate,
     required DateTime endDate,
     int perPage = 200,
-  }) {
-    return _fetchAll(
+  }) async {
+    final times = await _fetchAll(
       authorization: authorization,
       path: 'staffdaytimes',
       fromJson: StaffDayTime.fromJson,
       query: {
         'StartDate': _yyyymmdd(startDate),
-        'EndDate': _yyyymmdd(endDate),
+        'EndDate': _yyyymmdd(_nextDay(endDate)),
         'Sort': 'StaffDayTimeID asc',
       },
       perPage: perPage,
     );
+    return _withinPacificDays(
+      times,
+      startDate: startDate,
+      endDate: endDate,
+      timestampOf: (t) => t.clockIn ?? t.clockOut,
+    );
   }
 
-  /// Fetches every StaffTaskTime in [startDate]..[endDate] (task-level clock
-  /// in/out), following `has_more` pagination.
+  /// Fetches every StaffTaskTime (task-level clock in/out) whose clock-in
+  /// falls on a Pacific calendar day in [startDate]..[endDate] (inclusive),
+  /// following `has_more` pagination. See [_nextDay] for why the query window
+  /// is a day wider than the range.
   Future<List<StaffTaskTime>> fetchStaffTaskTimes({
     required String authorization,
     required DateTime startDate,
     required DateTime endDate,
     int perPage = 200,
-  }) {
-    return _fetchAll(
+  }) async {
+    final taskTimes = await _fetchAll(
       authorization: authorization,
       path: 'stafftasktimes',
       fromJson: StaffTaskTime.fromJson,
       query: {
         'StartDate': _yyyymmdd(startDate),
-        'EndDate': _yyyymmdd(endDate),
+        'EndDate': _yyyymmdd(_nextDay(endDate)),
         'Sort': 'StaffTaskTimeID asc',
       },
       perPage: perPage,
+    );
+    return _withinPacificDays(
+      taskTimes,
+      startDate: startDate,
+      endDate: endDate,
+      timestampOf: (t) => t.clockIn ?? t.clockOut,
     );
   }
 
@@ -167,6 +183,57 @@ class OpertoApi {
     }
     throw const OpertoApiException('Unexpected response from Operto.');
   }
+
+  /// The day after [date], used as the query's `EndDate`.
+  ///
+  /// Operto's `StartDate`/`EndDate` filters compare against timestamps the API
+  /// stores in GMT, but a pay period is a range of US Pacific calendar days
+  /// (clock-ins are converted to Pacific by `parseOpertoTimestamp`). A shift
+  /// that starts in the Pacific evening has already rolled over to the next GMT
+  /// day, so querying with the last Pacific day as `EndDate` drops the whole
+  /// evening of the final day. The API has no timezone or offset parameter, so
+  /// the query asks for one extra GMT day and [_withinPacificDays] discards the
+  /// surplus records by their Pacific date.
+  ///
+  /// One extra day suffices, and only at the end: Pacific is 7–8 hours behind
+  /// GMT, so a Pacific day never spans more than two GMT days, and Pacific
+  /// midnight is 07:00/08:00 GMT on the *same* day — no padding is needed at
+  /// the start of the range.
+  ///
+  /// Built by component rather than `add(Duration(days: 1))`, which would land
+  /// on the same day at 23:00 across a local DST transition.
+  static DateTime _nextDay(DateTime date) =>
+      DateTime(date.year, date.month, date.day + 1);
+
+  /// Drops [records] whose Pacific timestamp falls outside the
+  /// [startDate]..[endDate] days (inclusive), undoing the deliberate
+  /// over-fetch described on [_nextDay]. Records [timestampOf] can't date are
+  /// kept — there is nothing to judge them by, and callers already ignore
+  /// records missing a clock in/out.
+  static List<T> _withinPacificDays<T>(
+    List<T> records, {
+    required DateTime startDate,
+    required DateTime endDate,
+    required DateTime? Function(T) timestampOf,
+  }) {
+    final first = _dayOf(startDate);
+    final last = _dayOf(endDate);
+    final kept = <T>[];
+    for (final record in records) {
+      final timestamp = timestampOf(record);
+      if (timestamp == null) {
+        kept.add(record);
+        continue;
+      }
+      final day = _dayOf(timestamp);
+      if (day.isBefore(first) || day.isAfter(last)) continue;
+      kept.add(record);
+    }
+    return kept;
+  }
+
+  static DateTime _dayOf(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
 
   static String _yyyymmdd(DateTime date) {
     final y = date.year.toString().padLeft(4, '0');
